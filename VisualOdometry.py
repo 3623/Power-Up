@@ -2,10 +2,13 @@ import sys
 import cv2
 import numpy as np
 import socket
+from UDPServer import UDPServer
+from WebcamHandler import WebcamHandler
 
 class VisualOdometry:
 
     def __init__(self,
+                 udp_server,
                  channel=0,
                  height=240,
                  width=320,
@@ -29,7 +32,7 @@ class VisualOdometry:
 
         self.test = debug
 
-        self.imageReader = Image_Reader
+        self.imageReader = WebcamHandler(self.CHANNEL)
 
         self.server = UDP_server
 
@@ -202,8 +205,8 @@ class VisualOdometry:
 
 
     def run(self):
-        cap = cv2.VideoCapture(self.CHANNEL)
-        ret, frame = cap.read()
+        self.imageReader.start()
+        frame = self.imageReader.read()
         # cap.release() ## Releases no next frame will have to be fresh ## Need to try stuff out
 
         old_frame = cv2.cvtColor(self.reshape(frame), cv2.COLOR_BGR2GRAY)
@@ -224,7 +227,7 @@ class VisualOdometry:
                 None
 
             # cap = cv2.VideoCapture(self.CHANNEL)
-            ret, frame = cap.read()
+            frame = self.imageReader.read()
             # cap.release()  ## Releases no next frame will have to be fresh ## Need to try stuff out
             if frame is None:
                 break
@@ -257,39 +260,13 @@ class VisualOdometry:
               (self.HEIGHT, self.WIDTH, self.HEIGHT * self.WIDTH)
 
         if (self.test):
-            cv2.imshow("Optical Flow", img)
+            cv2.imshow("Optical Flow", self.img)
             cv2.waitKey(0)
             cv2.destroyAllWindows()
 
 
 if __name__ == '__main__':
-    # visual_odometry = VisualOdometry(channel=1,debug=False)
-    # print "Visual_Odometry Running"
-    # visual_odometry.run()
-
-    cap = cv2.VideoCapture(1)
-    count = 0
-
-    while True:
-        count += 1
-        # cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
-        # print cap.get(cv2.CAP_PROP_FPS)
-        ret, frame = cap.read()
-        # cap.release()
-        # if not(count < 0):
-        #     cv2.imshow(" ", frame)
-        #     count += 1
-        #     if cv2.waitKey(1) & 0xFF == ord('q'):
-        #         break
-        #     if cv2.waitKey(0) & 0xFF == ord('w'):
-        #         continue
-        # else:
-        #     continue
-        cv2.imshow("fuck", frame)
-
-
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            break
-    print count
-    cap.release()
-
+    UDP_server = UDPServer(10,11)
+    visual_odometry = VisualOdometry(udp_server=UDP_server, channel=1,debug=True)
+    visual_odometry.run()
+    print "Visual_Odometry Running"
