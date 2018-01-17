@@ -10,7 +10,7 @@ class WebcamHandler:
         # from the stream
         self.stream = cv2.VideoCapture(src)
         (self.grabbed, self.frame) = self.stream.read()
-
+        self.updated = self.grabbed # frame has been updated
         # initialize the variable used to indicate if the thread should
         # be stopped
         self.stopped = False
@@ -31,22 +31,31 @@ class WebcamHandler:
 
             # otherwise, read the next frame from the stream
             (self.grabbed, self.frame) = self.stream.read()
+            self.updated = self.grabbed # frame has been updated
             ### TODO Might want to just grab, maybe??
 
     def read(self):
         # return the frame most recently read
+        self.updated = False # frame will next time need to be updated
         return self.frame
 
     def stop(self):
         # indicate that the thread should be stopped
         self.stopped = True
 
+    def updated(self):
+        # function to tell others if frame has been updated
+        return self.updated
+
 if __name__ == '__main__':
-    video = WebcamHandler(1)
-    video.start()
+    # video = WebcamHandler(1)
+    # video.start()
+    cap = cv2.VideoCapture(1)
     count = 0
     while True:
-        cv2.imshow("WebcamHandler",video.read())
+        # if (video.updated):
+        ret, frame = cap.read()
+        cv2.imshow("WebcamHandler", frame)
         count += 1
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break

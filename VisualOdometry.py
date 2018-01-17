@@ -76,8 +76,8 @@ class VisualOdometry:
 
 
     def reshape(self, image):
-        return cv2.resize(image, (self.WIDTH, self.HEIGHT))
-
+        # return cv2.resize(image, (self.WIDTH, self.HEIGHT))
+        return image
 
     def calculateMatrix(self, new_points, old_points, debug):
         try:
@@ -204,6 +204,7 @@ class VisualOdometry:
             return p1, 0, 0, 0, 0
 
 
+    ## Can run at 64Hz with a 320x240 image or 27Hz with a 640x480 tested on LenovoZ50
     def run(self):
         self.imageReader.start()
         frame = self.imageReader.read()
@@ -219,6 +220,9 @@ class VisualOdometry:
             self.color = np.random.randint(0, 120, (100, 3)) ## Create some random colors
 
         while True:
+            # if not (self.imageReader.updated):
+            #     continue
+
             ## Counter- resets at a certain count
             self.count += 1
             if self.count == 0:
@@ -226,9 +230,7 @@ class VisualOdometry:
             else:
                 None
 
-            # cap = cv2.VideoCapture(self.CHANNEL)
             frame = self.imageReader.read()
-            # cap.release()  ## Releases no next frame will have to be fresh ## Need to try stuff out
             if frame is None:
                 break
             else:
@@ -267,6 +269,6 @@ class VisualOdometry:
 
 if __name__ == '__main__':
     UDP_server = UDPServer(10,11)
-    visual_odometry = VisualOdometry(udp_server=UDP_server, channel=1,debug=True)
+    visual_odometry = VisualOdometry(udp_server=UDP_server, channel=1,debug=True, height=480, width = 640)
     visual_odometry.run()
     print "Visual_Odometry Running"
