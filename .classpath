@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="src" path="2018FinalProduction/src"/>
+	<classpathentry kind="src" path="2018WorkingDriveTrain/src"/>
+	<classpathentry kind="src" path="Power-Up/src"/>
+	<classpathentry kind="lib" path="2018WorkingDriveTrain/build/jars/cscore.jar"/>
+	<classpathentry kind="lib" path="2018WorkingDriveTrain/build/jars/CTRLib.jar"/>
+	<classpathentry kind="lib" path="2018WorkingDriveTrain/build/jars/navx_frc.jar"/>
+	<classpathentry kind="lib" path="2018WorkingDriveTrain/build/jars/ntcore.jar"/>
+	<classpathentry kind="lib" path="2018WorkingDriveTrain/build/jars/opencv.jar"/>
+	<classpathentry kind="lib" path="2018WorkingDriveTrain/build/jars/WPILib.jar"/>
+	<classpathentry kind="lib" path="2018WorkingDriveTrain/build/jars/wpiutil.jar"/>
+	<classpathentry kind="lib" path="2018WorkingDriveTrain/dist/FRCUserProgram.jar"/>
+	<classpathentry kind="output" path="2018FinalProduction/bin"/>
+</classpath>
