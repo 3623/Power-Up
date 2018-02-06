@@ -8,16 +8,23 @@ import edu.wpi.first.wpilibj.DriverStation;
 
 
 public class RobotState {
-	private double Xx=0;
-	private double Xv=0;
-	private double Xa=0;
-	private double Xt;
+	private double Xx;
+	private double Xv;
+	private double Xa;
+	private double Yx;
+	private double Yv;
+	private double Ya;
+	private double Rx;
+	private double Rv;
+	private double Ra;
+	private double timeLastUpdated;
 	
 	AHRS navx;
-	
 	private double navx_position_alpha=0.2;
 	private double navx_position_beta=0.15;
 	private double navx_position_gamma=0.08;
+    BuiltInAccelerometer rioAccel;
+	private double rio_position_gamma=0.5;
 	
 	public double getAngle() {
 		// TODO Auto-generated method stub
@@ -25,6 +32,7 @@ public class RobotState {
 	}
 	
 	public RobotState(){
+		resetAbsolute();
 		startNavX();
 	}
 	
@@ -41,7 +49,6 @@ public class RobotState {
 	    } catch (RuntimeException ex ) {
 	        DriverStation.reportError("Error instantiating navX-MXP:  " + ex.getMessage(), true);
 	    }
-		Xt = System.currentTimeMillis();
 		Thread navxThread = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -62,17 +69,18 @@ public class RobotState {
 		
 	}
 	
-	protected void updatePVM(double position, double velocity, double acceleration) {
+	private void updateNavx(double XmeasuredPosition, double XmeasuredVelocity,  double XmeasuredAcceleration){
 		double currentTime = System.currentTimeMillis();
-		double xt = (currentTime - Xt)/100;
-		Xt = currentTime;
-		double Xxp = predictPostion(xt, Xx, Xv, Xa);
-		double Xvp = predictVelocity(xt, Xv, Xa);
-		double Xap = predictAcceleration(xt, Xa);
-		Xx = Xxp + navx_position_alpha*(position-Xxp);
-		Xv = Xvp + navx_position_beta*(velocity-Xvp);
-		Xa = Xap + navx_position_gamma*(acceleration-Xap);
+		double xt = (currentTime - timeLastUpdated)/100;
+		timeLastUpdated = currentTime;
+		double XpredictedPosition = predictPostion(xt, Xx, Xv, Xa);
+		double XpredictedVelocity = predictVelocity(xt, Xv, Xa);
+		double XpredictedAcceleration = predictAcceleration(xt, Xa);
+		Xx = filter(navx_position_alpha, XpredictedPosition, XmeasuredPosition);
+		Xv = filter(navx_position_alpha, XpredictedVelocity, XmeasuredVelocity);
+		Xa = filter(navx_position_alpha, XpredictedAcceleration, XmeasuredAcceleration);
 	}
+
 
 	private double predictPostion(double time, double x0, double v0, double a0){
 		double xp = x0 + (time*v0) + (time*time*a0/2);
@@ -88,6 +96,10 @@ public class RobotState {
 		return a0;
 	}
 	
+	private double filter(double trustCoefficient, double predictedValue, double measuredValue) {
+		return (predictedValue + trustCoefficient*(measuredValue-predictedValue));
+	}
+	
 	public double getDisplacementX() {
 		return Xx;
 	}
@@ -99,6 +111,21 @@ public class RobotState {
 	public double getAccelerationX() {
 		return Xa;
 	}
+	
+	public void resetAbsolute() {
+		Xx = 0;
+		Xv = 0;
+		Xa = 0;
+		Yx = 0;
+		Yv = 0;
+		Ya = 0;
+		Rx = 0;
+		Rv = 0;
+		Ra = 0;
+		timeLastUpdated = System.currentTimeMillis();
+	}
+	
+	
 } 
 
 		
