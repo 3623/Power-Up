@@ -21,8 +21,8 @@ public class RobotState {
 	
 	AHRS navx;
 	private double navx_position_alpha=0.1;
-	private double navx_position_beta=0.15;
-	private double navx_position_gamma=0.4;
+	private double navx_position_beta=0.1;
+	private double navx_position_gamma=0.1;
     BuiltInAccelerometer rioAccel;
 	private double rio_position_gamma=0.5;
 	
@@ -70,15 +70,18 @@ public class RobotState {
 	}
 	
 	private void updateNavx(){
-		double XmeasuredPosition = navx.getDisplacementX();
-		double XmeasuredVelocity = navx.getVelocityX();
-		double XmeasuredAcceleration = navx.getRawAccelX();
+		double XmeasuredPosition = -navx.getDisplacementX();
+		double XmeasuredVelocity = -navx.getVelocityX();
+		double XmeasuredAcceleration = -navx.getRawAccelX();
 		double YmeasuredPosition = navx.getDisplacementY();
 		double YmeasuredVelocity = navx.getVelocityY();
 		double YmeasuredAcceleration = navx.getRawAccelY();
+		double RmeasuredPosition = navx.getAngle();
+		
+		Rx = RmeasuredPosition;
 		
 		double currentTime = System.currentTimeMillis();
-		double t = (currentTime - timeLastUpdated)/100;
+		double t = (currentTime - timeLastUpdated)/1000;
 		timeLastUpdated = currentTime;
 		
 		double XglobalPosition = convertGlobalX(XmeasuredPosition, YmeasuredPosition, Rx);
@@ -96,21 +99,23 @@ public class RobotState {
 		double YpredictedAcceleration = predictAcceleration(t, Ya);
 		
 		Xx = filter(navx_position_alpha, XpredictedPosition, XglobalPosition);
-		Xv = filter(navx_position_alpha, XpredictedVelocity, XglobalVelocity);
-		Xa = filter(navx_position_alpha, XpredictedAcceleration, XglobalAcceleration);
+		Xv = filter(navx_position_beta, XpredictedVelocity, XglobalVelocity);
+		Xa = filter(navx_position_gamma, XpredictedAcceleration, XglobalAcceleration);
 		Yx = filter(navx_position_alpha, YpredictedPosition, YglobalPosition);
-		Yv = filter(navx_position_alpha, YpredictedVelocity, YglobalVelocity);
-		Ya = filter(navx_position_alpha, YpredictedAcceleration, YglobalAcceleration);		
+		Yv = filter(navx_position_beta, YpredictedVelocity, YglobalVelocity);
+		Ya = filter(navx_position_gamma, YpredictedAcceleration, YglobalAcceleration);		
 	}
 
+	
 	private double convertGlobalX(double x, double y, double angle) {
-		return ((x*Math.cos(x)) + (y*Math.sin(angle)));
+		return ((x*Math.cos(angle)) + (y*Math.sin(angle)));
 	}
 	
 	private double convertGlobalY(double x, double y, double angle) {
 		return (-(x*Math.sin(angle)) + (y*Math.cos(angle)));
 	}
 
+	
 	private double predictPostion(double time, double x0, double v0, double a0){
 		double xp = x0 + (time*v0) + (time*time*a0/2);
 		return xp;
@@ -125,9 +130,11 @@ public class RobotState {
 		return a0;
 	}
 	
+	
 	private double filter(double trustCoefficient, double predictedValue, double measuredValue) {
 		return (predictedValue + trustCoefficient*(measuredValue-predictedValue));
 	}
+	
 	
 	public double getDisplacementX() {
 		return Xx;
@@ -151,6 +158,18 @@ public class RobotState {
 	
 	public double getAccelerationY() {
 		return Ya;
+	}
+
+	public double getRoation() {
+		return Rx;
+	}
+	
+	public double getRoationVelocity() {
+		return Rv;
+	}
+	
+	public double getRotationAcceleration() {
+		return Ra;
 	}
 	
 	public void resetAbsolute() {
