@@ -106,6 +106,7 @@ public class Robot extends IterativeRobot {
 	public void teleopPeriodic() {
 		driveBase.driveCartesian(mainStick.getRawAxis(1), -mainStick.getRawAxis(0), rotationStick.getRawAxis(0), 0.0);
 		SmartDashboard.putNumber("Filter X", robotstate.getDisplacementX());
+		SmartDashboard.putNumber("FilterYValue", robotstate.getDisplacementY());
 //		DriverStation.reportWarning(Double.toString(navx.getDisplacementX()), false);
 //		DriverStation.reportWarning(Double.toString(navx.getDisplacementY()), false);
 

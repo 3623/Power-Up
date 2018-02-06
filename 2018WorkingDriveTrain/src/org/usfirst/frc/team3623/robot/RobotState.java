@@ -20,9 +20,9 @@ public class RobotState {
 	private double timeLastUpdated;
 	
 	AHRS navx;
-	private double navx_position_alpha=0.2;
+	private double navx_position_alpha=0.1;
 	private double navx_position_beta=0.15;
-	private double navx_position_gamma=0.08;
+	private double navx_position_gamma=0.4;
     BuiltInAccelerometer rioAccel;
 	private double rio_position_gamma=0.5;
 	
@@ -54,7 +54,7 @@ public class RobotState {
             public void run() {
                 try {
                     while(true){
-                        updatePVM(navx.getDisplacementX(), navx.getVelocityX(), navx.getRawAccelX());
+                        updateNavx();
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -69,18 +69,47 @@ public class RobotState {
 		
 	}
 	
-	private void updateNavx(double XmeasuredPosition, double XmeasuredVelocity,  double XmeasuredAcceleration){
+	private void updateNavx(){
+		double XmeasuredPosition = navx.getDisplacementX();
+		double XmeasuredVelocity = navx.getVelocityX();
+		double XmeasuredAcceleration = navx.getRawAccelX();
+		double YmeasuredPosition = navx.getDisplacementY();
+		double YmeasuredVelocity = navx.getVelocityY();
+		double YmeasuredAcceleration = navx.getRawAccelY();
+		
 		double currentTime = System.currentTimeMillis();
-		double xt = (currentTime - timeLastUpdated)/100;
+		double t = (currentTime - timeLastUpdated)/100;
 		timeLastUpdated = currentTime;
-		double XpredictedPosition = predictPostion(xt, Xx, Xv, Xa);
-		double XpredictedVelocity = predictVelocity(xt, Xv, Xa);
-		double XpredictedAcceleration = predictAcceleration(xt, Xa);
-		Xx = filter(navx_position_alpha, XpredictedPosition, XmeasuredPosition);
-		Xv = filter(navx_position_alpha, XpredictedVelocity, XmeasuredVelocity);
-		Xa = filter(navx_position_alpha, XpredictedAcceleration, XmeasuredAcceleration);
+		
+		double XglobalPosition = convertGlobalX(XmeasuredPosition, YmeasuredPosition, Rx);
+		double XglobalVelocity = convertGlobalX(XmeasuredVelocity, YmeasuredVelocity, Rx);
+		double XglobalAcceleration = convertGlobalX(XmeasuredAcceleration, YmeasuredAcceleration, Rx);
+		double YglobalPosition = convertGlobalY(XmeasuredPosition, YmeasuredPosition, Rx);
+		double YglobalVelocity = convertGlobalY(XmeasuredVelocity, YmeasuredVelocity, Rx);
+		double YglobalAcceleration = convertGlobalY(XmeasuredAcceleration, YmeasuredAcceleration, Rx);
+		
+		double XpredictedPosition = predictPostion(t, Xx, Xv, Xa);
+		double XpredictedVelocity = predictVelocity(t, Xv, Xa);
+		double XpredictedAcceleration = predictAcceleration(t, Xa);
+		double YpredictedPosition = predictPostion(t, Yx, Yv, Ya);
+		double YpredictedVelocity = predictVelocity(t, Yv, Ya);
+		double YpredictedAcceleration = predictAcceleration(t, Ya);
+		
+		Xx = filter(navx_position_alpha, XpredictedPosition, XglobalPosition);
+		Xv = filter(navx_position_alpha, XpredictedVelocity, XglobalVelocity);
+		Xa = filter(navx_position_alpha, XpredictedAcceleration, XglobalAcceleration);
+		Yx = filter(navx_position_alpha, YpredictedPosition, YglobalPosition);
+		Yv = filter(navx_position_alpha, YpredictedVelocity, YglobalVelocity);
+		Ya = filter(navx_position_alpha, YpredictedAcceleration, YglobalAcceleration);		
 	}
 
+	private double convertGlobalX(double x, double y, double angle) {
+		return ((x*Math.cos(x)) + (y*Math.sin(angle)));
+	}
+	
+	private double convertGlobalY(double x, double y, double angle) {
+		return (-(x*Math.sin(angle)) + (y*Math.cos(angle)));
+	}
 
 	private double predictPostion(double time, double x0, double v0, double a0){
 		double xp = x0 + (time*v0) + (time*time*a0/2);
@@ -111,6 +140,18 @@ public class RobotState {
 	public double getAccelerationX() {
 		return Xa;
 	}
+
+	public double getDisplacementY() {
+		return Yx;
+	}
+	
+	public double getVelocityY() {
+		return Yv;
+	}
+	
+	public double getAccelerationY() {
+		return Ya;
+	}
 	
 	public void resetAbsolute() {
 		Xx = 0;
@@ -124,7 +165,6 @@ public class RobotState {
 		Ra = 0;
 		timeLastUpdated = System.currentTimeMillis();
 	}
-	
 	
 } 
 
