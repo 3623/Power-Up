@@ -1,6 +1,7 @@
 package org.usfirst.frc.team3623.robot;
 
 import edu.wpi.first.wpilibj.ADXRS450_Gyro;
+import edu.wpi.first.wpilibj.interfaces.Accelerometer;
 import edu.wpi.first.wpilibj.BuiltInAccelerometer;
 import edu.wpi.first.wpilibj.SPI;
 import com.kauailabs.navx.frc.AHRS;
@@ -20,20 +21,26 @@ public class RobotState {
 	private double timeLastUpdate;
 	
 	AHRS navx;
+	private static final double NAVX_UPDATE_RATE = 100.0;
 	private double navx_position_alpha=0.2; //Smooth but slow values, overshot: 0.2, 0.15, 0.08
-	private double navx_position_beta=0.15	;
+	private double navx_position_beta=0.15;
 	private double navx_position_gamma=0.1;
 	private double[] navx_trust_coefficients = new double[3];// Idk if to use this or another class later on
 	private double navxLastUpdate;
 	private double navxLastXPosition;
 	private double navxLastYPosition;
+	
     BuiltInAccelerometer rioAccel;
-	private double rio_position_gamma=0.5;
+	private static final double RIO_ACCEL_UPDATE_RATE = 800.0;
+	private double rio_position_alpha=0.1;
+	private double rio_position_beta=0.1;
+	private double rio_position_gamma=0.1;
 	
 	
 	public RobotState(){
 		resetAbsolute();
 		startNavX();
+		startRioAccel();
 	}
 	
 	
@@ -46,11 +53,11 @@ public class RobotState {
 	        /* Communicate w/navX-MXP via the MXP SPI Bus.                                     */
 	        /* Alternatively:  I2C.Port.kMXP, SerialPort.Port.kMXP or SerialPort.Port.kUSB     */
 	        /* See http://navx-mxp.kauailabs.com/guidance/selecting-an-interface/ for details. */
-//				if (update_rate > 200 || update_rate < 4) {
-//				DriverStation.reportWarning("Update Rate is not valid" + update_rate, true);
-//				navx = new AHRS(SPI.Port.kMXP, update_rate_fallback);
-//			}
-	        navx = new AHRS(SPI.Port.kMXP, (byte) 100); 
+			/* if (update_rate > 200 || update_rate < 4) {										*/
+			/*	DriverStation.reportWarning("Update Rate is not valid" + update_rate, true);	*/
+			/*	navx = new AHRS(SPI.Port.kMXP, update_rate_fallback);							*/
+			/* }																				*/
+	        navx = new AHRS(SPI.Port.kMXP, (byte) NAVX_UPDATE_RATE); 
 	        navxLastUpdate = navx.getUpdateCount();
 	        navxLastXPosition = navx.getDisplacementX();
 	        navxLastYPosition = navx.getDisplacementY();	        
@@ -80,16 +87,16 @@ public class RobotState {
 	}
 	
 	private void updateNavx(){
+		double currentTime = System.currentTimeMillis();
+		double t = (currentTime - timeLastUpdate)/1000.0;
+		timeLastUpdate = currentTime;
+		
 		double XpredictedPosition = predictPostion(t, Xx, Xv, Xa);
 		double XpredictedVelocity = predictVelocity(t, Xv, Xa);
 		double XpredictedAcceleration = predictAcceleration(t, Xa);
 		double YpredictedPosition = predictPostion(t, Yx, Yv, Ya);
 		double YpredictedVelocity = predictVelocity(t, Yv, Ya);
 		double YpredictedAcceleration = predictAcceleration(t, Ya);
-		
-		double currentTime = System.currentTimeMillis();
-		double t = (currentTime - timeLastUpdate)/1000.0;
-		timeLastUpdate = currentTime;
 		
 		double XmeasuredPosition = -navx.getDisplacementX();
 		double XmeasuredVelocity = -navx.getVelocityX();
@@ -103,7 +110,7 @@ public class RobotState {
 		// integrated position value to tell us changes. Might be good if we do unit conversion or start
 		// offsetting position while filtering.
 		double XmeasuredPositionChange = XmeasuredPosition - navxLastXPosition;
-		double YmeasuredPositionChange = YmeasuredPosition - navxLastYPosition;.
+		double YmeasuredPositionChange = YmeasuredPosition - navxLastYPosition;
 		
 		
 		// I think that worldLinearAccel and velocity and displacement, which are integrated from 
@@ -131,12 +138,76 @@ public class RobotState {
 		
 		//This might not be useful, we will see, I have no clue if this is a good solution I just saw it
 		try { 
-            Thread.sleep((long)((1.0/105.0)*1000.0));
+            Thread.sleep((long)((1.0/NAVX_UPDATE_RATE)*1000.0));
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
 	}
 
+	
+	/*
+	 * Onboard Accelerometer Functions
+	 */
+	
+	private void startRioAccel() {
+        rioAccel = new BuiltInAccelerometer(Accelerometer.Range.k8G);
+	        
+        Thread rioAccelThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    while(true){
+                    	updateRioAccel();
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+            }
+        });
+        rioAccelThread.setName("AlphaBetaGammaFilterRioAccelThread");
+        rioAccelThread.setPriority(Thread.MIN_PRIORITY+2); //Sure, this seems like a reasonable priority!
+        rioAccelThread.start();
+	}
+	
+	private void updateRioAccel() {
+		double currentTime = System.currentTimeMillis();
+		double t = (currentTime - timeLastUpdate)/1000.0;
+		timeLastUpdate = currentTime;// Might want separate navx and rio times
+		
+		double XpredictedPosition = predictPostion(t, Xx, Xv, Xa);
+		double XpredictedVelocity = predictVelocity(t, Xv, Xa);
+		double XpredictedAcceleration = predictAcceleration(t, Xa);
+		double YpredictedPosition = predictPostion(t, Yx, Yv, Ya);
+		double YpredictedVelocity = predictVelocity(t, Yv, Ya);
+		double YpredictedAcceleration = predictAcceleration(t, Ya);
+		
+		double XmeasuredAcceleration = rioAccel.getX();
+		double YmeasuredAcceleration = rioAccel.getY();
+		
+		double XglobalAcceleration = convertGlobalX(XmeasuredAcceleration, YmeasuredAcceleration, Rx);
+		double YglobalAcceleration = convertGlobalY(XmeasuredAcceleration, YmeasuredAcceleration, Rx);
+		
+		double XexperimentalPosition = Xx + (Xv*t) + (Math.pow(XglobalAcceleration, 2)*t/2);
+		double XexperimentalVelocity = Xv + (XglobalAcceleration*t);
+		double YexperimentalPosition = Yx + (Yv*t) + (Math.pow(YglobalAcceleration, 2)*t/2);
+		double YexperimentalVelocity = Yv + (YglobalAcceleration*t);
+		
+		Xx = filter(rio_position_alpha, XpredictedPosition, XexperimentalPosition);
+		Xv = filter(rio_position_beta, XpredictedVelocity, XexperimentalVelocity);
+		Xa = filter(rio_position_gamma, XpredictedAcceleration, XglobalAcceleration);
+		Yx = filter(rio_position_alpha, YpredictedPosition, YexperimentalPosition);
+		Yv = filter(rio_position_beta, YpredictedVelocity, YexperimentalVelocity);
+		Ya = filter(rio_position_gamma, YpredictedAcceleration, YglobalAcceleration);	
+		
+		//This might not be useful, we will see, I have no clue if this is a good solution I just saw it
+		try { 
+            Thread.sleep((long)((1.0/RIO_ACCEL_UPDATE_RATE)*1000.0));
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+	}
+	
 	
 	/*
 	 * Non-filter specific helper functions
