@@ -17,80 +17,69 @@ public class RobotState {
 	private double Rx;
 	private double Rv;
 	private double Ra;
-	private double timeLastUpdated;
+	private double timeLastUpdate;
 	
 	AHRS navx;
-	private double navx_position_alpha=0.1;
-	private double navx_position_beta=0.1;
+	private double navx_position_alpha=0.2; //Smooth but slow values, overshot: 0.2, 0.15, 0.08
+	private double navx_position_beta=0.15	;
 	private double navx_position_gamma=0.1;
+	private double[] navx_trust_coefficients = new double[3];// Idk if to use this or another class later on
+	private double navxLastUpdate;
+	private double navxLastXPosition;
+	private double navxLastYPosition;
     BuiltInAccelerometer rioAccel;
 	private double rio_position_gamma=0.5;
 	
-	public double getAngle() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
 	
 	public RobotState(){
 		resetAbsolute();
 		startNavX();
 	}
 	
+	
+	/*
+	 *  NavX filter functions, might be able to turn into own class later on
+	 */
+	
 	private void startNavX() {
 		try {
 	        /* Communicate w/navX-MXP via the MXP SPI Bus.                                     */
 	        /* Alternatively:  I2C.Port.kMXP, SerialPort.Port.kMXP or SerialPort.Port.kUSB     */
 	        /* See http://navx-mxp.kauailabs.com/guidance/selecting-an-interface/ for details. */
-//			if (update_rate > 200 || update_rate < 4) {
+//				if (update_rate > 200 || update_rate < 4) {
 //				DriverStation.reportWarning("Update Rate is not valid" + update_rate, true);
 //				navx = new AHRS(SPI.Port.kMXP, update_rate_fallback);
 //			}
 	        navx = new AHRS(SPI.Port.kMXP, (byte) 100); 
+	        navxLastUpdate = navx.getUpdateCount();
+	        navxLastXPosition = navx.getDisplacementX();
+	        navxLastYPosition = navx.getDisplacementY();	        
+	        Thread navxThread = new Thread(new Runnable() {
+	            @Override
+	            public void run() {
+	                try {
+	                    while(true){
+	                    	double navxCurrentUpdate = navx.getUpdateCount();
+	                    	if (navxCurrentUpdate != navxLastUpdate) {
+		                        updateNavx();
+		                        navxLastUpdate = navxCurrentUpdate;
+	                    	}
+	                    }
+	                } catch (Exception e) {
+	                    e.printStackTrace();
+	                }
+
+	            }
+	        });
+	        navxThread.setName("AlphaBetaGammaFilterNavXThread");
+	        navxThread.setPriority(Thread.MIN_PRIORITY+2); //Sure, this seems like a reasonable priority!
+	        navxThread.start();
 	    } catch (RuntimeException ex ) {
 	        DriverStation.reportError("Error instantiating navX-MXP:  " + ex.getMessage(), true);
 	    }
-		Thread navxThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    while(true){
-                        updateNavx();
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-
-            }
-        });
-        
-        navxThread.setName("AlphaBetaGammaFilterNavXThread");
-        navxThread.setPriority(Thread.MIN_PRIORITY+2); //Sure, this seems like a reasonable priority!
-        navxThread.start();
-		
 	}
 	
 	private void updateNavx(){
-		double XmeasuredPosition = -navx.getDisplacementX();
-		double XmeasuredVelocity = -navx.getVelocityX();
-		double XmeasuredAcceleration = -navx.getRawAccelX();
-		double YmeasuredPosition = navx.getDisplacementY();
-		double YmeasuredVelocity = navx.getVelocityY();
-		double YmeasuredAcceleration = navx.getRawAccelY();
-		double RmeasuredPosition = navx.getAngle();
-		
-		Rx = RmeasuredPosition;
-		
-		double currentTime = System.currentTimeMillis();
-		double t = (currentTime - timeLastUpdated)/1000;
-		timeLastUpdated = currentTime;
-		
-		double XglobalPosition = convertGlobalX(XmeasuredPosition, YmeasuredPosition, Rx);
-		double XglobalVelocity = convertGlobalX(XmeasuredVelocity, YmeasuredVelocity, Rx);
-		double XglobalAcceleration = convertGlobalX(XmeasuredAcceleration, YmeasuredAcceleration, Rx);
-		double YglobalPosition = convertGlobalY(XmeasuredPosition, YmeasuredPosition, Rx);
-		double YglobalVelocity = convertGlobalY(XmeasuredVelocity, YmeasuredVelocity, Rx);
-		double YglobalAcceleration = convertGlobalY(XmeasuredAcceleration, YmeasuredAcceleration, Rx);
-		
 		double XpredictedPosition = predictPostion(t, Xx, Xv, Xa);
 		double XpredictedVelocity = predictVelocity(t, Xv, Xa);
 		double XpredictedAcceleration = predictAcceleration(t, Xa);
@@ -98,23 +87,79 @@ public class RobotState {
 		double YpredictedVelocity = predictVelocity(t, Yv, Ya);
 		double YpredictedAcceleration = predictAcceleration(t, Ya);
 		
-		Xx = filter(navx_position_alpha, XpredictedPosition, XglobalPosition);
-		Xv = filter(navx_position_beta, XpredictedVelocity, XglobalVelocity);
-		Xa = filter(navx_position_gamma, XpredictedAcceleration, XglobalAcceleration);
-		Yx = filter(navx_position_alpha, YpredictedPosition, YglobalPosition);
-		Yv = filter(navx_position_beta, YpredictedVelocity, YglobalVelocity);
-		Ya = filter(navx_position_gamma, YpredictedAcceleration, YglobalAcceleration);		
+		double currentTime = System.currentTimeMillis();
+		double t = (currentTime - timeLastUpdate)/1000.0;
+		timeLastUpdate = currentTime;
+		
+		double XmeasuredPosition = -navx.getDisplacementX();
+		double XmeasuredVelocity = -navx.getVelocityX();
+		double XmeasuredAcceleration = -navx.getWorldLinearAccelX();
+		double YmeasuredPosition = navx.getDisplacementY();
+		double YmeasuredVelocity = navx.getVelocityY();
+		double YmeasuredAcceleration = navx.getWorldLinearAccelY();
+		double RmeasuredPosition = navx.getAngle();
+		
+		// This is so that we are not dependent on possibly unreliable position, and instead only use the
+		// integrated position value to tell us changes. Might be good if we do unit conversion or start
+		// offsetting position while filtering.
+		double XmeasuredPositionChange = XmeasuredPosition - navxLastXPosition;
+		double YmeasuredPositionChange = YmeasuredPosition - navxLastYPosition;.
+		
+		
+		// I think that worldLinearAccel and velocity and displacement, which are integrated from 
+		// worldLinearAccel, are already converted to global, therefore I will uncomment and not do this.
+		// However this might become problematic since if we have an accurate angle in the filter and 
+		// the navx has a separate angle then the navx filter data will be wonky compared to everything else.
+		// We need to find how navx does the LinearAccel and provide a solution for this.
+		// Looks like we are gonna have to get creative testing the navx, or get someone who is better at
+		// digging around code.
+//		double XglobalPosition = convertGlobalX(XmeasuredPositionChange, YmeasuredPositionChange, Rx);
+//		double XglobalVelocity = convertGlobalX(XmeasuredVelocity, YmeasuredVelocity, Rx);
+//		double XglobalAcceleration = convertGlobalX(XmeasuredAcceleration, YmeasuredAcceleration, Rx);
+//		double YglobalPosition = convertGlobalY(XmeasuredPositionChange, YmeasuredPositionChange, Rx);
+//		double YglobalVelocity = convertGlobalY(XmeasuredVelocity, YmeasuredVelocity, Rx);
+//		double YglobalAcceleration = convertGlobalY(XmeasuredAcceleration, YmeasuredAcceleration, Rx);
+		
+		Rx = RmeasuredPosition;
+		
+		Xx = filter(navx_position_alpha, XpredictedPosition, XmeasuredPositionChange+Xx);
+		Xv = filter(navx_position_beta, XpredictedVelocity, XmeasuredVelocity);
+		Xa = filter(navx_position_gamma, XpredictedAcceleration, XmeasuredAcceleration);
+		Yx = filter(navx_position_alpha, YpredictedPosition, YmeasuredPositionChange+Yx);
+		Yv = filter(navx_position_beta, YpredictedVelocity, YmeasuredVelocity);
+		Ya = filter(navx_position_gamma, YpredictedAcceleration, YmeasuredAcceleration);	
+		
+		//This might not be useful, we will see, I have no clue if this is a good solution I just saw it
+		try { 
+            Thread.sleep((long)((1.0/105.0)*1000.0));
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 	}
 
 	
+	/*
+	 * Non-filter specific helper functions
+	 */
+	
 	private double convertGlobalX(double x, double y, double angle) {
-		return ((x*Math.cos(angle)) + (y*Math.sin(angle)));
+		double trigAngle = Math.toRadians(correctAngle(angle));
+		return ((x*Math.cos(trigAngle)) + (y*Math.sin(trigAngle)));
 	}
 	
 	private double convertGlobalY(double x, double y, double angle) {
-		return (-(x*Math.sin(angle)) + (y*Math.cos(angle)));
+		double trigAngle = Math.toRadians(correctAngle(angle));
+		return (-(x*Math.sin(trigAngle)) + (y*Math.cos(trigAngle)));
 	}
 
+	private double correctAngle(double angle) {
+		return (((angle%360)+360)%360);
+	}
+	
+	
+	/*
+	 * Filter specific helper functions
+	 */
 	
 	private double predictPostion(double time, double x0, double v0, double a0){
 		double xp = x0 + (time*v0) + (time*time*a0/2);
@@ -135,7 +180,11 @@ public class RobotState {
 		return (predictedValue + trustCoefficient*(measuredValue-predictedValue));
 	}
 	
-	
+
+	/*
+	 * Get and Set methods for outside contro
+	 */
+
 	public double getDisplacementX() {
 		return Xx;
 	}
@@ -160,7 +209,7 @@ public class RobotState {
 		return Ya;
 	}
 
-	public double getRoation() {
+	public double getRotation() {
 		return Rx;
 	}
 	
@@ -170,6 +219,10 @@ public class RobotState {
 	
 	public double getRotationAcceleration() {
 		return Ra;
+	}
+	
+	public double getAngle() {
+		return correctAngle(Rx);
 	}
 	
 	public void resetAbsolute() {
@@ -182,7 +235,11 @@ public class RobotState {
 		Rx = 0;
 		Rv = 0;
 		Ra = 0;
-		timeLastUpdated = System.currentTimeMillis();
+		timeLastUpdate = System.currentTimeMillis();
+	}
+	
+	public void resetAngle() {
+		navx.reset();
 	}
 	
 } 
@@ -215,6 +272,8 @@ public class RobotState {
 //              printf( "%f \t %f\n", xm, xk_1 );
 //              sleep( 1 );
 //      }		
+
+
 
 //		class Filter:
 //		    def __init__(self):
