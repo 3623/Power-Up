@@ -2,6 +2,7 @@ package org.usfirst.frc.team3623.robot;
 
 import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 import edu.wpi.first.wpilibj.interfaces.Accelerometer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.BuiltInAccelerometer;
 import edu.wpi.first.wpilibj.SPI;
 import com.kauailabs.navx.frc.AHRS;
@@ -24,23 +25,23 @@ public class RobotState {
 	private static final double NAVX_UPDATE_RATE = 100.0;
 	private double navx_position_alpha=0.2; //Smooth but slow values, overshot: 0.2, 0.15, 0.08
 	private double navx_position_beta=0.15;
-	private double navx_position_gamma=0.1;
+	private double navx_position_gamma=0.05;
 	private double[] navx_trust_coefficients = new double[3];// Idk if to use this or another class later on
 	private double navxLastUpdate;
 	private double navxLastXPosition;
 	private double navxLastYPosition;
 	
     BuiltInAccelerometer rioAccel;
-	private static final double RIO_ACCEL_UPDATE_RATE = 800.0;
-	private double rio_position_alpha=0.1;
-	private double rio_position_beta=0.1;
-	private double rio_position_gamma=0.1;
+	private static final double RIO_ACCEL_UPDATE_RATE = 200.0;
+	private double rio_position_alpha=0.02;
+	private double rio_position_beta=0.01;
+	private double rio_position_gamma=0.005;
 	
 	
 	public RobotState(){
 		resetAbsolute();
-		startNavX();
-		startRioAccel();
+//		startNavX();
+//		startRioAccel();
 	}
 	
 	
@@ -48,7 +49,7 @@ public class RobotState {
 	 *  NavX filter functions, might be able to turn into own class later on
 	 */
 	
-	private void startNavX() {
+	public void startNavX() {
 		try {
 	        /* Communicate w/navX-MXP via the MXP SPI Bus.                                     */
 	        /* Alternatively:  I2C.Port.kMXP, SerialPort.Port.kMXP or SerialPort.Port.kUSB     */
@@ -98,12 +99,12 @@ public class RobotState {
 		double YpredictedVelocity = predictVelocity(t, Yv, Ya);
 		double YpredictedAcceleration = predictAcceleration(t, Ya);
 		
-		double XmeasuredPosition = -navx.getDisplacementX();
-		double XmeasuredVelocity = -navx.getVelocityX();
-		double XmeasuredAcceleration = -navx.getWorldLinearAccelX();
-		double YmeasuredPosition = navx.getDisplacementY();
-		double YmeasuredVelocity = navx.getVelocityY();
-		double YmeasuredAcceleration = navx.getWorldLinearAccelY();
+		double XmeasuredPosition = navx.getDisplacementY();
+		double XmeasuredVelocity = navx.getVelocityY();
+		double XmeasuredAcceleration = navx.getWorldLinearAccelY();
+		double YmeasuredPosition = -navx.getDisplacementX();
+		double YmeasuredVelocity = -navx.getVelocityX();
+		double YmeasuredAcceleration = -navx.getWorldLinearAccelX();
 		double RmeasuredPosition = navx.getAngle();
 		
 		// This is so that we are not dependent on possibly unreliable position, and instead only use the
@@ -112,6 +113,8 @@ public class RobotState {
 		double XmeasuredPositionChange = XmeasuredPosition - navxLastXPosition;
 		double YmeasuredPositionChange = YmeasuredPosition - navxLastYPosition;
 		
+		navxLastXPosition = XmeasuredPosition;
+		navxLastYPosition = YmeasuredPosition;
 		
 		// I think that worldLinearAccel and velocity and displacement, which are integrated from 
 		// worldLinearAccel, are already converted to global, therefore I will uncomment and not do this.
@@ -136,12 +139,15 @@ public class RobotState {
 		Yv = filter(navx_position_beta, YpredictedVelocity, YmeasuredVelocity);
 		Ya = filter(navx_position_gamma, YpredictedAcceleration, YmeasuredAcceleration);	
 		
+		SmartDashboard.putNumber("StoopidX", navx.getWorldLinearAccelX());
+		SmartDashboard.putNumber("StoopidY", navx.getWorldLinearAccelY());
+		
 		//This might not be useful, we will see, I have no clue if this is a good solution I just saw it
-		try { 
-            Thread.sleep((long)((1.0/NAVX_UPDATE_RATE)*1000.0));
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+//		try { 
+//            Thread.sleep((long)((1.0/NAVX_UPDATE_RATE)*1000.0));
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
 	}
 
 	
@@ -149,7 +155,7 @@ public class RobotState {
 	 * Onboard Accelerometer Functions
 	 */
 	
-	private void startRioAccel() {
+	public void startRioAccel() {
         rioAccel = new BuiltInAccelerometer(Accelerometer.Range.k8G);
 	        
         Thread rioAccelThread = new Thread(new Runnable() {
@@ -182,8 +188,8 @@ public class RobotState {
 		double YpredictedVelocity = predictVelocity(t, Yv, Ya);
 		double YpredictedAcceleration = predictAcceleration(t, Ya);
 		
-		double XmeasuredAcceleration = rioAccel.getX();
-		double YmeasuredAcceleration = rioAccel.getY();
+		double XmeasuredAcceleration = rioAccel.getX()+0.0;
+		double YmeasuredAcceleration = rioAccel.getY()+0.0;
 		
 		double XglobalAcceleration = convertGlobalX(XmeasuredAcceleration, YmeasuredAcceleration, Rx);
 		double YglobalAcceleration = convertGlobalY(XmeasuredAcceleration, YmeasuredAcceleration, Rx);
@@ -313,6 +319,9 @@ public class RobotState {
 		navx.reset();
 	}
 	
+//	public void stopThreads() {
+//		rioAccelThread.
+//	}
 } 
 
 		

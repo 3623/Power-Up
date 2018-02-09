@@ -4,11 +4,13 @@ import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Spark;
 import edu.wpi.first.wpilibj.drive.MecanumDrive;
+import edu.wpi.first.wpilibj.interfaces.Accelerometer;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.SPI;
+
+import edu.wpi.first.wpilibj.BuiltInAccelerometer;
 
 
 /**
@@ -19,6 +21,12 @@ import edu.wpi.first.wpilibj.SPI;
  * directory.
  */
 public class Robot extends IterativeRobot {
+//	Accelerometer rioAccel;
+
+	
+	
+	
+	
 	
 	// Declare Robot Objects (Physical items like Motor Controllers, sensors, etc.)
 	Joystick mainStick;
@@ -62,6 +70,11 @@ public class Robot extends IterativeRobot {
 		SmartDashboard.putData("Auto choices", chooser);*/
 		
 		robotstate = new RobotState();
+		robotstate.startNavX();
+//		robotstate.startRioAccel();
+		
+//        rioAccel = new BuiltInAccelerometer();
+
 	}
 
 	/**
@@ -102,12 +115,17 @@ public class Robot extends IterativeRobot {
 	/**
 	 * This function is called periodically during operator control
 	 */
+	
+	@Override
+	public void teleopInit() {
+	}
+	
 	@Override
 	public void teleopPeriodic() {
-		driveBase.driveCartesian(mainStick.getRawAxis(1), -mainStick.getRawAxis(0), rotationStick.getRawAxis(0), 0.0);
+		driveBase.driveCartesian(mainStick.getRawAxis(1), -mainStick.getRawAxis(0), rotationStick.getRawAxis(0), robotstate.getAngle());
 		SmartDashboard.putNumber("Filter X", robotstate.getDisplacementX());
-//		SmartDashboard.putNumber("Filter Xv", robotstate.getVelocityX());
-//		SmartDashboard.putNumber("Filter Xa", robotstate.getAccelerationX());
+		SmartDashboard.putNumber("Filter Xv", robotstate.getVelocityX());
+		SmartDashboard.putNumber("Filter Xa", robotstate.getAccelerationX());
 
 		SmartDashboard.putNumber("Filter Y", robotstate.getDisplacementY());
 //		SmartDashboard.putNumber("Filter Yv", robotstate.getVelocityY());
@@ -115,6 +133,10 @@ public class Robot extends IterativeRobot {
 		SmartDashboard.putNumber("Rotation", robotstate.getRotation());
 //		DriverStation.reportWarning(Double.toString(navx.getDisplacementX()), false);
 //		DriverStation.reportWarning(Double.toString(navx.getDisplacementY()), false);
+
+		
+//		SmartDashboard.putNumber("X rio", rioAccel.getX());
+//		SmartDashboard.putNumber("Y rio", rioAccel.getY());
 
 	}
 
