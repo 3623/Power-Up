@@ -22,6 +22,7 @@ public class RobotState {
 	private double timeLastUpdate;
 	
 	AHRS navx;
+	boolean navx_started = false;
 	private static final double NAVX_UPDATE_RATE = 100.0;
 	private double navx_position_alpha=0.2; //Smooth but slow values, overshot: 0.2, 0.15, 0.08
 	private double navx_position_beta=0.15;
@@ -31,7 +32,7 @@ public class RobotState {
 	private double navxLastXPosition;
 	private double navxLastYPosition;
 	
-    BuiltInAccelerometer rioAccel;
+    Accelerometer rioAccel;
 	private static final double RIO_ACCEL_UPDATE_RATE = 200.0;
 	private double rio_position_alpha=0.02;
 	private double rio_position_beta=0.01;
@@ -58,7 +59,10 @@ public class RobotState {
 			/*	DriverStation.reportWarning("Update Rate is not valid" + update_rate, true);	*/
 			/*	navx = new AHRS(SPI.Port.kMXP, update_rate_fallback);							*/
 			/* }																				*/
-	        navx = new AHRS(SPI.Port.kMXP, (byte) NAVX_UPDATE_RATE); 
+	        if (!navx_started) {
+	        	navx = new AHRS(SPI.Port.kMXP, (byte) NAVX_UPDATE_RATE); 
+	        	navx_started = true;
+	        }
 	        navxLastUpdate = navx.getUpdateCount();
 	        navxLastXPosition = navx.getDisplacementX();
 	        navxLastYPosition = navx.getDisplacementY();	        
@@ -138,9 +142,6 @@ public class RobotState {
 		Yx = filter(navx_position_alpha, YpredictedPosition, YmeasuredPositionChange+Yx);
 		Yv = filter(navx_position_beta, YpredictedVelocity, YmeasuredVelocity);
 		Ya = filter(navx_position_gamma, YpredictedAcceleration, YmeasuredAcceleration);	
-		
-		SmartDashboard.putNumber("StoopidX", navx.getWorldLinearAccelX());
-		SmartDashboard.putNumber("StoopidY", navx.getWorldLinearAccelY());
 		
 		//This might not be useful, we will see, I have no clue if this is a good solution I just saw it
 //		try { 
@@ -319,6 +320,26 @@ public class RobotState {
 		navx.reset();
 	}
 	
+	public void displayNavx() {
+        rioAccel = new BuiltInAccelerometer(Accelerometer.Range.k8G);
+
+        if (!navx_started) {
+        	navx = new AHRS(SPI.Port.kMXP, (byte) NAVX_UPDATE_RATE); 
+        	navx_started = true;
+        }
+		SmartDashboard.putNumber("Navx X", navx.getDisplacementX());
+		SmartDashboard.putNumber("Navx Y", navx.getDisplacementY());
+		SmartDashboard.putNumber("Navx X Velocity", navx.getVelocityX());
+		SmartDashboard.putNumber("Navx Y Velocity", navx.getVelocityY());
+		SmartDashboard.putNumber("Navx X World Accel", navx.getWorldLinearAccelX());
+		SmartDashboard.putNumber("Navx Y World Accel", navx.getWorldLinearAccelY());
+		SmartDashboard.putNumber("Navx Y Accel", navx.getRawAccelX());
+		SmartDashboard.putNumber("Navx Y Accel", navx.getRawAccelY());
+		SmartDashboard.putNumber("Navx Rotation", navx.getAngle());
+		SmartDashboard.putNumber("Rio X Accel", rioAccel.getX());
+		SmartDashboard.putNumber("Rio Y Accel", rioAccel.getY());
+		
+	}
 //	public void stopThreads() {
 //		rioAccelThread.
 //	}
