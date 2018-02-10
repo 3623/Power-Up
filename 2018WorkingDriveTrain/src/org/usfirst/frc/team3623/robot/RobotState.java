@@ -50,15 +50,11 @@ public class RobotState {
 	 *  NavX filter functions, might be able to turn into own class later on
 	 */
 	
-	public void startNavX() {
+	private void startNavX() {
 		try {
 	        /* Communicate w/navX-MXP via the MXP SPI Bus.                                     */
 	        /* Alternatively:  I2C.Port.kMXP, SerialPort.Port.kMXP or SerialPort.Port.kUSB     */
 	        /* See http://navx-mxp.kauailabs.com/guidance/selecting-an-interface/ for details. */
-			/* if (update_rate > 200 || update_rate < 4) {										*/
-			/*	DriverStation.reportWarning("Update Rate is not valid" + update_rate, true);	*/
-			/*	navx = new AHRS(SPI.Port.kMXP, update_rate_fallback);							*/
-			/* }																				*/
 	        if (!navx_started) {
 	        	navx = new AHRS(SPI.Port.kMXP, (byte) NAVX_UPDATE_RATE); 
 	        	navx_started = true;
@@ -91,7 +87,7 @@ public class RobotState {
 	    }
 	}
 	
-	private void updateNavx(){
+	private void updateNavxPVA_BAD(){
 		double currentTime = System.currentTimeMillis();
 		double t = (currentTime - timeLastUpdate)/1000.0;
 		timeLastUpdate = currentTime;
@@ -117,25 +113,22 @@ public class RobotState {
 		double XmeasuredPositionChange = XmeasuredPosition - navxLastXPosition;
 		double YmeasuredPositionChange = YmeasuredPosition - navxLastYPosition;
 		
-		navxLastXPosition = XmeasuredPosition;
-		navxLastYPosition = YmeasuredPosition;
 		
 		// I think that worldLinearAccel and velocity and displacement, which are integrated from 
 		// worldLinearAccel, are already converted to global, therefore I will uncomment and not do this.
-		// However this might become problematic since if we have an accurate angle in the filter and 
+		// However this might become problematic since if we have an a	ccurate angle in the filter and 
 		// the navx has a separate angle then the navx filter data will be wonky compared to everything else.
 		// We need to find how navx does the LinearAccel and provide a solution for this.
 		// Looks like we are gonna have to get creative testing the navx, or get someone who is better at
 		// digging around code.
-//		double XglobalPosition = convertGlobalX(XmeasuredPositionChange, YmeasuredPositionChange, Rx);
-//		double XglobalVelocity = convertGlobalX(XmeasuredVelocity, YmeasuredVelocity, Rx);
-//		double XglobalAcceleration = convertGlobalX(XmeasuredAcceleration, YmeasuredAcceleration, Rx);
-//		double YglobalPosition = convertGlobalY(XmeasuredPositionChange, YmeasuredPositionChange, Rx);
-//		double YglobalVelocity = convertGlobalY(XmeasuredVelocity, YmeasuredVelocity, Rx);
-//		double YglobalAcceleration = convertGlobalY(XmeasuredAcceleration, YmeasuredAcceleration, Rx);
+		// double XglobalPosition = convertGlobalX(XmeasuredPositionChange, YmeasuredPositionChange, Rx);
+		// double XglobalVelocity = convertGlobalX(XmeasuredVelocity, YmeasuredVelocity, Rx);
+		// double XglobalAcceleration = convertGlobalX(XmeasuredAcceleration, YmeasuredAcceleration, Rx);
+		// double YglobalPosition = convertGlobalY(XmeasuredPositionChange, YmeasuredPositionChange, Rx);
+		// double YglobalVelocity = convertGlobalY(XmeasuredVelocity, YmeasuredVelocity, Rx);
+		// double YglobalAcceleration = convertGlobalY(XmeasuredAcceleration, YmeasuredAcceleration, Rx);
 		
 		Rx = RmeasuredPosition;
-		
 		Xx = filter(navx_position_alpha, XpredictedPosition, XmeasuredPositionChange+Xx);
 		Xv = filter(navx_position_beta, XpredictedVelocity, XmeasuredVelocity);
 		Xa = filter(navx_position_gamma, XpredictedAcceleration, XmeasuredAcceleration);
@@ -144,27 +137,85 @@ public class RobotState {
 		Ya = filter(navx_position_gamma, YpredictedAcceleration, YmeasuredAcceleration);	
 		
 		//This might not be useful, we will see, I have no clue if this is a good solution I just saw it
-//		try { 
-//            Thread.sleep((long)((1.0/NAVX_UPDATE_RATE)*1000.0));
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        }
+		try { 
+            Thread.sleep((long)((1.0/NAVX_UPDATE_RATE)*1000.0));
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 	}
 
+	public void updateNavxA() {
+		double currentTime = System.currentTimeMillis();
+		double t = (currentTime - timeLastUpdate)/1000.0;
+		timeLastUpdate = currentTime;
+		
+		double XpredictedPosition = predictPostion(t, Xx, Xv, Xa);
+		double XpredictedVelocity = predictVelocity(t, Xv, Xa);
+		double XpredictedAcceleration = predictAcceleration(t, Xa);
+		double YpredictedPosition = predictPostion(t, Yx, Yv, Ya);
+		double YpredictedVelocity = predictVelocity(t, Yv, Ya);
+		double YpredictedAcceleration = predictAcceleration(t, Ya);
+		
+		double XmeasuredAcceleration = navx.getWorldLinearAccelY();
+		double YmeasuredAcceleration = -navx.getWorldLinearAccelX();
+		double RmeasuredPosition = navx.getAngle();
+		
+		Rx = RmeasuredPosition;
+		Xx = XpredictedPosition;
+		Xv = XpredictedVelocity;
+		Xa = filter(navx_position_gamma, XpredictedAcceleration, XmeasuredAcceleration);
+		Yx = YpredictedPosition;
+		Yv = YpredictedVelocity;
+		Ya = filter(navx_position_gamma, YpredictedAcceleration, YmeasuredAcceleration);
+	}
 	
+	public void updateNavxA_advanced() {
+		double currentTime = System.currentTimeMillis();
+		double t = (currentTime - timeLastUpdate)/1000.0;
+		timeLastUpdate = currentTime;// Might want separate navx and rio times
+		
+		double XpredictedPosition = predictPostion(t, Xx, Xv, Xa);
+		double XpredictedVelocity = predictVelocity(t, Xv, Xa);
+		double XpredictedAcceleration = predictAcceleration(t, Xa);
+		double YpredictedPosition = predictPostion(t, Yx, Yv, Ya);
+		double YpredictedVelocity = predictVelocity(t, Yv, Ya);
+		double YpredictedAcceleration = predictAcceleration(t, Ya);
+		
+		double XmeasuredAcceleration = navx.getWorldLinearAccelY();
+		double YmeasuredAcceleration = -navx.getWorldLinearAccelX();
+		
+		double XexperimentalPosition = Xx + (Xv*t) + (XmeasuredAcceleration*t*t/2);
+		double XexperimentalVelocity = Xv + (XmeasuredAcceleration*t);
+		double YexperimentalPosition = Yx + (Yv*t) + (YmeasuredAcceleration*t*t/2);
+		double YexperimentalVelocity = Yv + (YmeasuredAcceleration*t);
+		
+		Xx = filter(rio_position_alpha, XpredictedPosition, XexperimentalPosition);
+		Xv = filter(rio_position_beta, XpredictedVelocity, XexperimentalVelocity);
+		Xa = filter(rio_position_gamma, XpredictedAcceleration, XmeasuredAcceleration);
+		Yx = filter(rio_position_alpha, YpredictedPosition, YexperimentalPosition);
+		Yv = filter(rio_position_beta, YpredictedVelocity, YexperimentalVelocity);
+		Ya = filter(rio_position_gamma, YpredictedAcceleration, YmeasuredAcceleration);	
+		
+		//This might not be useful, we will see, I have no clue if this is a good solution I just saw it
+		try { 
+            Thread.sleep((long)((1.0/RIO_ACCEL_UPDATE_RATE)*1000.0));
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+	}
 	/*
 	 * Onboard Accelerometer Functions
 	 */
 	
 	public void startRioAccel() {
-        rioAccel = new BuiltInAccelerometer(Accelerometer.Range.k8G);
+        rioAccel = new BuiltInAccelerometer();
 	        
         Thread rioAccelThread = new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
                     while(true){
-                    	updateRioAccel();
+                    	updateRioAccelA();
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -177,7 +228,7 @@ public class RobotState {
         rioAccelThread.start();
 	}
 	
-	private void updateRioAccel() {
+	private void updateRioAccelA() {
 		double currentTime = System.currentTimeMillis();
 		double t = (currentTime - timeLastUpdate)/1000.0;
 		timeLastUpdate = currentTime;// Might want separate navx and rio times
@@ -195,9 +246,9 @@ public class RobotState {
 		double XglobalAcceleration = convertGlobalX(XmeasuredAcceleration, YmeasuredAcceleration, Rx);
 		double YglobalAcceleration = convertGlobalY(XmeasuredAcceleration, YmeasuredAcceleration, Rx);
 		
-		double XexperimentalPosition = Xx + (Xv*t) + (Math.pow(XglobalAcceleration, 2)*t/2);
+		double XexperimentalPosition = Xx + (Xv*t) + (XglobalAcceleration*t*t/2);
 		double XexperimentalVelocity = Xv + (XglobalAcceleration*t);
-		double YexperimentalPosition = Yx + (Yv*t) + (Math.pow(YglobalAcceleration, 2)*t/2);
+		double YexperimentalPosition = Yx + (Yv*t) + (YglobalAcceleration*t*t/2);
 		double YexperimentalVelocity = Yv + (YglobalAcceleration*t);
 		
 		Xx = filter(rio_position_alpha, XpredictedPosition, XexperimentalPosition);
@@ -253,6 +304,14 @@ public class RobotState {
 		return a0;
 	}
 	
+	private double predictPosition(double time, double x0, double v0) {
+		double xp = x0 + (time*v0);
+		return xp;
+	}
+	
+	private double predictVelocity(double time, double v0) {
+		return v0;
+	}
 	
 	private double filter(double trustCoefficient, double predictedValue, double measuredValue) {
 		return (predictedValue + trustCoefficient*(measuredValue-predictedValue));
