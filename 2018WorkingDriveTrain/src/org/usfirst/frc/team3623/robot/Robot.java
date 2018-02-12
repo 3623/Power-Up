@@ -38,7 +38,7 @@ public class Robot extends IterativeRobot {
 	Spark backLeft;
 	Spark backRight;
 	MecanumDrive driveBase;
-	RobotState robotstate;
+	RobotState robotState;
 	
 	double angleLocked=0.0;
 	
@@ -61,17 +61,16 @@ public class Robot extends IterativeRobot {
 		backLeft = new Spark(1);
 		frontRight = new Spark(2);
 		backRight = new Spark(3);
-		
-//		frontRight.setInverted(true);
-//		backLeft.setInverted(true);
+
 		driveBase = new MecanumDrive(frontLeft, backLeft, frontRight, backRight);
+		driveBase.setSafetyEnabled(false);
 		/*chooser.addDefault("Default Auto", defaultAuto);
 		chooser.addObject("My Auto", customAuto);
 		SmartDashboard.putData("Auto choices", chooser);*/
 		
-		robotstate = new RobotState();
-//		robotstate.startNavX();
-//		robotstate.startRioAccel();
+		robotState = new RobotState();
+		robotState.startNavX();
+//		robotState.startRioAccel();
 		
 //        rioAccel = new BuiltInAccelerometer();
 
@@ -123,18 +122,16 @@ public class Robot extends IterativeRobot {
 	@Override
 	public void teleopPeriodic() {
 		double rotationValue;
-		
-//		driveBase.driveCartesian(0.0, 0.0, 0.0, 0.0);
-		SmartDashboard.putNumber("Filter X", robotstate.getDisplacementX());
-//		SmartDashboard.putNumber("Filter Xv", robotstate.getVelocityX());
-//		SmartDashboard.putNumber("Filter Xa", robotstate.getAccelerationX());
-		SmartDashboard.putNumber("Filter Y", robotstate.getDisplacementY());
-//		SmartDashboard.putNumber("Filter Yv", robotstate.getVelocityY());
-//		SmartDashboard.putNumber("Filter Ya", robotstate.getAccelerationY());
+		SmartDashboard.putNumber("Filter X", robotState.getDisplacementX());
+		SmartDashboard.putNumber("Filter Xv", robotState.getVelocityX());
+		SmartDashboard.putNumber("Filter Xa", robotState.getAccelerationX());
+		SmartDashboard.putNumber("Filter Y", robotState.getDisplacementY());
+		SmartDashboard.putNumber("Filter Yv", robotState.getVelocityY());
+		SmartDashboard.putNumber("Filter Ya", robotState.getAccelerationY());
 
-		robotstate.displayNavx();
+		robotState.displayNavx();
 		
-		driveBase.driveCartesian(mainStick.getRawAxis(1), -mainStick.getRawAxis(0), , robotstate.getAngle());
+		driveBase.driveCartesian(-mainStick.getRawAxis(1), mainStick.getRawAxis(0), -rotationStick.getRawAxis(0), robotState.getAngle());
 	}
 
 	/**

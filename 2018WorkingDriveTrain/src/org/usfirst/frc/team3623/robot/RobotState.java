@@ -26,7 +26,7 @@ public class RobotState {
 	private static final double NAVX_UPDATE_RATE = 200.0;
 	private double navx_position_alpha=0.2; //Smooth but slow values, overshot: 0.2, 0.15, 0.08
 	private double navx_position_beta=0.15;
-	private double navx_position_gamma=0.05;
+	private double navx_position_gamma=0.8;
 	private double[] navx_trust_coefficients = new double[3];// Idk if to use this or another class later on
 	private double navxLastUpdate;
 	private double navxLastXPosition;
@@ -50,7 +50,7 @@ public class RobotState {
 	 *  NavX filter functions, might be able to turn into own class later on
 	 */
 
-	private void startNavX() {
+	public void startNavX() {
 		try {
 			/* Communicate w/navX-MXP via the MXP SPI Bus.                                     */
 			/* Alternatively:  I2C.Port.kMXP, SerialPort.Port.kMXP or SerialPort.Port.kUSB     */
@@ -69,7 +69,7 @@ public class RobotState {
 						while(true){
 							double navxCurrentUpdate = navx.getUpdateCount();
 							if (navxCurrentUpdate != navxLastUpdate) {
-								updateNavxA_advanced();
+								updateNavxA_fastUpdate();
 								navxLastUpdate = navxCurrentUpdate;
 							}
 						}
@@ -80,7 +80,7 @@ public class RobotState {
 				}
 			});
 			navxThread.setName("AlphaBetaGammaFilterNavXThread");
-			navxThread.setPriority(Thread.MIN_PRIORITY+2); //Sure, this seems like a reasonable priority!
+			navxThread.setPriority(Thread.MIN_PRIORITY+1); //Sure, this seems like a reasonable priority!
 			navxThread.start();
 		} catch (RuntimeException ex ) {
 			DriverStation.reportError("Error instantiating navX-MXP:  " + ex.getMessage(), true);
@@ -198,7 +198,7 @@ public class RobotState {
 
 		//This might not be useful, we will see, I have no clue if this is a good solution I just saw it
 		try { 
-			Thread.sleep((long)((1.0/RIO_ACCEL_UPDATE_RATE)*1000.0));
+			Thread.sleep((long)((1.0/NAVX_UPDATE_RATE)*1000.0));
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -209,14 +209,16 @@ public class RobotState {
 		double t = (currentTime - timeLastUpdate)/1000.0;
 		timeLastUpdate = currentTime;// Might want separate navx and rio times
 
+		Rx = navx.getAngle();
+		
 		double XpredictedAcceleration = predictAcceleration(t, Xa);
 		double YpredictedAcceleration = predictAcceleration(t, Ya);
 
 		double XmeasuredAcceleration = navx.getWorldLinearAccelY();
 		double YmeasuredAcceleration = -navx.getWorldLinearAccelX();
 
-		Xa = filter(rio_position_gamma, XpredictedAcceleration, XmeasuredAcceleration);
-		Ya = filter(rio_position_gamma, YpredictedAcceleration, YmeasuredAcceleration);
+		Xa = filter(navx_position_gamma, XpredictedAcceleration, XmeasuredAcceleration);
+		Ya = filter(navx_position_gamma, YpredictedAcceleration, YmeasuredAcceleration);
 
 		double XpredictedPosition = predictPostion(t, Xx, Xv, Xa);
 		double XpredictedVelocity = predictVelocity(t, Xv, Xa);
@@ -230,7 +232,7 @@ public class RobotState {
 
 		//This might not be useful, we will see, I have no clue if this is a good solution I just saw it
 		try { 
-			Thread.sleep((long)((1.0/RIO_ACCEL_UPDATE_RATE)*1000.0));
+			Thread.sleep((long)((1.0/NAVX_UPDATE_RATE)*1000.0));
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
