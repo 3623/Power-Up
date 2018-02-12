@@ -204,7 +204,7 @@ class VisualOdometry:
             return p1, 0, 0, 0, 0
 
 
-    ## Can run at 64Hz with a 320x240 image or 27Hz with a 640x480 tested on LenovoZ50
+    ## Can run at 64Hz with a 320x240 image or 27Hz with a 640x480 tested on LenovoZ    50
     def run(self):
         self.imageReader.start()
         frame = self.imageReader.read()

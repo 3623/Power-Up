@@ -40,7 +40,7 @@ public class Robot extends IterativeRobot {
 	MecanumDrive driveBase;
 	RobotState robotstate;
 	
-	
+	double angleLocked=0.0;
 	
 	/** Declare Variables
 	final String defaultAuto = "Default";
@@ -122,8 +122,9 @@ public class Robot extends IterativeRobot {
 	
 	@Override
 	public void teleopPeriodic() {
-//		driveBase.driveCartesian(mainStick.getRawAxis(1), -mainStick.getRawAxis(0), rotationStick.getRawAxis(0), robotstate.getAngle());
-		driveBase.driveCartesian(0.0, 0.0, 0.0, 0.0);
+		double rotationValue;
+		
+//		driveBase.driveCartesian(0.0, 0.0, 0.0, 0.0);
 		SmartDashboard.putNumber("Filter X", robotstate.getDisplacementX());
 //		SmartDashboard.putNumber("Filter Xv", robotstate.getVelocityX());
 //		SmartDashboard.putNumber("Filter Xa", robotstate.getAccelerationX());
@@ -132,6 +133,8 @@ public class Robot extends IterativeRobot {
 //		SmartDashboard.putNumber("Filter Ya", robotstate.getAccelerationY());
 
 		robotstate.displayNavx();
+		
+		driveBase.driveCartesian(mainStick.getRawAxis(1), -mainStick.getRawAxis(0), , robotstate.getAngle());
 	}
 
 	/**
