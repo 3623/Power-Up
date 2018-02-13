@@ -173,6 +173,7 @@ public class RobotState {
 		//This might not be useful, we will see, I have no clue if this is a good solution I just saw it
 		// Check if we get lag with/without it
 		try { 
+			// or 			Thread.sleep(5);
 			Thread.sleep((long)((1.0/NAVX_UPDATE_RATE)*1000.0));
 		} catch (InterruptedException e) {
 			e.printStackTrace();
