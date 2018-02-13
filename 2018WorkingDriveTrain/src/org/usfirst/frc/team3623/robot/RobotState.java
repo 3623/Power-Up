@@ -87,63 +87,6 @@ public class RobotState {
 		}
 	}
 
-	private void updateNavxPVA_BAD(){
-		double currentTime = System.currentTimeMillis();
-		double t = (currentTime - timeLastUpdate)/1000.0;
-		timeLastUpdate = currentTime;
-
-		double XpredictedPosition = predictPostion(t, Xx, Xv, Xa);
-		double XpredictedVelocity = predictVelocity(t, Xv, Xa);
-		double XpredictedAcceleration = predictAcceleration(t, Xa);
-		double YpredictedPosition = predictPostion(t, Yx, Yv, Ya);
-		double YpredictedVelocity = predictVelocity(t, Yv, Ya);
-		double YpredictedAcceleration = predictAcceleration(t, Ya);
-
-		double XmeasuredPosition = navx.getDisplacementY();
-		double XmeasuredVelocity = navx.getVelocityY();
-		double XmeasuredAcceleration = navx.getWorldLinearAccelY();
-		double YmeasuredPosition = -navx.getDisplacementX();
-		double YmeasuredVelocity = -navx.getVelocityX();
-		double YmeasuredAcceleration = -navx.getWorldLinearAccelX();
-		double RmeasuredPosition = navx.getAngle();
-
-		// This is so that we are not dependent on possibly unreliable position, and instead only use the
-		// integrated position value to tell us changes. Might be good if we do unit conversion or start
-		// offsetting position while filtering.
-		double XmeasuredPositionChange = XmeasuredPosition - navxLastXPosition;
-		double YmeasuredPositionChange = YmeasuredPosition - navxLastYPosition;
-
-
-		// I think that worldLinearAccel and velocity and displacement, which are integrated from 
-		// worldLinearAccel, are already converted to global, therefore I will uncomment and not do this.
-		// However this might become problematic since if we have an a	ccurate angle in the filter and 
-		// the navx has a separate angle then the navx filter data will be wonky compared to everything else.
-		// We need to find how navx does the LinearAccel and provide a solution for this.
-		// Looks like we are gonna have to get creative testing the navx, or get someone who is better at
-		// digging around code.
-		// double XglobalPosition = convertGlobalX(XmeasuredPositionChange, YmeasuredPositionChange, Rx);
-		// double XglobalVelocity = convertGlobalX(XmeasuredVelocity, YmeasuredVelocity, Rx);
-		// double XglobalAcceleration = convertGlobalX(XmeasuredAcceleration, YmeasuredAcceleration, Rx);
-		// double YglobalPosition = convertGlobalY(XmeasuredPositionChange, YmeasuredPositionChange, Rx);
-		// double YglobalVelocity = convertGlobalY(XmeasuredVelocity, YmeasuredVelocity, Rx);
-		// double YglobalAcceleration = convertGlobalY(XmeasuredAcceleration, YmeasuredAcceleration, Rx);
-
-		Rx = RmeasuredPosition;
-		Xx = filter(navx_position_alpha, XpredictedPosition, XmeasuredPositionChange+Xx);
-		Xv = filter(navx_position_beta, XpredictedVelocity, XmeasuredVelocity);
-		Xa = filter(navx_position_gamma, XpredictedAcceleration, XmeasuredAcceleration);
-		Yx = filter(navx_position_alpha, YpredictedPosition, YmeasuredPositionChange+Yx);
-		Yv = filter(navx_position_beta, YpredictedVelocity, YmeasuredVelocity);
-		Ya = filter(navx_position_gamma, YpredictedAcceleration, YmeasuredAcceleration);	
-
-		//This might not be useful, we will see, I have no clue if this is a good solution I just saw it
-		try { 
-			Thread.sleep((long)((1.0/NAVX_UPDATE_RATE)*1000.0));
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-	}
-
 	public void updateNavxA() {
 		double currentTime = System.currentTimeMillis();
 		double t = (currentTime - timeLastUpdate)/1000.0;
@@ -415,13 +358,7 @@ public class RobotState {
 		navx.reset();
 	}
 
-	public void displayNavx() {
-//		rioAccel = new BuiltInAccelerometer(Accelerometer.Range.k8G);
-//
-//		if (!navx_started) {
-//			navx = new AHRS(SPI.Port.kMXP, (byte) NAVX_UPDATE_RATE); 
-//			navx_started = true;
-//		}
+	public void displayNavx() throws InterruptedException {
 		SmartDashboard.putNumber("Navx X", navx.getDisplacementX());
 		SmartDashboard.putNumber("Navx Y", navx.getDisplacementY());
 		SmartDashboard.putNumber("Navx X Velocity", navx.getVelocityX());
