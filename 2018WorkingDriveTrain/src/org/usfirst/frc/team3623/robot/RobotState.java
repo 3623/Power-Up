@@ -10,15 +10,10 @@ import edu.wpi.first.wpilibj.DriverStation;
 
 
 public class RobotState {
-	private double Xx;
-	private double Xv;
-	private double Xa;
-	private double Yx;
-	private double Yv;
-	private double Ya;
-	private double Rx;
-	private double Rv;
-	private double Ra;
+	private double Xx, Xv, Xa, Xo;
+	private double Yx, Yv, Ya, Yo;
+	private double Rx, Rv, Ra;
+
 	private double timeLastUpdate;
 
 	AHRS navx;
@@ -27,10 +22,7 @@ public class RobotState {
 	private double navx_position_alpha=0.2; //Smooth but slow values, overshot: 0.2, 0.15, 0.08
 	private double navx_position_beta=0.15;
 	private double navx_position_gamma=0.8;
-	private double[] navx_trust_coefficients = new double[3];// Idk if to use this or another class later on
 	private double navxLastUpdate;
-	private double navxLastXPosition;
-	private double navxLastYPosition;
 
 	Accelerometer rioAccel;
 	private static final double RIO_ACCEL_UPDATE_RATE = 200.0;
@@ -59,9 +51,7 @@ public class RobotState {
 				navx = new AHRS(SPI.Port.kMXP, (byte) NAVX_UPDATE_RATE); 
 				navx_started = true;
 			}
-			navxLastUpdate = navx.getUpdateCount();
-			navxLastXPosition = navx.getDisplacementX();
-			navxLastYPosition = navx.getDisplacementY();	        
+			navxLastUpdate = navx.getUpdateCount();        
 			Thread navxThread = new Thread(new Runnable() {
 				@Override
 				public void run() {
@@ -87,7 +77,7 @@ public class RobotState {
 		}
 	}
 
-	public void updateNavxA() {
+	private void updateNavxA() {
 		double currentTime = System.currentTimeMillis();
 		double t = (currentTime - timeLastUpdate)/1000.0;
 		timeLastUpdate = currentTime;
@@ -99,24 +89,31 @@ public class RobotState {
 		double YpredictedVelocity = predictVelocity(t, Yv, Ya);
 		double YpredictedAcceleration = predictAcceleration(t, Ya);
 
-		double XmeasuredAcceleration = navx.getWorldLinearAccelY();
-		double YmeasuredAcceleration = -navx.getWorldLinearAccelX();
-		double RmeasuredPosition = navx.getAngle();
+		double XmeasuredAcceleration = -navx.getWorldLinearAccelY();
+		double YmeasuredAcceleration = navx.getWorldLinearAccelX();
 
-		Rx = RmeasuredPosition;
+		Rx = navx.getAngle();
 		Xx = XpredictedPosition;
 		Xv = XpredictedVelocity;
 		Xa = filter(navx_position_gamma, XpredictedAcceleration, XmeasuredAcceleration);
 		Yx = YpredictedPosition;
 		Yv = YpredictedVelocity;
 		Ya = filter(navx_position_gamma, YpredictedAcceleration, YmeasuredAcceleration);
+		
+		try { 
+			Thread.sleep((long)((1.0/NAVX_UPDATE_RATE)*1000.0));
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 	}
 
-	public void updateNavxA_advanced() {
+	private void updateNavxA_advanced() {
 		double currentTime = System.currentTimeMillis();
 		double t = (currentTime - timeLastUpdate)/1000.0;
 		timeLastUpdate = currentTime;// Might want separate navx and rio times
 
+		Rx = navx.getAngle();
+		
 		double XpredictedPosition = predictPostion(t, Xx, Xv, Xa);
 		double XpredictedVelocity = predictVelocity(t, Xv, Xa);
 		double XpredictedAcceleration = predictAcceleration(t, Xa);
@@ -124,8 +121,8 @@ public class RobotState {
 		double YpredictedVelocity = predictVelocity(t, Yv, Ya);
 		double YpredictedAcceleration = predictAcceleration(t, Ya);
 
-		double XmeasuredAcceleration = navx.getWorldLinearAccelY();
-		double YmeasuredAcceleration = -navx.getWorldLinearAccelX();
+		double XmeasuredAcceleration = -navx.getWorldLinearAccelY();
+		double YmeasuredAcceleration = navx.getWorldLinearAccelX();
 
 		double XexperimentalPosition = Xx + (Xv*t) + (XmeasuredAcceleration*t*t/2);
 		double XexperimentalVelocity = Xv + (XmeasuredAcceleration*t);
@@ -147,7 +144,7 @@ public class RobotState {
 		}
 	}
 
-	public void updateNavxA_fastUpdate() {
+	private void updateNavxA_fastUpdate() {
 		double currentTime = System.currentTimeMillis();
 		double t = (currentTime - timeLastUpdate)/1000.0;
 		timeLastUpdate = currentTime;// Might want separate navx and rio times
@@ -157,8 +154,8 @@ public class RobotState {
 		double XpredictedAcceleration = predictAcceleration(t, Xa);
 		double YpredictedAcceleration = predictAcceleration(t, Ya);
 
-		double XmeasuredAcceleration = navx.getWorldLinearAccelY();
-		double YmeasuredAcceleration = -navx.getWorldLinearAccelX();
+		double XmeasuredAcceleration = -navx.getWorldLinearAccelY();
+		double YmeasuredAcceleration = navx.getWorldLinearAccelX();
 
 		Xa = filter(navx_position_gamma, XpredictedAcceleration, XmeasuredAcceleration);
 		Ya = filter(navx_position_gamma, YpredictedAcceleration, YmeasuredAcceleration);
@@ -174,6 +171,7 @@ public class RobotState {
 		Yv = YpredictedVelocity;
 
 		//This might not be useful, we will see, I have no clue if this is a good solution I just saw it
+		// Check if we get lag with/without it
 		try { 
 			Thread.sleep((long)((1.0/NAVX_UPDATE_RATE)*1000.0));
 		} catch (InterruptedException e) {
@@ -296,9 +294,22 @@ public class RobotState {
 		return (predictedValue + trustCoefficient*(measuredValue-predictedValue));
 	}
 
+	private void resetAbsolute() {
+		Xx = 0;
+		Xv = 0;
+		Xa = 0;
+		Yx = 0;
+		Yv = 0;
+		Ya = 0;
+		Rx = 0;
+		Rv = 0;
+		Ra = 0;
+		timeLastUpdate = System.currentTimeMillis();
+	}
+	
 
 	/*
-	 * Get and Set methods for outside contro
+	 * Get and Set methods for outside control
 	 */
 
 	public double getDisplacementX() {
@@ -329,7 +340,7 @@ public class RobotState {
 		return Rx;
 	}
 
-	public double getRoationVelocity() {
+	public double getRotationVelocity() {
 		return Rv;
 	}
 
@@ -341,23 +352,24 @@ public class RobotState {
 		return correctAngle(Rx);
 	}
 
-	public void resetAbsolute() {
-		Xx = 0;
-		Xv = 0;
-		Xa = 0;
-		Yx = 0;
-		Yv = 0;
-		Ya = 0;
-		Rx = 0;
-		Rv = 0;
-		Ra = 0;
-		timeLastUpdate = System.currentTimeMillis();
-	}
-
 	public void resetAngle() {
 		navx.reset();
 	}
-
+	
+	public void setAngle(double angle) {
+		double offset = angle - correctAngle(Rx);
+		navx.setAngleAdjustment(offset);
+	}
+	
+	public void setAngleOffset(double offset) { // TODO need to check if offset resets or builds up
+		navx.setAngleAdjustment(offset);
+	}
+	
+	public void setPosition(double x, double y) {
+		Xo = x - Xx;
+		Yo = y - Yx;
+	}
+	
 	public void displayNavx() throws InterruptedException {
 		SmartDashboard.putNumber("Navx X", navx.getDisplacementX());
 		SmartDashboard.putNumber("Navx Y", navx.getDisplacementY());
@@ -370,11 +382,7 @@ public class RobotState {
 		SmartDashboard.putNumber("Navx Rotation", navx.getAngle());
 		SmartDashboard.putNumber("Rio X Accel", rioAccel.getX());
 		SmartDashboard.putNumber("Rio Y Accel", rioAccel.getY());
-
 	}
-	//	public void stopThreads() {
-	//		rioAccelThread.
-	//	}
 } 
 
 
