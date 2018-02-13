@@ -23,7 +23,7 @@ public class RobotState {
 
 	AHRS navx;
 	boolean navx_started = false;
-	private static final double NAVX_UPDATE_RATE = 200.0;
+	private static final double NAVX_UPDATE_RATE = 10.0;
 	private double navx_position_alpha=0.2; //Smooth but slow values, overshot: 0.2, 0.15, 0.08
 	private double navx_position_beta=0.15;
 	private double navx_position_gamma=0.8;
@@ -80,7 +80,7 @@ public class RobotState {
 				}
 			});
 			navxThread.setName("AlphaBetaGammaFilterNavXThread");
-			navxThread.setPriority(Thread.MIN_PRIORITY+1); //Sure, this seems like a reasonable priority!
+			navxThread.setPriority(Thread.MIN_PRIORITY+3); //Sure, this seems like a reasonable priority!
 			navxThread.start();
 		} catch (RuntimeException ex ) {
 			DriverStation.reportError("Error instantiating navX-MXP:  " + ex.getMessage(), true);
@@ -416,12 +416,12 @@ public class RobotState {
 	}
 
 	public void displayNavx() {
-		rioAccel = new BuiltInAccelerometer(Accelerometer.Range.k8G);
-
-		if (!navx_started) {
-			navx = new AHRS(SPI.Port.kMXP, (byte) NAVX_UPDATE_RATE); 
-			navx_started = true;
-		}
+//		rioAccel = new BuiltInAccelerometer(Accelerometer.Range.k8G);
+//
+//		if (!navx_started) {
+//			navx = new AHRS(SPI.Port.kMXP, (byte) NAVX_UPDATE_RATE); 
+//			navx_started = true;
+//		}
 		SmartDashboard.putNumber("Navx X", navx.getDisplacementX());
 		SmartDashboard.putNumber("Navx Y", navx.getDisplacementY());
 		SmartDashboard.putNumber("Navx X Velocity", navx.getVelocityX());

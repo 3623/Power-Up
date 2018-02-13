@@ -10,8 +10,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.SPI;
 
-import edu.wpi.first.wpilibj.BuiltInAccelerometer;
-
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -21,13 +19,6 @@ import edu.wpi.first.wpilibj.BuiltInAccelerometer;
  * directory.
  */
 public class Robot extends IterativeRobot {
-//	Accelerometer rioAccel;
-
-	
-	
-	
-	
-	
 	// Declare Robot Objects (Physical items like Motor Controllers, sensors, etc.)
 	Joystick mainStick;
 	Joystick rotationStick;
@@ -48,6 +39,7 @@ public class Robot extends IterativeRobot {
 	String autoSelected;
 	SendableChooser<String> chooser = new SendableChooser<>();*/
 
+	
 	/**
 	 * This function is run when the robot is first started up and should be
 	 * used for any initialization code.
@@ -71,9 +63,6 @@ public class Robot extends IterativeRobot {
 		robotState = new RobotState();
 		robotState.startNavX();
 //		robotState.startRioAccel();
-		
-//        rioAccel = new BuiltInAccelerometer();
-
 	}
 
 	/**
@@ -128,10 +117,10 @@ public class Robot extends IterativeRobot {
 		SmartDashboard.putNumber("Filter Y", robotState.getDisplacementY());
 		SmartDashboard.putNumber("Filter Yv", robotState.getVelocityY());
 		SmartDashboard.putNumber("Filter Ya", robotState.getAccelerationY());
-
-		robotState.displayNavx();
+//
+//		robotState.displayNavx();
 		
-		driveBase.driveCartesian(-mainStick.getRawAxis(1), mainStick.getRawAxis(0), -rotationStick.getRawAxis(0), robotState.getAngle());
+		driveBase.driveCartesian(-mainStick.getRawAxis(1), mainStick.getRawAxis(0), -rotationStick.getRawAxis(0), 0.0);
 	}
 
 	/**
