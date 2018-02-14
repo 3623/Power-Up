@@ -2,12 +2,11 @@ package org.usfirst.frc.team3623.robot;
 
 public class DriveTrainRotation {
 	private static final double maxSpeedChange = 0.1;
-	double currentAngle;
 	double setAngle;
 	double setSpeed;
 	double lastSpeed;
 	
-	Mode mode;
+	Mode mode, lastMode;
 
 	public enum Mode{
 		STOPPED, RELEASE, MANUAL, PTR, HOLD, INCREMENT;
@@ -57,10 +56,6 @@ public class DriveTrainRotation {
 	private void setAngle(double setAngle) {
 		this.setAngle = setAngle;
 	}
-
-	private void updateAngle(double updateAngle) {
-		this.currentAngle = updateAngle;
-	}
 	
 	private void setMode(Mode mode) {
 		this.mode = mode;
@@ -81,7 +76,7 @@ public class DriveTrainRotation {
 	}
 	
 	public void rotateManual(double speed) {
-		setAngle(this.currentAngle);
+		setSpeed(speed);
 		setMode(Mode.MANUAL);
 	}
 	
@@ -103,8 +98,10 @@ public class DriveTrainRotation {
 	
 	
 	public double update(double gyroAngle) {
-		updateAngle(gyroAngle);
 		double outputSpeed = lastSpeed;
+		if (lastMode == Mode.MANUAL && this.mode == Mode.MANUAL) {
+			setAngle(gyroAngle);
+		}
 		
 		switch (mode) {
 		case STOPPED:
@@ -128,6 +125,7 @@ public class DriveTrainRotation {
 			outputSpeed = oldPointToRotate(setAngle, gyroAngle, 1.0);
 		}
 			
+		lastMode = mode;
 		double outputSpeedChecked = checkSpeed(outputSpeed, lastSpeed);
 		this.lastSpeed = outputSpeedChecked;
 		return outputSpeedChecked;

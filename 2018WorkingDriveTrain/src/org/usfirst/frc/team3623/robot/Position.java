@@ -19,88 +19,44 @@ public class Position {
 		return acceleration;
 	}
 	
-	public void updateNavxA(double time) {
-		double XpredictedPosition = predictPostion(time, Xx, Xv, Xa);
-		double XpredictedVelocity = predictVelocity(time, Xv, Xa);
-		double XpredictedAcceleration = predictAcceleration(time, Xa);
-		double YpredictedPosition = predictPostion(time, Yx, Yv, Ya);
-		double YpredictedVelocity = predictVelocity(time, Yv, Ya);
-		double YpredictedAcceleration = predictAcceleration(time, Ya);
+	private double filter(double trustCoefficient, double predictedValue, double measuredValue) {
+		return (predictedValue + trustCoefficient*(measuredValue-predictedValue));
+	}
+	
+	public void updateNavxA(double time, double measuredAcceleration, double coefficient) {
+		double predictedPosition = predictPostion(time, position, velocity, acceleration);
+		double predictedVelocity = predictVelocity(time, velocity, acceleration);
+		double predictedAcceleration = predictAcceleration(time, acceleration);
 
-		double XmeasuredAcceleration = -navx.getWorldLinearAccelY();
-		double YmeasuredAcceleration = navx.getWorldLinearAccelX();
-
-		Rx = navx.getAngle();
-		Xx = XpredictedPosition;
-		Xv = XpredictedVelocity;
-		Xa = filter(navx_position_gamma, XpredictedAcceleration, XmeasuredAcceleration);
-		Yx = YpredictedPosition;
-		Yv = YpredictedVelocity;
-		Ya = filter(navx_position_gamma, YpredictedAcceleration, YmeasuredAcceleration);
-		
-		try { 
-			Thread.sleep((long)((1.0/NAVX_UPDATE_RATE)*1000.0));
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+		position = predictedPosition;
+		velocity = predictedVelocity;
+		acceleration = filter(coefficient, predictedAcceleration, measuredAcceleration);
 	}
 
-	public void updateNavxA_advanced(double time) {
-		Rx = navx.getAngle();
-		
-		double XpredictedPosition = predictPostion(time, Xx, Xv, Xa);
-		double XpredictedVelocity = predictVelocity(time, Xv, Xa);
-		double XpredictedAcceleration = predictAcceleration(time, Xa);
-		double YpredictedPosition = predictPostion(time, Yx, Yv, Ya);
-		double YpredictedVelocity = predictVelocity(time, Yv, Ya);
-		double YpredictedAcceleration = predictAcceleration(time, Ya);
+	public void updateNavxA_advanced(double time, double measuredAcceleration, double coefficient) {
+		double predictedPosition = predictPostion(time, position, velocity, acceleration);
+		double predictedVelocity = predictVelocity(time, velocity, acceleration);
+		double predictedAcceleration = predictAcceleration(time, acceleration);
 
-		double XmeasuredAcceleration = -navx.getWorldLinearAccelY();
-		double YmeasuredAcceleration = navx.getWorldLinearAccelX();
+		double experimentalPosition = position + (velocity*time) + (measuredAcceleration*time*time/2);
+		double experimentalVelocity = velocity + (measuredAcceleration*time);
 
-		double XexperimentalPosition = Xx + (Xv*time) + (XmeasuredAcceleration*time*time/2);
-		double XexperimentalVelocity = Xv + (XmeasuredAcceleration*time);
-		double YexperimentalPosition = Yx + (Yv*time) + (YmeasuredAcceleration*time*time/2);
-		double YexperimentalVelocity = Yv + (YmeasuredAcceleration*time);
-
-		Xx = filter(rio_position_alpha, XpredictedPosition, XexperimentalPosition);
-		Xv = filter(rio_position_beta, XpredictedVelocity, XexperimentalVelocity);
-		Xa = filter(rio_position_gamma, XpredictedAcceleration, XmeasuredAcceleration);
-		Yx = filter(rio_position_alpha, YpredictedPosition, YexperimentalPosition);
-		Yv = filter(rio_position_beta, YpredictedVelocity, YexperimentalVelocity);
-		Ya = filter(rio_position_gamma, YpredictedAcceleration, YmeasuredAcceleration);	
-
-		//This might not be useful, we will see, I have no clue if this is a good solution I just saw it
-		try { 
-			Thread.sleep((long)((1.0/NAVX_UPDATE_RATE)*1000.0));
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+		position = filter(rio_position_alpha, predictedPosition, experimentalPosition);
+		velocity = filter(rio_position_beta, predictedVelocity, experimentalVelocity);
+		acceleration = filter(rio_position_gamma, predictedAcceleration, measuredAcceleration);
 	}
 
-	public void updateNavxA_fastUpdate(double time) {
-		Rx = navx.getAngle();
-		
-		double XpredictedAcceleration = predictAcceleration(time, Xa);
-		double YpredictedAcceleration = predictAcceleration(time, Ya);
+	public void updateNavxA_fastUpdate(double time, double measuredAcceleration, double coefficient) {
+		double predictedAcceleration = predictAcceleration(time, acceleration);
 
-		double XmeasuredAcceleration = -navx.getWorldLinearAccelY();
-		double YmeasuredAcceleration = navx.getWorldLinearAccelX();
+		acceleration = filter(coefficient, predictedAcceleration, measuredAcceleration);
 
-		Xa = filter(navx_position_gamma, XpredictedAcceleration, XmeasuredAcceleration);
-		Ya = filter(navx_position_gamma, YpredictedAcceleration, YmeasuredAcceleration);
+		double predictedPosition = predictPostion(time, position, velocity, acceleration);
+		double predictedVelocity = predictVelocity(time, velocity, acceleration);
 
-		double XpredictedPosition = predictPostion(time, Xx, Xv, Xa);
-		double XpredictedVelocity = predictVelocity(time, Xv, Xa);
-		double YpredictedPosition = predictPostion(time, Yx, Yv, Ya);
-		double YpredictedVelocity = predictVelocity(time, Yv, Ya);
-
-		Xx = XpredictedPosition;
-		Xv = XpredictedVelocity;
-		Yx = YpredictedPosition;
-		Yv = YpredictedVelocity;
-
-		//This might not be useful, we will see, I have no clue if this is a good solution I just saw it
+		position = predictedPosition;
+		velocity = predictedVelocity;
+	//This might not be useful, we will see, I have no clue if this is a good solution I just saw it
 		// Check if we get lag with/without it
 	}
 	
