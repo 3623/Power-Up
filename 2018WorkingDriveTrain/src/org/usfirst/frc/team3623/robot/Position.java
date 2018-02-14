@@ -1,9 +1,9 @@
 package org.usfirst.frc.team3623.robot;
 
 public class Position {
-	private double position;
-	private double velocity;
-	private double acceleration;
+	private double position=0.0;
+	private double velocity=0.0;
+	private double acceleration=0.0;
 	
 	private double predictPostion(double time, double position, double velocity, double acceleration){
 		double xp = position + (time*velocity) + (time*time*acceleration/2); 

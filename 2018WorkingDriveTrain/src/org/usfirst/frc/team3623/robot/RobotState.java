@@ -12,18 +12,18 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 public class RobotState {
 	protected static final double NAVX_UPDATE_RATE = 200.0;
 	
-	Position x;
-	Position y;
-	Position r;
+	private Position x;
+	private Position y;
+	private Position r;
 	
-	double Xoffset;
-	double Yoffset;
-	double timeLastUpdate;
+	private double Xoffset;
+	private double Yoffset;
+	private double timeLastUpdate;
 	
-	AHRS navx;
-	double navxLastUpdate;
-	boolean navx_started;
-	double navx_gamma = 0.8;
+	private AHRS navx;
+	private double navxLastUpdate;
+	private boolean navx_started;
+	private double navx_gamma = 0.8;
 	
 	public void startNavX() {
 		try {
@@ -34,6 +34,8 @@ public class RobotState {
 				navx = new AHRS(SPI.Port.kMXP, (byte) NAVX_UPDATE_RATE); 
 				navx_started = true;
 			}
+			resetAbsolute();
+			
 			navxLastUpdate = navx.getUpdateCount();        
 			Thread navxThread = new Thread(new Runnable() {
 				@Override
@@ -48,6 +50,7 @@ public class RobotState {
 								
 								x.updateNavxA_fastUpdate(t, -navx.getWorldLinearAccelY(), navx_gamma);
 								y.updateNavxA_fastUpdate(t, navx.getWorldLinearAccelX(), navx_gamma);
+								r.updateGyro(navx.getAngle());
 
 								// Update functions
 								navxLastUpdate = navxCurrentUpdate;
@@ -90,6 +93,13 @@ public class RobotState {
 
 	private double correctAngle(double angle) {
 		return (((angle%360)+360)%360);
+	}
+	
+	private void resetAbsolute() {
+		x = new Position();
+		y = new Position();
+		r = new Position();
+		timeLastUpdate = System.currentTimeMillis();
 	}
 	
 	
@@ -151,9 +161,9 @@ public class RobotState {
 		navx.setAngleAdjustment(offset);
 	}
 	
-	public void setPosition(double x, double y) {
-		Xoffset = x - this.x.getPosition();
-		Yoffset = y - this.y.getPosition();
+	public void setPosition(double X, double Y) {
+		Xoffset = X - x.getPosition();
+		Yoffset = Y - y.getPosition();
 	}
 	
 	public void displayNavx() throws InterruptedException {
