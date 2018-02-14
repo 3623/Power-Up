@@ -5,31 +5,27 @@ public class Position {
 	double velocity;
 	double acceleration;
 	
-	private double predictPostion(double time, double x0, double v0, double a0){
-		double xp = x0 + (time*v0) + (time*time*a0/2); 
+	private double predictPostion(double time, double position, double velocity, double acceleration){
+		double xp = position + (time*velocity) + (time*time*acceleration/2); 
 		return xp;
 	}
 
-	private double predictVelocity(double time, double v0, double a0) {
-		double vp = v0 + (time*a0);
+	private double predictVelocity(double time, double velocity, double acceleration) {
+		double vp = velocity + (time*acceleration);
 		return vp;
 	}
 
-	private double predictAcceleration(double time, double a0) {
-		return a0;
+	private double predictAcceleration(double time, double acceleration) {
+		return acceleration;
 	}
 	
-	private void updateNavxA() {
-		double currentTime = System.currentTimeMillis();
-		double t = (currentTime - timeLastUpdate)/1000.0;
-		timeLastUpdate = currentTime;
-
-		double XpredictedPosition = predictPostion(t, Xx, Xv, Xa);
-		double XpredictedVelocity = predictVelocity(t, Xv, Xa);
-		double XpredictedAcceleration = predictAcceleration(t, Xa);
-		double YpredictedPosition = predictPostion(t, Yx, Yv, Ya);
-		double YpredictedVelocity = predictVelocity(t, Yv, Ya);
-		double YpredictedAcceleration = predictAcceleration(t, Ya);
+	public void updateNavxA(double time) {
+		double XpredictedPosition = predictPostion(time, Xx, Xv, Xa);
+		double XpredictedVelocity = predictVelocity(time, Xv, Xa);
+		double XpredictedAcceleration = predictAcceleration(time, Xa);
+		double YpredictedPosition = predictPostion(time, Yx, Yv, Ya);
+		double YpredictedVelocity = predictVelocity(time, Yv, Ya);
+		double YpredictedAcceleration = predictAcceleration(time, Ya);
 
 		double XmeasuredAcceleration = -navx.getWorldLinearAccelY();
 		double YmeasuredAcceleration = navx.getWorldLinearAccelX();
@@ -49,27 +45,23 @@ public class Position {
 		}
 	}
 
-	private void updateNavxA_advanced() {
-		double currentTime = System.currentTimeMillis();
-		double t = (currentTime - timeLastUpdate)/1000.0;
-		timeLastUpdate = currentTime;// Might want separate navx and rio times
-
+	public void updateNavxA_advanced(double time) {
 		Rx = navx.getAngle();
 		
-		double XpredictedPosition = predictPostion(t, Xx, Xv, Xa);
-		double XpredictedVelocity = predictVelocity(t, Xv, Xa);
-		double XpredictedAcceleration = predictAcceleration(t, Xa);
-		double YpredictedPosition = predictPostion(t, Yx, Yv, Ya);
-		double YpredictedVelocity = predictVelocity(t, Yv, Ya);
-		double YpredictedAcceleration = predictAcceleration(t, Ya);
+		double XpredictedPosition = predictPostion(time, Xx, Xv, Xa);
+		double XpredictedVelocity = predictVelocity(time, Xv, Xa);
+		double XpredictedAcceleration = predictAcceleration(time, Xa);
+		double YpredictedPosition = predictPostion(time, Yx, Yv, Ya);
+		double YpredictedVelocity = predictVelocity(time, Yv, Ya);
+		double YpredictedAcceleration = predictAcceleration(time, Ya);
 
 		double XmeasuredAcceleration = -navx.getWorldLinearAccelY();
 		double YmeasuredAcceleration = navx.getWorldLinearAccelX();
 
-		double XexperimentalPosition = Xx + (Xv*t) + (XmeasuredAcceleration*t*t/2);
-		double XexperimentalVelocity = Xv + (XmeasuredAcceleration*t);
-		double YexperimentalPosition = Yx + (Yv*t) + (YmeasuredAcceleration*t*t/2);
-		double YexperimentalVelocity = Yv + (YmeasuredAcceleration*t);
+		double XexperimentalPosition = Xx + (Xv*time) + (XmeasuredAcceleration*time*time/2);
+		double XexperimentalVelocity = Xv + (XmeasuredAcceleration*time);
+		double YexperimentalPosition = Yx + (Yv*time) + (YmeasuredAcceleration*time*time/2);
+		double YexperimentalVelocity = Yv + (YmeasuredAcceleration*time);
 
 		Xx = filter(rio_position_alpha, XpredictedPosition, XexperimentalPosition);
 		Xv = filter(rio_position_beta, XpredictedVelocity, XexperimentalVelocity);
@@ -86,15 +78,11 @@ public class Position {
 		}
 	}
 
-	private void updateNavxA_fastUpdate() {
-		double currentTime = System.currentTimeMillis();
-		double t = (currentTime - timeLastUpdate)/1000.0;
-		timeLastUpdate = currentTime;// Might want separate navx and rio times
-
+	public void updateNavxA_fastUpdate(double time) {
 		Rx = navx.getAngle();
 		
-		double XpredictedAcceleration = predictAcceleration(t, Xa);
-		double YpredictedAcceleration = predictAcceleration(t, Ya);
+		double XpredictedAcceleration = predictAcceleration(time, Xa);
+		double YpredictedAcceleration = predictAcceleration(time, Ya);
 
 		double XmeasuredAcceleration = -navx.getWorldLinearAccelY();
 		double YmeasuredAcceleration = navx.getWorldLinearAccelX();
@@ -102,10 +90,10 @@ public class Position {
 		Xa = filter(navx_position_gamma, XpredictedAcceleration, XmeasuredAcceleration);
 		Ya = filter(navx_position_gamma, YpredictedAcceleration, YmeasuredAcceleration);
 
-		double XpredictedPosition = predictPostion(t, Xx, Xv, Xa);
-		double XpredictedVelocity = predictVelocity(t, Xv, Xa);
-		double YpredictedPosition = predictPostion(t, Yx, Yv, Ya);
-		double YpredictedVelocity = predictVelocity(t, Yv, Ya);
+		double XpredictedPosition = predictPostion(time, Xx, Xv, Xa);
+		double XpredictedVelocity = predictVelocity(time, Xv, Xa);
+		double YpredictedPosition = predictPostion(time, Yx, Yv, Ya);
+		double YpredictedVelocity = predictVelocity(time, Yv, Ya);
 
 		Xx = XpredictedPosition;
 		Xv = XpredictedVelocity;
@@ -114,11 +102,17 @@ public class Position {
 
 		//This might not be useful, we will see, I have no clue if this is a good solution I just saw it
 		// Check if we get lag with/without it
-		try { 
-			// or 			Thread.sleep(5);
-			Thread.sleep((long)((1.0/NAVX_UPDATE_RATE)*1000.0));
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+	}
+	
+	public double getPosition() {
+		return this.position;
+	}
+	
+	public double getVelocity() {
+		return this.velocity;
+	}
+	
+	public double getAcceleration() {
+		return this.acceleration;
 	}
 }

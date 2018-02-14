@@ -4,10 +4,17 @@ public class DriveTrainRotation {
 	private static final double maxSpeedChange = 0.1;
 	double currentAngle;
 	double setAngle;
+	double setSpeed;
 	double lastSpeed;
+	
+	Mode mode;
 
+	public enum Mode{
+		STOPPED, RELEASE, MANUAL, PTR, HOLD, INCREMENT;
+	}
+	
 	//Takes angle which the robot should point to and turns to that angle at speed controlled by magnitude
-	private double oldRotateToAngle( double desiredAngle, double currentAngle, double magnitude){
+	private double oldPointToRotate( double desiredAngle, double currentAngle, double magnitude){
 		double rotationDif;
 		//If the raw difference is greater than 180, which happens when the values cross to and from 0 * 360,
 		//the value is subtracted by 360 to get the actual net difference
@@ -55,41 +62,76 @@ public class DriveTrainRotation {
 		this.currentAngle = updateAngle;
 	}
 	
-	public double rotateManual(double speed, double gyroAngle) {
-		updateAngle(gyroAngle);
+	private void setMode(Mode mode) {
+		this.mode = mode;
+	}
+	
+	private void setSpeed(double setSpeed) {
+		this.setSpeed = setSpeed;
+	}
+	
+	
+	
+	public void stop() {
+		setMode(Mode.STOPPED);
+	}
+	
+	public void release() {
+		setMode(Mode.RELEASE);
+	}
+	
+	public void rotateManual(double speed) {
 		setAngle(this.currentAngle);
-		double outputSpeed = checkSpeed(speed, lastSpeed);
-		this.lastSpeed = outputSpeed;
-		return outputSpeed;
+		setMode(Mode.MANUAL);
 	}
 	
-	public double rotateAngle(double joystickAngle, double gyroAngle) {
-		updateAngle(gyroAngle);
-		setAngle(joystickAngle);
-		double outputSpeed = oldRotateToAngle(joystickAngle, gyroAngle, 0.99);
-		double outputSpeedChecked = checkSpeed(outputSpeed, lastSpeed);
-		this.lastSpeed = outputSpeedChecked;
-		return outputSpeedChecked;
+	public void rotateAngle(double setAngle) {
+		setAngle(setAngle);
+		setMode(Mode.PTR);
 	}
 	
-	public double holdAngle(double gyroAngle) {
-		updateAngle(gyroAngle);
+	public void holdAngle() {
 		setAngle(this.setAngle);
-		double outputSpeed = oldRotateToAngle(this.setAngle, gyroAngle, 0.99);
-		double outputSpeedChecked = checkSpeed(outputSpeed, lastSpeed);
-		this.lastSpeed = outputSpeedChecked;
-		return outputSpeedChecked;
+		setMode(Mode.HOLD);
 	}
 	
-	public double incrementAngle(double increment, double gyroAngle) {
-		updateAngle(gyroAngle);
+	public void incrementAngle(double increment) {
 		setAngle(this.setAngle+increment);
-		double outputSpeed = oldRotateToAngle(this.setAngle, gyroAngle, 0.99);
-		double outputSpeedChecked = checkSpeed(outputSpeed, lastSpeed);
-		this.lastSpeed = outputSpeedChecked;
-		return outputSpeedChecked;
+		setMode(Mode.INCREMENT);
 	}
 
+	
+	
+	public double update(double gyroAngle) {
+		updateAngle(gyroAngle);
+		double outputSpeed = lastSpeed;
+		
+		switch (mode) {
+		case STOPPED:
+			outputSpeed = 0.0;
+			lastSpeed = 0.0;
+			return outputSpeed;
+			
+		case RELEASE:
+			outputSpeed = 0.0;
+			
+		case MANUAL:
+			outputSpeed = setSpeed;
+
+		case PTR:
+			outputSpeed = oldPointToRotate(setAngle, gyroAngle, 1.0);
+			
+		case HOLD:
+			outputSpeed = oldPointToRotate(setAngle, gyroAngle, 0.6);
+			
+		case INCREMENT:
+			outputSpeed = oldPointToRotate(setAngle, gyroAngle, 1.0);
+		}
+			
+		double outputSpeedChecked = checkSpeed(outputSpeed, lastSpeed);
+		this.lastSpeed = outputSpeedChecked;
+		return outputSpeedChecked;
+	}
 	
 	/*
 	 * Thinking have functions accesible by main to set angle and mode

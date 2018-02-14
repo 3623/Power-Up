@@ -5,10 +5,14 @@ import edu.wpi.first.wpilibj.Spark;
 
 
 public class DriveTrain {
+	DriveTrainRotation rotation;
+	
 	private static final int FRONT_LEFT_MOTOR = 0;
 	private static final int FRONT_RIGHT_MOTOR = 0;
 	private static final int BACK_LEFT_MOTOR = 0;
 	private static final int BACK_RIGHT_MOTOR = 0;
+
+	private static final double UPDATE_RATE = 50.0;
 
 
 	private Spark LF = new Spark(FRONT_LEFT_MOTOR);
@@ -69,6 +73,28 @@ public class DriveTrain {
 
 	}
 
+	public void startDriveTrain() {
+		Thread DriveTrainThread = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					while(true){
+						
+						try { 
+							Thread.sleep((long)((1.0/UPDATE_RATE)*1000.0));
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+					}
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 
+			}
+		});
+		DriveTrainThread.setName("DriveTrainControlThread");
+		DriveTrainThread.setPriority(Thread.MIN_PRIORITY+50); //Sure, this seems like a reasonable priority!
+		DriveTrainThread.start();
+	}
 
 }
