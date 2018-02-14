@@ -18,7 +18,7 @@ public class RobotState {
 
 	AHRS navx;
 	boolean navx_started = false;
-	private static final double NAVX_UPDATE_RATE = 10.0;
+	private static final double NAVX_UPDATE_RATE = 200.0;
 	private double navx_position_alpha=0.2; //Smooth but slow values, overshot: 0.2, 0.15, 0.08
 	private double navx_position_beta=0.15;
 	private double navx_position_gamma=0.8;

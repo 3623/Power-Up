@@ -106,6 +106,8 @@ public class Robot extends IterativeRobot {
 	
 	@Override
 	public void teleopInit() {
+		robotState.setPosition(0.0, 0.0);
+		robotState.setAngle(0.0);
 	}
 	
 	@Override
@@ -117,10 +119,11 @@ public class Robot extends IterativeRobot {
 		SmartDashboard.putNumber("Filter Y", robotState.getDisplacementY());
 		SmartDashboard.putNumber("Filter Yv", robotState.getVelocityY());
 		SmartDashboard.putNumber("Filter Ya", robotState.getAccelerationY());
-//
+		SmartDashboard.putNumber("Filter R", robotState.getRotation());
+		
 //		robotState.displayNavx();
 		
-		driveBase.driveCartesian(-mainStick.getRawAxis(1), mainStick.getRawAxis(0), -rotationStick.getRawAxis(0), 0.0);
+		driveBase.driveCartesian(-mainStick.getRawAxis(1), mainStick.getRawAxis(0), -rotationStick.getRawAxis(0), robotState.getRotation());
 	}
 
 	/**
