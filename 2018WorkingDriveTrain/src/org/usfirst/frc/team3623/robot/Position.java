@@ -1,9 +1,9 @@
 package org.usfirst.frc.team3623.robot;
 
 public class Position {
-	double position;
-	double velocity;
-	double acceleration;
+	private double position;
+	private double velocity;
+	private double acceleration;
 	
 	private double predictPostion(double time, double position, double velocity, double acceleration){
 		double xp = position + (time*velocity) + (time*time*acceleration/2); 
@@ -41,9 +41,9 @@ public class Position {
 		double experimentalPosition = position + (velocity*time) + (measuredAcceleration*time*time/2);
 		double experimentalVelocity = velocity + (measuredAcceleration*time);
 
-		position = filter(rio_position_alpha, predictedPosition, experimentalPosition);
-		velocity = filter(rio_position_beta, predictedVelocity, experimentalVelocity);
-		acceleration = filter(rio_position_gamma, predictedAcceleration, measuredAcceleration);
+		position = filter(coefficient, predictedPosition, experimentalPosition);
+		velocity = filter(coefficient, predictedVelocity, experimentalVelocity);
+		acceleration = filter(coefficient, predictedAcceleration, measuredAcceleration);
 	}
 
 	public void updateNavxA_fastUpdate(double time, double measuredAcceleration, double coefficient) {
@@ -58,6 +58,10 @@ public class Position {
 		velocity = predictedVelocity;
 	//This might not be useful, we will see, I have no clue if this is a good solution I just saw it
 		// Check if we get lag with/without it
+	}
+	
+	public void updateGyro(double gyroAngle) {
+		position = gyroAngle;
 	}
 	
 	public double getPosition() {
