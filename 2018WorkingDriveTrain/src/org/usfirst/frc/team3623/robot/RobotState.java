@@ -12,9 +12,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 public class RobotState {
 	protected static final double NAVX_UPDATE_RATE = 200.0;
 	
-	private Position x;
-	private Position y;
-	private Position r;
+	private Coordinate x;
+	private Coordinate y;
+	private Coordinate r;
 	
 	private double Xoffset;
 	private double Yoffset;
@@ -96,9 +96,9 @@ public class RobotState {
 	}
 	
 	private void resetAbsolute() {
-		x = new Position();
-		y = new Position();
-		r = new Position();
+		x = new Coordinate();
+		y = new Coordinate();
+		r = new Coordinate();
 		timeLastUpdate = System.currentTimeMillis();
 	}
 	

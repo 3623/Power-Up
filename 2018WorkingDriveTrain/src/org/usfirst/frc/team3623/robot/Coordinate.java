@@ -1,6 +1,6 @@
 package org.usfirst.frc.team3623.robot;
 
-public class Position {
+public class Coordinate {
 	private double position=0.0;
 	private double velocity=0.0;
 	private double acceleration=0.0;
@@ -74,5 +74,17 @@ public class Position {
 	
 	public double getAcceleration() {
 		return this.acceleration;
+	}
+	
+	public void setPosition(double position) {
+		this.position = position;
+	}
+	
+	public void setVelocity(double velocity) {
+		this.velocity = velocity;
+	}
+	
+	public void setAcceleration(double acceleration) {
+		this.acceleration = acceleration;
 	}
 }
