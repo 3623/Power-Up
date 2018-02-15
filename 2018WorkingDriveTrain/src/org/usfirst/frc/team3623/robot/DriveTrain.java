@@ -5,73 +5,87 @@ import edu.wpi.first.wpilibj.Spark;
 
 
 public class DriveTrain {
-	DriveTrainRotation rotation;
-	
-	private static final int FRONT_LEFT_MOTOR = 0;
-	private static final int FRONT_RIGHT_MOTOR = 0;
-	private static final int BACK_LEFT_MOTOR = 0;
-	private static final int BACK_RIGHT_MOTOR = 0;
-
-	private static final double UPDATE_RATE = 50.0;
-
-
-	private Spark LF = new Spark(FRONT_LEFT_MOTOR);
-	private Spark RF = new Spark(FRONT_RIGHT_MOTOR);
-	private Spark LB = new Spark(BACK_LEFT_MOTOR);
-	private Spark RB = new Spark(BACK_RIGHT_MOTOR);
-
+	private Spark frontLeft;
+	private Spark frontRight;
+	private Spark backLeft;
+	private Spark backRight;
 	private MecanumDrive drivetrain;
-	private RobotState state;
+	
+	private static final double UPDATE_RATE = 75.0;
+	private static final double maxSpeedChange = 0.15;
 
+	private RobotState robotState;
+	public DriveTrainRotation rotation;
 
-	public DriveTrain(RobotState state_) {
-		drivetrain = new MecanumDrive(LF, RF, LB, RB);
-		state = state_;
+	private double x;
+	private double y;
+	private double lastX;
+	private double lastY;
+	
+	Stage stage; 
+	
+	private enum Stage {
+		STOPPED, AUTO, TELEOP;
+	}
+	
+	
+	public DriveTrain() {
+		frontLeft = new Spark(0);
+		backLeft = new Spark(1);
+		frontRight = new Spark(2);
+		backRight = new Spark(3);
+
+		drivetrain = new MecanumDrive(frontLeft, backLeft, frontRight, backRight);
+		drivetrain.setSafetyEnabled(false);
+		robotState = new RobotState();
+		robotState.startNavX();
+		rotation = new DriveTrainRotation();
 	}
 
-	public void drivePolar(double magnitude, double direction, double rotation) {
+	private void drivePolar(double magnitude, double direction, double rotation) {
 		drivetrain.drivePolar(magnitude, direction, rotation);
 	}
 
-	public void driveXY(double x, double y, double rotation) {
+	private void driveXY(double x, double y, double rotation) {
 		drivetrain.driveCartesian(x, y, rotation);
 	}
 
-	public void driveCartestian(double x, double y, double rotation) {
-		drivetrain.driveCartesian(x, y, rotation, state.getAngle());
+	private void driveCartesian(double x, double y, double rotation, double angle) {
+		drivetrain.driveCartesian(x, y, rotation, angle);
+	}
+	
+	private double checkSpeed(double newSpeed, double lastSpeed) {
+		double dif = newSpeed-lastSpeed;
+		if (dif > maxSpeedChange) {
+			return (lastSpeed + maxSpeedChange);
+		}
+		else if (dif < -maxSpeedChange) {
+			return (lastSpeed - maxSpeedChange);
+		}
+		else {
+			return newSpeed;
+		}
 	}
 
-	//Takes angle which the robot should point to and turns to that angle at speed controlled by magnitude
-	public double oldRotateToAngle(double angle, double magnitude){
-		double rotationDif;
-		//If the raw difference is greater than 180, which happens when the values cross to and from 0 * 360,
-		//the value is subtracted by 360 to get the actual net difference
-		if( (state.getAngle() - angle) > 180){
-			rotationDif = (state.getAngle() - angle - 360) ;
+	private void output() {
+		switch (stage) {
+		case STOPPED:
+			driveCartesian(0.0, 0.0, 0.0, 0.0);
+			this.lastX = 0.0;
+			this.lastY = 0.0;
+			
+		case TELEOP:
+			double gyroAngle = robotState.getRotation();
+			double x = checkSpeed(this.x, this.lastX);
+			double y = checkSpeed(this.y, this.lastY);
+			double r = rotation.update(gyroAngle);
+			driveCartesian(x, y, r, gyroAngle);
+			this.lastX = x;
+			this.lastY = y;
 		}
-		else if( (state.getAngle() - angle) < -180){
-			rotationDif = (state.getAngle() - angle + 360) ;
-		}
-		//If the magnitude of the difference is less than 180 than it is equal to the net difference. 
-		// so nothing extra is done
-		else{
-			rotationDif = (state.getAngle() - angle) ;
-		}
-
-		//Sets output rotation to inverted dif as a factor of the given magnitude
-		//Uses cbrt to give greater output at mid to low differences
-		double rotationPTR = 0.4 * Math.cbrt( rotationDif / -180 * magnitude);
-
-		//Reduces rotation magnitude output is angle is within 4 degrees of desired
-		if(Math.abs(rotationDif) < 4){
-			rotationPTR = rotationDif / -180 * magnitude;
-		}
-		return rotationPTR;
+			
 	}
 
-	public void moveToPoint(double x, double y, double magnitude) {
-
-	}
 
 	public void startDriveTrain() {
 		Thread DriveTrainThread = new Thread(new Runnable() {
@@ -79,6 +93,7 @@ public class DriveTrain {
 			public void run() {
 				try {
 					while(true){
+						output();
 						
 						try { 
 							Thread.sleep((long)((1.0/UPDATE_RATE)*1000.0));
@@ -95,6 +110,24 @@ public class DriveTrain {
 		DriveTrainThread.setName("DriveTrainControlThread");
 		DriveTrainThread.setPriority(Thread.MIN_PRIORITY+50); //Sure, this seems like a reasonable priority!
 		DriveTrainThread.start();
+	}
+	
+	public void setStopped() {
+		this.stage = Stage.STOPPED;
+		rotation.stop();
+	}
+	
+	public void setAuto() {
+		this.stage = Stage.AUTO;
+	}
+	
+	public void setTeleop() {
+		this.stage = Stage.TELEOP;
+	}
+	
+	public void setXY(double x, double y) {
+		this.x = x;
+		this.y = y;
 	}
 
 }

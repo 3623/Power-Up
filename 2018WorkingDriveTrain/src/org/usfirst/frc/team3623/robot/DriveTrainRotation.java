@@ -2,13 +2,13 @@ package org.usfirst.frc.team3623.robot;
 
 public class DriveTrainRotation {
 	private static final double maxSpeedChange = 0.1;
-	double setAngle;
-	double setSpeed;
-	double lastSpeed;
+	private double setAngle;
+	private double setSpeed;
+	private double lastSpeed;
 	
-	Mode mode, lastMode;
+	private Mode mode, lastMode;
 
-	public enum Mode{
+	private enum Mode{
 		STOPPED, RELEASE, MANUAL, PTR, HOLD, INCREMENT;
 	}
 	

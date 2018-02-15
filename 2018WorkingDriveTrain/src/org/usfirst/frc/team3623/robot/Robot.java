@@ -23,16 +23,16 @@ public class Robot extends IterativeRobot {
 	Joystick mainStick;
 	Joystick rotationStick;
 	
+	DriveTrain drivetrain;
+	
 	// Designated spatial assignments (Front Left, etc) are as if you are looking at the robot from the back, or top down.
-	Spark frontLeft;
-	Spark frontRight;
-	Spark backLeft;
-	Spark backRight;
-	MecanumDrive driveBase;
-	RobotState robotState;
-	
-	double angleLocked=0.0;
-	
+//	Spark frontLeft;
+//	Spark frontRight;
+//	Spark backLeft;
+//	Spark backRight;
+//	MecanumDrive driveBase;
+//	RobotState robotState;
+		
 	/** Declare Variables
 	final String defaultAuto = "Default";
 	final String customAuto = "My Auto";
@@ -49,19 +49,21 @@ public class Robot extends IterativeRobot {
 		mainStick = new Joystick(0);
 		rotationStick = new Joystick(1);
 		
-		frontLeft = new Spark(0);
-		backLeft = new Spark(1);
-		frontRight = new Spark(2);
-		backRight = new Spark(3);
-
-		driveBase = new MecanumDrive(frontLeft, backLeft, frontRight, backRight);
-		driveBase.setSafetyEnabled(false);
+		drivetrain = new DriveTrain();
+		
+//		frontLeft = new Spark(0);
+//		backLeft = new Spark(1);
+//		frontRight = new Spark(2);
+//		backRight = new Spark(3);
+//
+//		driveBase = new MecanumDrive(frontLeft, backLeft, frontRight, backRight);
+//		driveBase.setSafetyEnabled(false);
 		/*chooser.addDefault("Default Auto", defaultAuto);
 		chooser.addObject("My Auto", customAuto);
 		SmartDashboard.putData("Auto choices", chooser);*/
 		
-		robotState = new RobotState();
-		robotState.startNavX();
+//		robotState = new RobotState();
+//		robotState.startNavX();
 //		robotState.startRioAccel();
 	}
 
@@ -106,26 +108,33 @@ public class Robot extends IterativeRobot {
 	
 	@Override
 	public void teleopInit() {
-		robotState.setPosition(0.0, 0.0);
-		robotState.setAngle(0.0);
+//		robotState.setPosition(0.0, 0.0);
+//		robotState.setAngle(0.0);
+		drivetrain.setTeleop();
 	}
 	
 	@Override
 	public void teleopPeriodic() {
-		double rotationValue;
-		SmartDashboard.putNumber("Filter X", robotState.getDisplacementX());
-		SmartDashboard.putNumber("Filter Xv", robotState.getVelocityX());
-		SmartDashboard.putNumber("Filter Xa", robotState.getAccelerationX());
-		SmartDashboard.putNumber("Filter Y", robotState.getDisplacementY());
-		SmartDashboard.putNumber("Filter Yv", robotState.getVelocityY());
-		SmartDashboard.putNumber("Filter Ya", robotState.getAccelerationY());
-		SmartDashboard.putNumber("Filter R", robotState.getRotation());
+//		SmartDashboard.putNumber("Filter X", robotState.getDisplacementX());
+//		SmartDashboard.putNumber("Filter Xv", robotState.getVelocityX());
+//		SmartDashboard.putNumber("Filter Xa", robotState.getAccelerationX());
+//		SmartDashboard.putNumber("Filter Y", robotState.getDisplacementY());
+//		SmartDashboard.putNumber("Filter Yv", robotState.getVelocityY());
+//		SmartDashboard.putNumber("Filter Ya", robotState.getAccelerationY());
+//		SmartDashboard.putNumber("Filter R", robotState.getRotation());
 		
 //		robotState.displayNavx();
 		
-		driveBase.driveCartesian(-mainStick.getRawAxis(1), mainStick.getRawAxis(0), -rotationStick.getRawAxis(0), robotState.getRotation());
+		drivetrain.setXY(-mainStick.getRawAxis(0), -mainStick.getRawAxis(1));
+		drivetrain.rotation.
+		
 	}
 
+	@Override
+	public void disabledInit() {
+		drivetrain.setStopped();
+	}
+	
 	/**
 	 * This function is called periodically during test mode
 	 */
