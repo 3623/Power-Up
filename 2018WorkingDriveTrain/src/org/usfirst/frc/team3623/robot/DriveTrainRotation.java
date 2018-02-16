@@ -1,15 +1,22 @@
 package org.usfirst.frc.team3623.robot;
 
 public class DriveTrainRotation {
-	private static final double maxSpeedChange = 0.1;
+	private static final double maxSpeedChange = 0.04;
 	private double setAngle;
-	private double setSpeed;
-	private double lastSpeed;
+	public double setSpeed;
+	double lastSpeed;
 	
-	private Mode mode, lastMode;
+	public Mode mode, lastMode;
 
-	private enum Mode{
+	public enum Mode{
 		STOPPED, RELEASE, MANUAL, PTR, HOLD, INCREMENT;
+	}
+	
+	public DriveTrainRotation() {
+		mode = Mode.STOPPED;
+		lastSpeed = 0.0;
+		setSpeed = 0.0;
+		setAngle = 0.0;
 	}
 	
 	//Takes angle which the robot should point to and turns to that angle at speed controlled by magnitude
@@ -40,7 +47,7 @@ public class DriveTrainRotation {
 		return rotationPTR;
 	}
 
-	private double checkSpeed(double newSpeed, double lastSpeed) {
+	public double checkSpeed(double newSpeed, double lastSpeed) {
 		double dif = newSpeed-lastSpeed;
 		if (dif > maxSpeedChange) {
 			return (lastSpeed + maxSpeedChange);
@@ -76,7 +83,7 @@ public class DriveTrainRotation {
 	}
 	
 	public void rotateManual(double speed) {
-		setSpeed(speed);
+		this.setSpeed = speed;
 		setMode(Mode.MANUAL);
 	}
 	
@@ -99,35 +106,41 @@ public class DriveTrainRotation {
 	
 	public double update(double gyroAngle) {
 		double outputSpeed = lastSpeed;
-		if (lastMode == Mode.MANUAL && this.mode == Mode.MANUAL) {
-			setAngle(gyroAngle);
-		}
-		
-		switch (mode) {
+//		if (lastMode == Mode.MANUAL && this.mode == Mode.MANUAL) {
+//			setAngle(gyroAngle);
+//		}
+//		this.mode = Mode.MANUAL;
+		switch (this.mode) {
 		case STOPPED:
 			outputSpeed = 0.0;
 			lastSpeed = 0.0;
-			return outputSpeed;
+			break;
 			
 		case RELEASE:
 			outputSpeed = 0.0;
+			break;
 			
 		case MANUAL:
+//			SmartDashboard.putBoolean("shoot", true);
 			outputSpeed = setSpeed;
+			break;
 
 		case PTR:
-			outputSpeed = oldPointToRotate(setAngle, gyroAngle, 1.0);
+			outputSpeed = oldPointToRotate(setAngle, gyroAngle, 0.6);
+			break;
 			
 		case HOLD:
 			outputSpeed = oldPointToRotate(setAngle, gyroAngle, 0.6);
+			break;
 			
 		case INCREMENT:
 			outputSpeed = oldPointToRotate(setAngle, gyroAngle, 1.0);
+			break;
 		}
 			
 		lastMode = mode;
 		double outputSpeedChecked = checkSpeed(outputSpeed, lastSpeed);
-		this.lastSpeed = outputSpeedChecked;
+		lastSpeed = outputSpeedChecked;
 		return outputSpeedChecked;
 	}
 	

@@ -22,7 +22,7 @@ public class DriveTrain {
 	private double lastX;
 	private double lastY;
 	
-	Stage stage; 
+	Stage stage = Stage.STOPPED; 
 	
 	private enum Stage {
 		STOPPED, AUTO, TELEOP;
@@ -40,6 +40,7 @@ public class DriveTrain {
 		robotState = new RobotState();
 		robotState.startNavX();
 		rotation = new DriveTrainRotation();
+		startDriveTrain();
 	}
 
 	private void drivePolar(double magnitude, double direction, double rotation) {
@@ -51,7 +52,7 @@ public class DriveTrain {
 	}
 
 	private void driveCartesian(double x, double y, double rotation, double angle) {
-		drivetrain.driveCartesian(x, y, rotation, angle);
+		drivetrain.driveCartesian(y, x, rotation, angle);
 	}
 	
 	private double checkSpeed(double newSpeed, double lastSpeed) {
@@ -108,13 +109,13 @@ public class DriveTrain {
 			}
 		});
 		DriveTrainThread.setName("DriveTrainControlThread");
-		DriveTrainThread.setPriority(Thread.MIN_PRIORITY+50); //Sure, this seems like a reasonable priority!
+		DriveTrainThread.setPriority(Thread.MIN_PRIORITY+4); //Sure, this seems like a reasonable priority!
 		DriveTrainThread.start();
 	}
 	
 	public void setStopped() {
 		this.stage = Stage.STOPPED;
-		rotation.stop();
+//		rotation.stop();
 	}
 	
 	public void setAuto() {
@@ -129,5 +130,12 @@ public class DriveTrain {
 		this.x = x;
 		this.y = y;
 	}
-
+	
+	public void setRotation(double speed) {
+		rotation.rotateManual(speed);
+	}
+	
+	public void setAngle(double angle) {
+		rotation.rotateAngle(angle);
+	}
 }

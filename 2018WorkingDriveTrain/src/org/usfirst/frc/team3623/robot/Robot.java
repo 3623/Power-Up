@@ -125,8 +125,14 @@ public class Robot extends IterativeRobot {
 		
 //		robotState.displayNavx();
 		
-		drivetrain.setXY(-mainStick.getRawAxis(0), -mainStick.getRawAxis(1));
-		drivetrain.rotation.
+		drivetrain.setXY(mainStick.getRawAxis(0), -mainStick.getRawAxis(1));
+		if (rotationStick.getRawButton(1)) {
+			drivetrain.setAngle(((rotationStick.getDirectionDegrees()+360)%360));
+		}
+		else {
+			drivetrain.setRotation(-rotationStick.getRawAxis(3));
+		}
+		SmartDashboard.putNumber("Output r", drivetrain.rotation.update(0.0));
 		
 	}
 
