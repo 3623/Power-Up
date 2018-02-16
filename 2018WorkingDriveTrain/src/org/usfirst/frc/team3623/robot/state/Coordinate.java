@@ -60,10 +60,6 @@ public class Coordinate {
 		// Check if we get lag with/without it
 	}
 	
-	public void updateGyro(double gyroAngle) {
-		position = gyroAngle;
-	}
-	
 	public double getPosition() {
 		return this.position;
 	}

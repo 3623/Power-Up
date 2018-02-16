@@ -15,7 +15,7 @@ public class RobotState {
 	
 	private Coordinate x;
 	private Coordinate y;
-	private Coordinate r;
+	private GyroCoordinate r;
 	
 	private double Xoffset;
 	private double Yoffset;
@@ -51,7 +51,7 @@ public class RobotState {
 								
 								x.updateNavxA_fastUpdate(t, -navx.getWorldLinearAccelY(), navx_gamma);
 								y.updateNavxA_fastUpdate(t, navx.getWorldLinearAccelX(), navx_gamma);
-								r.updateGyro(navx.getAngle());
+								r.updateGyro(t, navx.getAngle());
 
 								// Update functions
 								navxLastUpdate = navxCurrentUpdate;
@@ -99,7 +99,7 @@ public class RobotState {
 	private void resetAbsolute() {
 		x = new Coordinate();
 		y = new Coordinate();
-		r = new Coordinate();
+		r = new GyroCoordinate();
 		timeLastUpdate = System.currentTimeMillis();
 	}
 	
