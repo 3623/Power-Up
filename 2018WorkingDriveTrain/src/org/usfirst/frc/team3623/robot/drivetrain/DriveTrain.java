@@ -1,6 +1,9 @@
-package org.usfirst.frc.team3623.robot;
+package org.usfirst.frc.team3623.robot.drivetrain;
 
 import edu.wpi.first.wpilibj.drive.MecanumDrive;
+
+import org.usfirst.frc.team3623.robot.state.RobotState;
+
 import edu.wpi.first.wpilibj.Spark;
 
 
@@ -15,14 +18,15 @@ public class DriveTrain {
 	private static final double maxSpeedChange = 0.15;
 
 	private RobotState robotState;
-	public DriveTrainRotation rotation;
+	public DriveTrainRotation rotation; //Leave public for now
+	public DriveTrainXY xy;
 
 	private double x;
 	private double y;
 	private double lastX;
 	private double lastY;
 	
-	Stage stage = Stage.STOPPED; 
+	private Stage stage = Stage.STOPPED; 
 	
 	private enum Stage {
 		STOPPED, AUTO, TELEOP;
@@ -37,10 +41,12 @@ public class DriveTrain {
 
 		drivetrain = new MecanumDrive(frontLeft, backLeft, frontRight, backRight);
 		drivetrain.setSafetyEnabled(false);
+		
 		robotState = new RobotState();
 		robotState.startNavX();
 		rotation = new DriveTrainRotation();
-		startDriveTrain();
+		xy = new DriveTrainXY();
+		
 	}
 
 	private void drivePolar(double magnitude, double direction, double rotation) {
@@ -115,7 +121,7 @@ public class DriveTrain {
 	
 	public void setStopped() {
 		this.stage = Stage.STOPPED;
-//		rotation.stop();
+		rotation.stop();
 	}
 	
 	public void setAuto() {
@@ -127,8 +133,7 @@ public class DriveTrain {
 	}
 	
 	public void setXY(double x, double y) {
-		this.x = x;
-		this.y = y;
+		xy.setManual(x, y);
 	}
 	
 	public void setRotation(double speed) {
@@ -137,5 +142,9 @@ public class DriveTrain {
 	
 	public void setAngle(double angle) {
 		rotation.rotateAngle(angle);
+	}
+
+	public void holdRotation() {
+		rotation.holdAngle();
 	}
 }

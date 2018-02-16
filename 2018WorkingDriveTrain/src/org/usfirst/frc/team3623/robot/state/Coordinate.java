@@ -1,4 +1,4 @@
-package org.usfirst.frc.team3623.robot;
+package org.usfirst.frc.team3623.robot.state;
 
 public class Coordinate {
 	private double position=0.0;

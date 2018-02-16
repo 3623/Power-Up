@@ -7,6 +7,9 @@ import edu.wpi.first.wpilibj.drive.MecanumDrive;
 import edu.wpi.first.wpilibj.interfaces.Accelerometer;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
+import org.usfirst.frc.team3623.robot.drivetrain.DriveTrain;
+
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.SPI;
 
@@ -51,6 +54,8 @@ public class Robot extends IterativeRobot {
 		
 		drivetrain = new DriveTrain();
 		
+		drivetrain.startDriveTrain();
+
 //		frontLeft = new Spark(0);
 //		backLeft = new Spark(1);
 //		frontRight = new Spark(2);
@@ -126,11 +131,14 @@ public class Robot extends IterativeRobot {
 //		robotState.displayNavx();
 		
 		drivetrain.setXY(mainStick.getRawAxis(0), -mainStick.getRawAxis(1));
-		if (rotationStick.getRawButton(1)) {
+		if (rotationStick.getMagnitude() > 0.5) {
 			drivetrain.setAngle(((rotationStick.getDirectionDegrees()+360)%360));
 		}
-		else {
+		else if (Math.abs(rotationStick.getTwist()) > 0.2) {
 			drivetrain.setRotation(-rotationStick.getRawAxis(3));
+		}
+		else {
+			drivetrain.holdRotation();
 		}
 		SmartDashboard.putNumber("Output r", drivetrain.rotation.update(0.0));
 		

@@ -1,14 +1,14 @@
-package org.usfirst.frc.team3623.robot;
+package org.usfirst.frc.team3623.robot.drivetrain;
 
 public class DriveTrainRotation {
 	private static final double maxSpeedChange = 0.04;
 	private double setAngle;
-	public double setSpeed;
-	double lastSpeed;
+	private double setSpeed;
+	private double lastSpeed;
 	
-	public Mode mode, lastMode;
+	private Mode mode, lastMode;
 
-	public enum Mode{
+	private enum Mode{
 		STOPPED, RELEASE, MANUAL, PTR, HOLD, INCREMENT;
 	}
 	
@@ -19,8 +19,18 @@ public class DriveTrainRotation {
 		setAngle = 0.0;
 	}
 	
+	
+	
+	private double gyroCorrected(double angle){
+		return (((angle%360)+360)%360);
+	}
+	
+	private double rotationjoystickCorrected(double angle){
+		return ((angle+360)%360);
+	}
+	
 	//Takes angle which the robot should point to and turns to that angle at speed controlled by magnitude
-	private double oldPointToRotate( double desiredAngle, double currentAngle, double magnitude){
+	private double oldPointToRotate(double desiredAngle, double currentAngle, double magnitude) {
 		double rotationDif;
 		//If the raw difference is greater than 180, which happens when the values cross to and from 0 * 360,
 		//the value is subtracted by 360 to get the actual net difference
@@ -47,7 +57,7 @@ public class DriveTrainRotation {
 		return rotationPTR;
 	}
 
-	public double checkSpeed(double newSpeed, double lastSpeed) {
+	private double checkSpeed(double newSpeed, double lastSpeed) {
 		double dif = newSpeed-lastSpeed;
 		if (dif > maxSpeedChange) {
 			return (lastSpeed + maxSpeedChange);
@@ -105,6 +115,8 @@ public class DriveTrainRotation {
 	
 	
 	public double update(double gyroAngle) {
+		double correctedGyroAngle = gyroCorrected(gyroAngle);
+		
 		double outputSpeed = lastSpeed;
 //		if (lastMode == Mode.MANUAL && this.mode == Mode.MANUAL) {
 //			setAngle(gyroAngle);
@@ -123,18 +135,19 @@ public class DriveTrainRotation {
 		case MANUAL:
 //			SmartDashboard.putBoolean("shoot", true);
 			outputSpeed = setSpeed;
+			setAngle(correctedGyroAngle);
 			break;
 
 		case PTR:
-			outputSpeed = oldPointToRotate(setAngle, gyroAngle, 0.6);
+			outputSpeed = oldPointToRotate(setAngle, correctedGyroAngle, 0.6);
 			break;
 			
 		case HOLD:
-			outputSpeed = oldPointToRotate(setAngle, gyroAngle, 0.6);
+			outputSpeed = oldPointToRotate(setAngle, correctedGyroAngle, 0.6);
 			break;
 			
 		case INCREMENT:
-			outputSpeed = oldPointToRotate(setAngle, gyroAngle, 1.0);
+			outputSpeed = oldPointToRotate(setAngle, correctedGyroAngle, 1.0);
 			break;
 		}
 			
