@@ -22,6 +22,10 @@ public class GyroCoordinate {
 	private double filter(double trustCoefficient, double predictedValue, double measuredValue) {
 		return (predictedValue + trustCoefficient*(measuredValue-predictedValue));
 	}
+	
+	private double gyroCorrected(double angle){
+		return (((angle%360)+360)%360);
+	}
 
 	public void updateGyro(double time, double gyroAngle) {
 		double dif = gyroAngle - position;
@@ -33,7 +37,7 @@ public class GyroCoordinate {
 	}
 	
 	public double getPosition() {
-		return this.position;
+		return gyroCorrected(this.position);
 	}
 	
 	public double getVelocity() {

@@ -2,7 +2,7 @@ package org.usfirst.frc.team3623.robot.drivetrain;
 
 import edu.wpi.first.wpilibj.drive.MecanumDrive;
 
-import org.usfirst.frc.team3623.robot.state.RobotState;
+import org.usfirst.frc.team3623.robot.state.RobotTelemetry;
 
 import edu.wpi.first.wpilibj.Spark;
 
@@ -17,7 +17,7 @@ public class DriveTrain {
 	private static final double UPDATE_RATE = 75.0;
 	private static final double maxSpeedChange = 0.15;
 
-	private RobotState robotState;
+	private RobotTelemetry robotState;
 	public DriveTrainRotation rotation; //Leave public for now
 	public DriveTrainXY xy;
 
@@ -42,7 +42,7 @@ public class DriveTrain {
 		drivetrain = new MecanumDrive(frontLeft, backLeft, frontRight, backRight);
 		drivetrain.setSafetyEnabled(false);
 		
-		robotState = new RobotState();
+		robotState = new RobotTelemetry();
 		robotState.startNavX();
 		rotation = new DriveTrainRotation();
 		xy = new DriveTrainXY();
@@ -80,6 +80,7 @@ public class DriveTrain {
 			driveCartesian(0.0, 0.0, 0.0, 0.0);
 			this.lastX = 0.0;
 			this.lastY = 0.0;
+			break;
 			
 		case TELEOP:
 			double gyroAngle = robotState.getRotation();
@@ -87,8 +88,10 @@ public class DriveTrain {
 			double y = checkSpeed(this.y, this.lastY);
 			double r = rotation.update(gyroAngle);
 			driveCartesian(x, y, r, gyroAngle);
+			robotState.updateCommands(x, y);
 			this.lastX = x;
 			this.lastY = y;
+			break;
 		}
 			
 	}
@@ -122,6 +125,7 @@ public class DriveTrain {
 	public void setStopped() {
 		this.stage = Stage.STOPPED;
 		rotation.stop();
+		xy.stop();
 	}
 	
 	public void setAuto() {

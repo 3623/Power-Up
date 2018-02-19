@@ -3,8 +3,6 @@ package org.usfirst.frc.team3623.robot;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Spark;
-import edu.wpi.first.wpilibj.drive.MecanumDrive;
-import edu.wpi.first.wpilibj.interfaces.Accelerometer;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -27,20 +25,13 @@ public class Robot extends IterativeRobot {
 	Joystick rotationStick;
 	
 	DriveTrain drivetrain;
-	
-	// Designated spatial assignments (Front Left, etc) are as if you are looking at the robot from the back, or top down.
-//	Spark frontLeft;
-//	Spark frontRight;
-//	Spark backLeft;
-//	Spark backRight;
-//	MecanumDrive driveBase;
-//	RobotState robotState;
 		
-	/** Declare Variables
+	String gameData;
+
 	final String defaultAuto = "Default";
 	final String customAuto = "My Auto";
 	String autoSelected;
-	SendableChooser<String> chooser = new SendableChooser<>();*/
+	SendableChooser<String> chooser = new SendableChooser<>();
 
 	
 	/**
@@ -56,20 +47,10 @@ public class Robot extends IterativeRobot {
 		
 		drivetrain.startDriveTrain();
 
-//		frontLeft = new Spark(0);
-//		backLeft = new Spark(1);
-//		frontRight = new Spark(2);
-//		backRight = new Spark(3);
-//
-//		driveBase = new MecanumDrive(frontLeft, backLeft, frontRight, backRight);
-//		driveBase.setSafetyEnabled(false);
-		/*chooser.addDefault("Default Auto", defaultAuto);
+
+		chooser.addDefault("Default Auto", defaultAuto);
 		chooser.addObject("My Auto", customAuto);
-		SmartDashboard.putData("Auto choices", chooser);*/
-		
-//		robotState = new RobotState();
-//		robotState.startNavX();
-//		robotState.startRioAccel();
+		SmartDashboard.putData("Auto choices", chooser);
 	}
 
 	/**
@@ -85,10 +66,12 @@ public class Robot extends IterativeRobot {
 	 */
 	@Override
 	public void autonomousInit() {
-		/*autoSelected = chooser.getSelected();
-		// autoSelected = SmartDashboard.getString("Auto Selector",
-		// defaultAuto);
-		System.out.println("Auto selected: " + autoSelected);*/
+		gameData = DriverStation.getInstance().getGameSpecificMessage();
+		
+		
+		autoSelected = chooser.getSelected();
+		autoSelected = SmartDashboard.getString("Auto Selector", defaultAuto);
+		System.out.println("Auto selected: " + autoSelected);
 	}
 
 	/**
@@ -113,23 +96,11 @@ public class Robot extends IterativeRobot {
 	
 	@Override
 	public void teleopInit() {
-//		robotState.setPosition(0.0, 0.0);
-//		robotState.setAngle(0.0);
 		drivetrain.setTeleop();
 	}
 	
 	@Override
 	public void teleopPeriodic() {
-//		SmartDashboard.putNumber("Filter X", robotState.getDisplacementX());
-//		SmartDashboard.putNumber("Filter Xv", robotState.getVelocityX());
-//		SmartDashboard.putNumber("Filter Xa", robotState.getAccelerationX());
-//		SmartDashboard.putNumber("Filter Y", robotState.getDisplacementY());
-//		SmartDashboard.putNumber("Filter Yv", robotState.getVelocityY());
-//		SmartDashboard.putNumber("Filter Ya", robotState.getAccelerationY());
-//		SmartDashboard.putNumber("Filter R", robotState.getRotation());
-		
-//		robotState.displayNavx();
-		
 		drivetrain.setXY(mainStick.getRawAxis(0), -mainStick.getRawAxis(1));
 		if (rotationStick.getMagnitude() > 0.5) {
 			drivetrain.setAngle(((rotationStick.getDirectionDegrees()+360)%360));
@@ -148,6 +119,11 @@ public class Robot extends IterativeRobot {
 	public void disabledInit() {
 		drivetrain.setStopped();
 	}
+	
+//	@Override
+//	public void disabledPeriodic() {
+//		
+//	}
 	
 	/**
 	 * This function is called periodically during test mode

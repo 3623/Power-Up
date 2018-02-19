@@ -10,7 +10,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 
-public class RobotState {
+public class RobotTelemetry {
 	protected static final double NAVX_UPDATE_RATE = 200.0;
 	
 	private Coordinate x;
@@ -25,6 +25,8 @@ public class RobotState {
 	private double navxLastUpdate;
 	private boolean navx_started;
 	private double navx_gamma = 0.8;
+	
+	private double command_beta = 0.08;
 	
 	public void startNavX() {
 		try {
@@ -179,5 +181,11 @@ public class RobotState {
 		SmartDashboard.putNumber("Navx Rotation", navx.getAngle());
 //		SmartDashboard.putNumber("Rio X Accel", rioAccel.getX());
 //		SmartDashboard.putNumber("Rio Y Accel", rioAccel.getY());
+	}
+
+
+	public void updateCommands(double x, double y) {
+		this.x.updateVelocityCommand(x, command_beta);
+		this.y.updateVelocityCommand(y, command_beta);
 	}
 }

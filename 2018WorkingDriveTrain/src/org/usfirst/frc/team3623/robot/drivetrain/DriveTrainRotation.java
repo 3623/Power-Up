@@ -1,5 +1,7 @@
 package org.usfirst.frc.team3623.robot.drivetrain;
 
+import edu.wpi.first.wpilibj.PIDController;
+
 public class DriveTrainRotation {
 	private static final double maxSpeedChange = 0.04;
 	private double setAngle;
@@ -18,8 +20,6 @@ public class DriveTrainRotation {
 		setSpeed = 0.0;
 		setAngle = 0.0;
 	}
-	
-	
 	
 	private double gyroCorrected(double angle){
 		return (((angle%360)+360)%360);
@@ -108,7 +108,7 @@ public class DriveTrainRotation {
 	}
 	
 	public void incrementAngle(double increment) {
-		setAngle(this.setAngle+increment);
+		setAngle((this.setAngle+increment)%360);
 		setMode(Mode.INCREMENT);
 	}
 

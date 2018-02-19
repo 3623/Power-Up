@@ -83,4 +83,8 @@ public class Coordinate {
 	public void setAcceleration(double acceleration) {
 		this.acceleration = acceleration;
 	}
+
+	public void updateVelocityCommand(double speed, double coefficient) {
+		velocity = filter(coefficient, velocity, speed);
+	}
 }
