@@ -3,6 +3,7 @@ package org.usfirst.frc.team3623.robot;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Spark;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -24,11 +25,15 @@ public class Robot extends IterativeRobot {
 	Joystick mainStick;
 	Joystick rotationStick;
 	
-	DriveTrain drivetrain;
+	protected DriveTrain drivetrain;
 		
+	Timer autoTimer;
+	
 	String gameData;
+	char ourSwitch, scale, theirSwitch;
 
-	final String defaultAuto = "Default";
+	final String defaultAuto = "Default- Drive Forward";
+	final String auto1 = "Spider Y 2 Bananas- Dead reckoning";
 	final String customAuto = "My Auto";
 	String autoSelected;
 	SendableChooser<String> chooser = new SendableChooser<>();
@@ -44,11 +49,11 @@ public class Robot extends IterativeRobot {
 		rotationStick = new Joystick(1);
 		
 		drivetrain = new DriveTrain();
-		
 		drivetrain.startDriveTrain();
 
+		autoTimer = new Timer();
 
-		chooser.addDefault("Default Auto", defaultAuto);
+		chooser.addDefault("Default Auto- Drive Forward", defaultAuto);
 		chooser.addObject("My Auto", customAuto);
 		SmartDashboard.putData("Auto choices", chooser);
 	}
@@ -67,11 +72,16 @@ public class Robot extends IterativeRobot {
 	@Override
 	public void autonomousInit() {
 		gameData = DriverStation.getInstance().getGameSpecificMessage();
+		ourSwitch = gameData.charAt(0);
+		scale = gameData.charAt(1);
+		theirSwitch = gameData.charAt(2);
 		
 		
 		autoSelected = chooser.getSelected();
-		autoSelected = SmartDashboard.getString("Auto Selector", defaultAuto);
+//		autoSelected = SmartDashboard.getString("Auto Selector", defaultAuto);
 		System.out.println("Auto selected: " + autoSelected);
+		
+		autoTimer.start();
 	}
 
 	/**
@@ -79,15 +89,47 @@ public class Robot extends IterativeRobot {
 	 */
 	@Override
 	public void autonomousPeriodic() {
-		/*switch (autoSelected) {
+		switch (autoSelected) {
 		case customAuto:
 			// Put custom auto code here
 			break;
-		case defaultAuto:
-		default:
-			// Put default auto code here
+		case defaultAuto: // Drive forward
+			if (autoTimer.get() < 4.0) {
+				drivetrain.setXY(0.0, 0.6);
+				drivetrain.setAngle(0.0);
+			}
+			else {
+				drivetrain.setStopped();
+			}
 			break;
-		}*/
+			
+		case auto1: // Spider Y 2 Bananas Dead Reckoning
+			if (autoTimer.get() < 2.5){
+				drivetrain.setXY(0.0, 0.6);
+				drivetrain.setAngle(0.0);
+			}
+			else if (autoTimer.get() < 5) {
+				if (ourSwitch == 'L') {
+					drivetrain.setPolar(0.6, -35.0);
+					drivetrain.setAngle(0.0);
+				}
+				else if (ourSwitch == 'R') {
+					drivetrain.setPolar(0.65, 40);
+					drivetrain.setAngle(0.0);
+				}
+				else {
+					drivetrain.setRotation(0.5);
+					drivetrain.setXY(0.0, 0.0);
+				}
+			}
+			else {
+				drivetrain.setStopped();
+			}
+			
+		default:
+			// Should never be ran
+			break;
+		}
 	}
 
 	/**
@@ -110,9 +152,7 @@ public class Robot extends IterativeRobot {
 		}
 		else {
 			drivetrain.holdRotation();
-		}
-		SmartDashboard.putNumber("Output r", drivetrain.rotation.update(0.0));
-		
+		}		
 	}
 
 	@Override

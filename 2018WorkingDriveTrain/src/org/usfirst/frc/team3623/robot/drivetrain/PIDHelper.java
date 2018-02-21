@@ -8,24 +8,25 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 
 import edu.wpi.first.wpilibj.PIDController;
 
-public class PID {
-	double range;
-
-	double goal;
-	double state;
-	
-	double Kp, Ki, Kd;
+public class PIDHelper {
+	private double Kp, Ki, Kd;
 		
-	int history_size;
-	Queue<Double> past_errors;
-	double error_sum=0.0;
-	double lastError;
-	double tolerance;
+	private double update_interval;
+	private double integral_time;
+	private int history_size;
+	private Queue<Double> past_errors;
+	private double error_sum=0.0;
+	private double lastError;
+	private double tolerance;
 
-	public PID(double range, int history_size) {
-		this.range = range;
+	public PIDHelper(double p, double i, double d, double update_rate, int history_size) {
 		this.history_size = history_size;
 		past_errors = new ArrayDeque<Double>(history_size);
+		this.update_interval = 1.0/update_rate;
+		this.integral_time = this.update_interval * this.history_size;
+		Kp = p;
+		Ki = i;
+		Kd = d;
 	}
 
 	private double updateIntegral(double error, double time) {
@@ -44,16 +45,10 @@ public class PID {
 		return derivative;
 	}
 	
-	public double output(double error, double time) {
-		double derivative = updateDerivative(error, time);
-		double integral = updateIntegral(error, time);
+	public double output(double error) {
+		double derivative = updateDerivative(error, integral_time);
+		double integral = updateIntegral(error, update_interval);
 		double output = (Kp*error) + (Kd*derivative) + (Ki*integral);
 		return output;
-	}
-	
-	public double update(double current_state) {
-		double error = goal-current_state;
-		double time = 1.0/update_rate;
-	}
-	
+	}	
 }

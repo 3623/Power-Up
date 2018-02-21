@@ -8,6 +8,8 @@ public class DriveTrainRotation {
 	private double setSpeed;
 	private double lastSpeed;
 	
+	private PIDHelper pid;
+	
 	private Mode mode, lastMode;
 
 	private enum Mode{
@@ -19,6 +21,7 @@ public class DriveTrainRotation {
 		lastSpeed = 0.0;
 		setSpeed = 0.0;
 		setAngle = 0.0;
+		pid = new PIDHelper(0.7, 0.2, 0.2, 75.0, 40);
 	}
 	
 	private double gyroCorrected(double angle){
@@ -55,6 +58,26 @@ public class DriveTrainRotation {
 			rotationPTR = rotationDif / -180 * magnitude;
 		}
 		return rotationPTR;
+	}
+	
+	private double newPointToRotate(double desiredAngle, double currentAngle, double magnitude) {
+		double rotationDif;
+		//If the raw difference is greater than 180, which happens when the values cross to and from 0 * 360,
+		//the value is subtracted by 360 to get the actual net difference
+		if( (currentAngle - desiredAngle) > 180){
+			rotationDif = (currentAngle - desiredAngle - 360) ;
+		}
+		else if( (currentAngle - desiredAngle) < -180){
+			rotationDif = (currentAngle - desiredAngle + 360) ;
+		}
+		//If the magnitude of the difference is less than 180 than it is equal to the net difference. 
+		// so nothing extra is done
+		else{
+			rotationDif = (currentAngle - desiredAngle) ;
+		}
+		double PIDoutput = pid.output(rotationDif);
+		
+		return PIDoutput/180.0;
 	}
 
 	private double checkSpeed(double newSpeed, double lastSpeed) {
@@ -125,7 +148,6 @@ public class DriveTrainRotation {
 		switch (this.mode) {
 		case STOPPED:
 			outputSpeed = 0.0;
-			lastSpeed = 0.0;
 			break;
 			
 		case RELEASE:

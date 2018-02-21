@@ -3,26 +3,61 @@ package org.usfirst.frc.team3623.robot.drivetrain;
 import edu.wpi.first.wpilibj.PIDController;
 
 public class DriveTrainXY {
-	private double x, y;
-	private double x_goal, y_goal;
+	private double speedX, speedY;
+	private double lastSpeedX, lastSpeedY;
+	
+	private double setSpeedX, setSpeedY;
+	private double setX, setY;
+	
+	private static final double maxSpeedChange = 0.15;
+	
+	private PIDHelper pidX, pidY;
 	
 	private Mode mode;
 	
 	private enum Mode {
 		STOPPED, RELEASED, MANUAL, MTP;
 	}
+	
+	public DriveTrainXY() {
+		pidX = new PIDHelper(0.7, 0.2, 0.2, 75.0, 10);
+		pidY = new PIDHelper(0.7, 0.2, 0.2, 75.0, 10);
+}
 		
-	private void moveToPoint(double x, double y, double magnitude) {
-		
+	private void moveToPoint(double desiredX, double desiredY, double currentX, double currentY) {
+		double errorX = desiredX - currentX;
+		double errorY = desiredY - currentY;
+		double pidOutputX = pidX.output(errorX);
+		double pidOutputY = pidX.output(errorY);
+		this.speedX = pidOutputX/5.0;
+		this.speedY = pidOutputY/5.0;
+	}
+	
+	private double checkSpeed(double newSpeed, double lastSpeed) {
+		double dif = newSpeed-lastSpeed;
+		if (dif > maxSpeedChange) {
+			return (lastSpeed + maxSpeedChange);
+		}
+		else if (dif < -maxSpeedChange) {
+			return (lastSpeed - maxSpeedChange);
+		}
+		else {
+			return newSpeed;
+		}
 	}
 	
 	private void setMode(Mode mode) {
 		this.mode = mode;
 	}
 	
-	private void setXY(double x, double y) {
-		this.x = x;
-		this.y = y;
+	private void setSpeed(double x, double y) {
+		this.setSpeedX = x;
+		this.setSpeedY = y;
+	}
+	
+	private void setPoint(double x, double y) {
+		this.setX = x;
+		this.setY = y;
 	}
 	
 //	private void setSpeed(double setSpeed) {
@@ -30,26 +65,53 @@ public class DriveTrainXY {
 //	}
 	
 	public void stop() {
-		this.x = 0.0;
-		this.y = 0.0;
 		setMode(Mode.STOPPED);
 	}
 	
-	public void setManual(double x, double y) {
-		setXY(x, y);
+	public void driveManual(double x, double y) {
+		setSpeed(x, y);
 		setMode(Mode.MANUAL);
 	}
 	
+	public void drivePoint(double x, double y) {
+		setPoint(x, y);
+		setMode(Mode.MTP);
+	}
 	
-
-	
+	public void update(double stateX, double stateY) {
+		switch (mode) {
+		case MANUAL:
+			speedX = setSpeedX;
+			speedY = setSpeedY;
+			break;
+			
+		case MTP:
+			moveToPoint(setX, setY, stateX, stateY);
+			break;
+			
+		case RELEASED:
+			speedX = 0.0;
+			speedY = 0.0;
+			break;
+			
+		case STOPPED:
+			speedX = 0.0;
+			speedY = 0.0;
+			break;
+			
+		default:
+			break;
+		}
+	}
+		
 	public double getX() {
-		return this.x;
+		return this.speedX;
 	}
 	
 	public double getY() {
-		return this.y;
+		return this.speedY;
 	}
+
 }
 
 

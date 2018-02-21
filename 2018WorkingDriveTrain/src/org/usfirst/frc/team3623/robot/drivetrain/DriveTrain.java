@@ -18,8 +18,8 @@ public class DriveTrain {
 	private static final double maxSpeedChange = 0.15;
 
 	private RobotTelemetry robotState;
-	public DriveTrainRotation rotation; //Leave public for now
-	public DriveTrainXY xy;
+	private DriveTrainRotation rotation; //Leave public for now
+	private DriveTrainXY xy;
 
 	private double x;
 	private double y;
@@ -84,8 +84,9 @@ public class DriveTrain {
 			
 		case TELEOP:
 			double gyroAngle = robotState.getRotation();
-			double x = checkSpeed(this.x, this.lastX);
-			double y = checkSpeed(this.y, this.lastY);
+			xy.update(robotState.getDisplacementX(), robotState.getDisplacementY());
+			double x = xy.getX();
+			double y = xy.getY();
 			double r = rotation.update(gyroAngle);
 			driveCartesian(x, y, r, gyroAngle);
 			robotState.updateCommands(x, y);
@@ -137,7 +138,14 @@ public class DriveTrain {
 	}
 	
 	public void setXY(double x, double y) {
-		xy.setManual(x, y);
+		xy.driveManual(x, y);
+	}
+	
+	public void setPolar(double magnitude, double angle) {
+		double angleRadians = Math.toRadians(angle);
+		double x = magnitude * Math.sin(angleRadians);
+		double y = magnitude * Math.cos(angleRadians);
+		xy.driveManual(x, y);
 	}
 	
 	public void setRotation(double speed) {
