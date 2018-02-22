@@ -32,7 +32,9 @@ public class DriveTrain {
 		STOPPED, AUTO, TELEOP;
 	}
 	
-	
+	/**
+	 * Test	
+	 */
 	public DriveTrain() {
 		frontLeft = new Spark(0);
 		backLeft = new Spark(1);

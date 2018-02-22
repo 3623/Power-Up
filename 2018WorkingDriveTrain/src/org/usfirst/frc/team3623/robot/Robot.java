@@ -20,6 +20,13 @@ import edu.wpi.first.wpilibj.SPI;
  * creating this project, you must also update the manifest file in the resource
  * directory.
  */
+
+/**
+ * The IterativeRobot class is being used for now as basically just a map between individual mechanisms and
+ * subcomponents and the controls/actions we want it to do, it is effective and clean.
+ * @author eric
+ *
+ */
 public class Robot extends IterativeRobot {
 	// Declare Robot Objects (Physical items like Motor Controllers, sensors, etc.)
 	Joystick mainStick;
@@ -34,6 +41,8 @@ public class Robot extends IterativeRobot {
 
 	final String defaultAuto = "Default- Drive Forward";
 	final String auto1 = "Spider Y 2 Bananas- Dead reckoning";
+	final String auto2 = "Drive Forward and Plop";
+	final String auto3 = "Spider Y 2 Bananas- Smart";
 	final String customAuto = "My Auto";
 	String autoSelected;
 	SendableChooser<String> chooser = new SendableChooser<>();
@@ -54,8 +63,8 @@ public class Robot extends IterativeRobot {
 		autoTimer = new Timer();
 		autoTimer.start();
 
-		chooser.addDefault("Default Auto- Drive Forward", defaultAuto);
-		chooser.addObject("Spider Y 2 Bananas- Dead Reckoning", auto1);
+		chooser.addDefault(defaultAuto, defaultAuto);
+		chooser.addObject(auto1, auto1);
 //		chooser.addObject("My Auto", customAuto);
 		SmartDashboard.putData("Auto choices", chooser);
 	}
@@ -96,7 +105,11 @@ public class Robot extends IterativeRobot {
 		case customAuto:
 			// Put custom auto code here
 			break;
-		case defaultAuto: // Drive forward
+			
+		/*
+		 *  Drive forward
+		 */
+		case defaultAuto: 
 			if (autoTimer.get() < 1.75) {
 				drivetrain.setXY(0.0, 0.6);
 				drivetrain.setAngle(0.0);
@@ -106,7 +119,10 @@ public class Robot extends IterativeRobot {
 			}
 			break;
 			
-		case auto1: // Spider Y 2 Bananas Dead Reckoning
+		/*
+		 * Spider Y 2 Bananas Dead Reckoning
+		 */
+		case auto1:
 			if (autoTime < 0.25){
 				drivetrain.setXY(0.0, 0.6);
 				drivetrain.setAngle(0.0);
@@ -117,7 +133,7 @@ public class Robot extends IterativeRobot {
 					drivetrain.setAngle(0.0);
 				}
 				else if (ourSwitch == 'R') {
-					drivetrain.setPolar(0.65, 35);
+					drivetrain.setPolar(0.6, 35);
 					drivetrain.setAngle(0.0);
 				}
 				else {
@@ -161,6 +177,10 @@ public class Robot extends IterativeRobot {
 		}		
 	}
 
+	/**
+	 * This function is not necessary but a good practice to make sure that you aren't telling anything to
+	 * try to move when the robot is stopped
+	 */
 	@Override
 	public void disabledInit() {
 		drivetrain.setStopped();
