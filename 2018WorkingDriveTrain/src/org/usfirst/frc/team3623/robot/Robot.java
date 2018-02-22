@@ -52,9 +52,11 @@ public class Robot extends IterativeRobot {
 		drivetrain.startDriveTrain();
 
 		autoTimer = new Timer();
+		autoTimer.start();
 
 		chooser.addDefault("Default Auto- Drive Forward", defaultAuto);
-		chooser.addObject("My Auto", customAuto);
+		chooser.addObject("Spider Y 2 Bananas- Dead Reckoning", auto1);
+//		chooser.addObject("My Auto", customAuto);
 		SmartDashboard.putData("Auto choices", chooser);
 	}
 
@@ -80,8 +82,8 @@ public class Robot extends IterativeRobot {
 		autoSelected = chooser.getSelected();
 //		autoSelected = SmartDashboard.getString("Auto Selector", defaultAuto);
 		System.out.println("Auto selected: " + autoSelected);
-		
-		autoTimer.start();
+		drivetrain.setAuto();
+		autoTimer.reset();
 	}
 
 	/**
@@ -89,12 +91,13 @@ public class Robot extends IterativeRobot {
 	 */
 	@Override
 	public void autonomousPeriodic() {
+		double autoTime = autoTimer.get();
 		switch (autoSelected) {
 		case customAuto:
 			// Put custom auto code here
 			break;
 		case defaultAuto: // Drive forward
-			if (autoTimer.get() < 4.0) {
+			if (autoTimer.get() < 1.75) {
 				drivetrain.setXY(0.0, 0.6);
 				drivetrain.setAngle(0.0);
 			}
@@ -104,17 +107,17 @@ public class Robot extends IterativeRobot {
 			break;
 			
 		case auto1: // Spider Y 2 Bananas Dead Reckoning
-			if (autoTimer.get() < 2.5){
+			if (autoTime < 0.25){
 				drivetrain.setXY(0.0, 0.6);
 				drivetrain.setAngle(0.0);
 			}
-			else if (autoTimer.get() < 5) {
+			else if (autoTime < 2.0) {
 				if (ourSwitch == 'L') {
 					drivetrain.setPolar(0.6, -35.0);
 					drivetrain.setAngle(0.0);
 				}
 				else if (ourSwitch == 'R') {
-					drivetrain.setPolar(0.65, 40);
+					drivetrain.setPolar(0.65, 35);
 					drivetrain.setAngle(0.0);
 				}
 				else {
@@ -125,11 +128,14 @@ public class Robot extends IterativeRobot {
 			else {
 				drivetrain.setStopped();
 			}
+			break;
 			
 		default:
 			// Should never be ran
 			break;
 		}
+		
+		SmartDashboard.putNumber("AutoTime", autoTime);
 	}
 
 	/**

@@ -130,7 +130,7 @@ public class DriveTrain {
 	}
 	
 	public void setAuto() {
-		this.stage = Stage.AUTO;
+		this.stage = Stage.TELEOP;
 	}
 	
 	public void setTeleop() {
