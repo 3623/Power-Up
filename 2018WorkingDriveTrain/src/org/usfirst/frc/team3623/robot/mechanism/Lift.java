@@ -65,7 +65,7 @@ public class Lift{
 		atTop = topSwitch.get();
 		atBottom = bottomSwitch.get();
 		
-		liftMotor.set(checkSpeed(speed));
+		liftMotor.set(-checkSpeed(speed));
 	}
 	
 	public double checkSpeed(double speed) {

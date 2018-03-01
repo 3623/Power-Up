@@ -7,9 +7,9 @@ public class CubeMechanism {
 	Wrist wrist;
 	
 	public CubeMechanism(){
-		claws = new IntakeClaws(0, 1);
+		claws = new IntakeClaws(2, 3);
 		wheels = new IntakeWheels(5, 4);
-		lift = new Lift(6, 0, 1);
+		lift = new Lift(6, 1, 0);
 		wrist = new Wrist(7);
 	}
 	

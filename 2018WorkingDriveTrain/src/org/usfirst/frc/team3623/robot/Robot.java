@@ -244,14 +244,17 @@ public class Robot extends IterativeRobot {
 		}
 		
 		if (operator.getAButtonPressed()) openClaws = !openClaws;
-		if (openClaws) cubes.open();
-		else if(!openClaws) cubes.close();
+		if (openClaws) cubes.close();
+		else  cubes.open();
+//		cubes.open();
 		
 		if (Math.abs(operator.getY(Hand.kLeft)) > 0.1) {
-			cubes.setLift(operator.getY(Hand.kLeft));
+			cubes.setLift(-operator.getY(Hand.kLeft));
 		}
 		
-		if (Math.abs(operator.))
+		if (Math.abs(operator.getY(Hand.kRight))>0.1) {
+			cubes.setWrist(operator.getY(Hand.kRight));
+		}
 		
 		//SmartDashboard Displays
 		SmartDashboard.putNumber("Heading", drivetrain.robotState.getRotation());

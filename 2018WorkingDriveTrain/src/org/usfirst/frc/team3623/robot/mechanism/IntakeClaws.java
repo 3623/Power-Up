@@ -1,24 +1,29 @@
 package org.usfirst.frc.team3623.robot.mechanism;
 
 import edu.wpi.first.wpilibj.DoubleSolenoid;
+import edu.wpi.first.wpilibj.Solenoid;
 
 public class IntakeClaws {
-	DoubleSolenoid clawsSolenoid;
+	Solenoid clawsSolenoid1, clawsSolenoid2;
 	
 	public IntakeClaws(int channel1, int channel2) {
-		clawsSolenoid = new DoubleSolenoid(channel1, channel2);
+		clawsSolenoid1 = new Solenoid(channel1);
+		clawsSolenoid2 = new Solenoid(channel2);
 	}
 	
 	public void open() {
-		clawsSolenoid.set(DoubleSolenoid.Value.kForward);
+		clawsSolenoid1.set(false);
+		clawsSolenoid2.set(true);
 	}
 	
 	public void close(){
-		clawsSolenoid.set(DoubleSolenoid.Value.kReverse);
+		clawsSolenoid1.set(true);
+		clawsSolenoid2.set(false);
 
 	}
 	
 	public void off() {
-		clawsSolenoid.set(DoubleSolenoid.Value.kOff);
+		clawsSolenoid1.set(false);
+		clawsSolenoid2.set(false);
 	}
 }
