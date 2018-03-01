@@ -4,6 +4,7 @@ import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Spark;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -12,6 +13,7 @@ import org.usfirst.frc.team3623.robot.mechanism.CubeMechanism;
 
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.GenericHID.Hand;
 import edu.wpi.first.wpilibj.SPI;
 
 
@@ -35,12 +37,12 @@ public class Robot extends IterativeRobot {
 	// Declare Robot Objects (Physical items like Motor Controllers, sensors, etc.)
 	Joystick mainStick;
 	Joystick rotationStick;
-	Joystick operator;
+	XboxController operator;
 	
 	DriveTrain drivetrain;
 	
 	CubeMechanism cubes;
-	boolean clawsMode, clawsModeHold;
+	boolean openClaws;
 	
 	Compressor compressor;
 	
@@ -68,7 +70,7 @@ public class Robot extends IterativeRobot {
 		
 		mainStick = new Joystick(0);
 		rotationStick = new Joystick(1);
-		operator = new Joystick(2);
+		operator = new XboxController(2);
 		
 		drivetrain = new DriveTrain();
 		drivetrain.startDriveTrain();
@@ -230,41 +232,19 @@ public class Robot extends IterativeRobot {
 		if (operator.getRawAxis(2)>0.1 || operator.getRawAxis(3)>0.1) {
 			cubes.intake(operator.getRawAxis(2), operator.getRawAxis(3));
 		}
-		else if (operator.getRawButton(3)) {
+		else if (operator.getXButton()) {
 			cubes.out();
 		}
 		else {
 			cubes.stop();
 		}
 		
-		if (operator.getRawButton(1) && !clawsModeHold){
-			
-			//Swaps speeds
-			if (!clawsMode){
-				clawsMode = true;
-			}
-			else {
-				clawsMode = false;
-			}
-			
-			//Prevents constant switching
-			clawsModeHold = true;
-		}
-		else if (!(operator.getRawButton(1)) && clawsModeHold){
-			clawsModeHold = false;
-		}
+		if (operator.getAButtonPressed()) openClaws = !openClaws;
+		if (openClaws) cubes.open();
+		else if(!openClaws) cubes.close();
 		
-		if (clawsMode) {
-			cubes.close();
-		}
-		else if(!clawsMode) {
-			cubes.open();
-		}
-		if (operator.getRawButton(5)){
-			cubes.close();
-		}
-		else if (operator.getRawButton(6)) {
-			cubes.open();
+		if (Math.abs(operator.getY(Hand.kLeft)) > 0.1) {
+			cubes.setLift(operator.getY(Hand.kLeft));
 		}
 		
 		//SmartDashboard Displays
@@ -285,6 +265,8 @@ public class Robot extends IterativeRobot {
 	
 	@Override
 	public void disabledPeriodic() {
+		cubes.stop();
+		
 		SmartDashboard.putNumber("Heading", drivetrain.robotState.getRotation());
 		SmartDashboard.putNumber("X Position", drivetrain.robotState.getDisplacementX());
 		SmartDashboard.putNumber("Y Position", drivetrain.robotState.getDisplacementY());

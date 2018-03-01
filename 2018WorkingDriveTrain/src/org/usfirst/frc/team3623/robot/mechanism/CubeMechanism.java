@@ -35,5 +35,14 @@ public class CubeMechanism {
 	
 	public void stop() {
 		wheels.stop();
+		claws.off();
+	}
+	
+	public void setWrist(double speed) {
+		wrist.set(speed);
+	}
+
+	public void setLift(double speed) {
+		lift.set(speed);
 	}
 }

@@ -51,9 +51,9 @@ import edu.wpi.first.wpilibj.command.PIDSubsystem;
 //}
 
 public class Lift{
-	Spark liftMotor;
-	DigitalInput topSwitch, bottomSwitch;
-	boolean atTop, atBottom;
+	private Spark liftMotor;
+	private DigitalInput topSwitch, bottomSwitch;
+	private boolean atTop, atBottom;
 	
 	public Lift(int liftMotorPWM, int topDIO, int bottomDIO) {
 		liftMotor = new Spark(liftMotorPWM);
@@ -79,4 +79,6 @@ public class Lift{
 			return speed;
 		}
 	}
+	
+	
 }

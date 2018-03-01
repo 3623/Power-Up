@@ -8,4 +8,12 @@ public class Wrist {
 	public Wrist(int wristMotorPWM) {
 		wristMotor = new Talon(wristMotorPWM);
 	}
+	
+	public void set(double speed) {
+		wristMotor.set(speed);
+	}
+	
+	public void stop() {
+		wristMotor.set(0.0);
+	}
 }
