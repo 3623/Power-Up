@@ -80,5 +80,9 @@ public class Lift{
 		}
 	}
 	
+	public void stop() {
+		liftMotor.set(0.0);
+	}
+	
 	
 }

@@ -165,7 +165,7 @@ public class Robot extends IterativeRobot {
 			}
 			else {
 				drivetrain.setStopped();
-				cubses.stop();
+				cubes.stop();
 			}
 			break;
 			
@@ -250,6 +250,8 @@ public class Robot extends IterativeRobot {
 		if (Math.abs(operator.getY(Hand.kLeft)) > 0.1) {
 			cubes.setLift(operator.getY(Hand.kLeft));
 		}
+		
+		if (Math.abs(operator.))
 		
 		//SmartDashboard Displays
 		SmartDashboard.putNumber("Heading", drivetrain.robotState.getRotation());
