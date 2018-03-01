@@ -10,11 +10,12 @@ public class IntakeClaws {
 	}
 	
 	public void open() {
-		clawsSolenoid.set(DoubleSolenoid.Value.kReverse);
+		clawsSolenoid.set(DoubleSolenoid.Value.kForward);
 	}
 	
 	public void close(){
-		clawsSolenoid.set(DoubleSolenoid.Value.kForward);
+		clawsSolenoid.set(DoubleSolenoid.Value.kReverse);
+
 	}
 	
 	public void off() {

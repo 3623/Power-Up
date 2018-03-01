@@ -165,7 +165,7 @@ public class DriveTrainRotation {
 			break;
 
 		case PTR:
-			outputSpeed = oldPointToRotate(setAngle, correctedGyroAngle, 0.6);
+			outputSpeed = oldPointToRotate(setAngle, correctedGyroAngle, 1.0);
 			lastMode = Mode.PTR;
 			break;
 			

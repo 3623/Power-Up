@@ -8,7 +8,7 @@ public class CubeMechanism {
 	
 	public CubeMechanism(){
 		claws = new IntakeClaws();
-		wheels = new IntakeWheels(4, 5);
+		wheels = new IntakeWheels(5, 4);
 	}
 	
 	public void close() {
@@ -24,10 +24,14 @@ public class CubeMechanism {
 	}
 	
 	public void intake(double left, double right) {
-		wheels.setIntake(left, right);
+		wheels.setIntake(-left,right);
 	}
 	
 	public void out() {
-		wheels.setIntake(-1.0, -1.0);
+		wheels.setIntake(1.0, -1.0);
+	}
+	
+	public void stop() {
+		wheels.stop();
 	}
 }

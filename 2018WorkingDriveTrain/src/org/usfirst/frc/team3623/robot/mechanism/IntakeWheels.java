@@ -10,11 +10,13 @@ public class IntakeWheels {
 		rightWheels = new Spark(rightWheelPWM);
 	}
 	
-	public void setLeft(double left) {
+	public void setIntake(double left, double right) {
 		leftWheels.set(left);
-	}
-
-	public void setRight(double right) {
 		rightWheels.set(right);
+	}
+	
+	public void stop() {
+		leftWheels.set(0.0);
+		rightWheels.set(0.0);
 	}
 }

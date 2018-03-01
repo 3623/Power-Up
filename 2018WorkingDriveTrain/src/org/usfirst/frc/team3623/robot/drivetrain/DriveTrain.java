@@ -85,7 +85,7 @@ public class DriveTrain {
 			double x = xy.getX();
 			double y = xy.getY();
 			double r = rotation.update(gyroAngle, gyroSpeed);
-			driveCartesian(x, y, r, gyroAngle);
+			driveCartesian(x, y, -r, gyroAngle);
 			robotState.updateCommands(x, y);
 			break;
 		}

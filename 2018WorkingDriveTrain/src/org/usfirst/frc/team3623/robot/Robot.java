@@ -68,9 +68,12 @@ public class Robot extends IterativeRobot {
 		
 		mainStick = new Joystick(0);
 		rotationStick = new Joystick(1);
+		operator = new Joystick(2);
 		
 		drivetrain = new DriveTrain();
 		drivetrain.startDriveTrain();
+		
+		cubes = new CubeMechanism();
 
 		autoTimer = new Timer();
 		autoTimer.start();
@@ -221,34 +224,48 @@ public class Robot extends IterativeRobot {
 		
 		if (operator.getRawAxis(2)>0.1 || operator.getRawAxis(3)>0.1) {
 			cubes.intake(operator.getRawAxis(2), operator.getRawAxis(3));
+			SmartDashboard.putString("Damnit", "On");
 		}
 		else if (operator.getRawButton(3)) {
 			cubes.out();
+			SmartDashboard.putString("Damnit", "2");
+
 		}
-		if (operator.getRawButton(1) && !clawsModeHold){
-			
-			//Swaps speeds
-			if (!clawsMode){
-				clawsMode = true;
-			}
-			else {
-				clawsMode = false;
-			}
-			
-			//Prevents constant switching
-			clawsModeHold = true;
-		}
-		else if (!(operator.getRawButton(1)) && clawsModeHold){
-			clawsModeHold = false;
+		else {
+			cubes.stop();
+			SmartDashboard.putString("Damnit", "3");
+
 		}
 		
-		if (clawsMode) {
+//		if (operator.getRawButton(1) && !clawsModeHold){
+//			
+//			//Swaps speeds
+//			if (!clawsMode){
+//				clawsMode = true;
+//			}
+//			else {
+//				clawsMode = false;
+//			}
+//			
+//			//Prevents constant switching
+//			clawsModeHold = true;
+//		}
+//		else if (!(operator.getRawButton(1)) && clawsModeHold){
+//			clawsModeHold = false;
+//		}
+//		
+//		if (clawsMode) {
+//			cubes.close();
+//		}
+//		else if(!clawsMode) {
+//			cubes.open();
+//		}
+		if (operator.getRawButton(5)){
 			cubes.close();
 		}
-		else if(!clawsMode) {
+		else if (operator.getRawButton(6)) {
 			cubes.open();
 		}
-		
 		
 		//SmartDashboard Displays
 		SmartDashboard.putNumber("Heading", drivetrain.robotState.getRotation());
