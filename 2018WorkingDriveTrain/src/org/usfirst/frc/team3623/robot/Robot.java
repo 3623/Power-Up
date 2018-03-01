@@ -160,8 +160,12 @@ public class Robot extends IterativeRobot {
 					drivetrain.setXY(0.0, 0.0);
 				}
 			}
+			else if (autoTime < 2.2) {
+				cubes.out();
+			}
 			else {
 				drivetrain.setStopped();
+				cubses.stop();
 			}
 			break;
 			
