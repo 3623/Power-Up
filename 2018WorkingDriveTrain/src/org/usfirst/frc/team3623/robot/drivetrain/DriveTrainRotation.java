@@ -7,6 +7,7 @@ public class DriveTrainRotation {
 	private double setAngle;
 	private double setSpeed;
 	private double lastSpeed;
+	private double lastRobotSpeed;
 	
 	private PIDHelper pid;
 	
@@ -137,7 +138,7 @@ public class DriveTrainRotation {
 
 	
 	
-	public double update(double gyroAngle) {
+	public double update(double gyroAngle, double gyroSpeed) {
 		double correctedGyroAngle = gyroCorrected(gyroAngle);
 		
 		double outputSpeed = lastSpeed;
@@ -148,28 +149,45 @@ public class DriveTrainRotation {
 		switch (this.mode) {
 		case STOPPED:
 			outputSpeed = 0.0;
+			lastMode = Mode.STOPPED;
 			break;
 			
 		case RELEASE:
 			outputSpeed = 0.0;
+			lastMode = Mode.RELEASE;
+			lastRobotSpeed = gyroSpeed;
 			break;
 			
 		case MANUAL:
-//			SmartDashboard.putBoolean("shoot", true);
 			outputSpeed = setSpeed;
-			setAngle(correctedGyroAngle);
+			lastMode = Mode.MANUAL;
+			lastRobotSpeed = gyroSpeed;
 			break;
 
 		case PTR:
 			outputSpeed = oldPointToRotate(setAngle, correctedGyroAngle, 0.6);
+			lastMode = Mode.PTR;
 			break;
 			
 		case HOLD:
-			outputSpeed = oldPointToRotate(setAngle, correctedGyroAngle, 0.6);
+			if (lastMode == Mode.MANUAL || lastMode == Mode.RELEASE) {
+				outputSpeed = 0.0;
+				if (Math.abs(lastRobotSpeed) > 10.0) {
+					setAngle(correctedGyroAngle);
+				}
+				else {
+					lastMode = Mode.HOLD;
+				}
+			}
+			else {
+				lastMode = Mode.HOLD;
+				outputSpeed = oldPointToRotate(setAngle, correctedGyroAngle, 0.6);
+			}
 			break;
 			
 		case INCREMENT:
-			outputSpeed = oldPointToRotate(setAngle, correctedGyroAngle, 1.0);
+			outputSpeed = oldPointToRotate(setAngle, correctedGyroAngle, 1.3);
+			lastMode = Mode.INCREMENT;
 			break;
 		}
 			

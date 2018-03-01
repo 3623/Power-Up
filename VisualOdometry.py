@@ -2,8 +2,9 @@ import sys
 import cv2
 import numpy as np
 import socket
-from UDPServer import UDPServer
+from UDPRioServer import UDPServer
 from WebcamHandler import WebcamHandler
+
 
 class VisualOdometry:
 
@@ -45,35 +46,32 @@ class VisualOdometry:
         self.minDistanceP = (self.WIDTH + self.HEIGHT) / 2 / 40
         ## params for ShiTomasi corner detection
         self.FEATURE_PARAMS = dict(maxCorners=self.MAXIMUM_POINTS,
-                              qualityLevel=0.2,
-                              minDistance =self.minDistanceP,
-                              blockSize=7)
+                                   qualityLevel=0.2,
+                                   minDistance=self.minDistanceP,
+                                   blockSize=7)
         ## Parameters for lucas kanade optical flow
         self.LK_PARAMS = dict(winSize=(15, 15),
-                         maxLevel=2,
-                         criteria=(cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 0.03),
-                         minEigThreshold=self.MIN_EIGENVAL)
+                              maxLevel=2,
+                              criteria=(cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 0.03),
+                              minEigThreshold=self.MIN_EIGENVAL)
         ### TODO mineigenvals??
 
         ### TODO Init should handle logging
 
         self.setCamera
 
-        self.resetAll() ## or self.run()
+        self.resetAll()  ## or self.run()
 
     def translateCoordinates(self, a):
         return ([a[0] - (0 * self.WIDTH / 2), (0 * self.HEIGHT / 2) - a[1], 1])
-
 
     def resetAll(self):
         self.count = 0
         # self.
         # self.run()
 
-
     def setCamera(self, cap):
         cap.set()
-
 
     def reshape(self, image):
         # return cv2.resize(image, (self.WIDTH, self.HEIGHT))
@@ -91,18 +89,16 @@ class VisualOdometry:
             print "ERR %.f|MATR- Old Points- %.f,  New Points- %.f" % \
                   (self.count, len(new_points), len(old_points))
             ### TODO maybe replace count with timestamp??
-            return False, None## TODO
-
+            return False, None  ## TODO
 
     def calculateDisplacement(self, transformation_matrix):
         x_displacement = transformation_matrix[0][2]
         y_displacement = transformation_matrix[1][2]
-        cosine = (transformation_matrix[0][0] + transformation_matrix[1][1])/2
-        sine = (transformation_matrix[1][0] - transformation_matrix[0][1])/2
+        cosine = (transformation_matrix[0][0] + transformation_matrix[1][1]) / 2
+        sine = (transformation_matrix[1][0] - transformation_matrix[0][1]) / 2
         rotational_displacement_radians = np.arctan2(sine, cosine)
         rotational_displacement_degrees = np.degrees(rotational_displacement_radians)
         return x_displacement, y_displacement, rotational_displacement_degrees
-
 
     def errorChecking(self, transformation_matrix, attempted_points, good_points):
         ### Error checking ## TODO need error handling
@@ -116,6 +112,7 @@ class VisualOdometry:
                      self.MIN_EIGENVAL)
             opfl_eigenval_error = True
 
+
         opfl_points_error = False
         if len(good_points) < self.MINIMUM_POINTS:
             print "ERR %.f|OPFL/POINTS- " \
@@ -123,10 +120,14 @@ class VisualOdometry:
                   % (self.count, len(good_points))
             opfl_points_error = True
 
+        ## Numerical based error scoring
         opfl_corner_error = False
-        if np.abs(transformation_matrix[0][2]) > 0.05 \
-                or np.abs(transformation_matrix[1][2]) > 0.05 \
-                or np.abs(transformation_matrix[2][2] - 1) > 0.05:
+        bottomLeftError = np.abs(transformation_matrix[0][2])
+        bottomMiddleError = np.abs(transformation_matrix[1][2])
+        bottomRightError = np.abs(transformation_matrix[2][2] - 1)
+        if bottomLeftError > 0.05 \
+                or bottomMiddleError  > 0.05 \
+                or bottomRightError  > 0.05:
             print "ERR %.f|OPFL/BR- " \
                   "Bottom row: %.5f, %.5f, %.5f.  Points: %.f" \
                   % (self.count, transformation_matrix[0][2].round(5),
@@ -136,7 +137,8 @@ class VisualOdometry:
             opfl_corner_error = True
 
         opfl_cos_error = False
-        if np.abs(transformation_matrix[1][1] - transformation_matrix[0][0]) > 0.075:
+        cosError = np.abs(transformation_matrix[1][1] - transformation_matrix[0][0])
+        if  > 0.075:
             print "ERR %.f|OPFL/COS- " \
                   "Cosine values: %.5f, %.5f.  Points: %.f" \
                   % (self.count,
@@ -146,7 +148,8 @@ class VisualOdometry:
             opfl_cos_error = True
 
         opfl_sin_error = False
-        if np.abs(transformation_matrix[0][1] - transformation_matrix[1][0]) > 0.075:
+        sinError = np.abs(transformation_matrix[0][1] - transformation_matrix[1][0])
+        if sinError > 0.075:
             print "ERR %.f|OPFL/SIN- " \
                   "Sine values: %.5f, %.5f.  Points: %.f" \
                   % (self.count,
@@ -155,9 +158,12 @@ class VisualOdometry:
                      len(good_points))
             opfl_sin_error = True
 
-        opfl_matrix_error = opfl_corner_error or opfl_cos_error or opfl_points_error
-        return opfl_matrix_error, 0
+        score *= np.abs((1-bottomLeft)*(1-bottomMiddle)*(1-bottomRight)*(1-sinError)*(1-cosError))
 
+        opfl_matrix_error = opfl_corner_error or opfl_cos_error or opfl_points_error
+
+
+        return opfl_matrix_error, score
 
     def process(self, count, old_frame, new_frame, p0):
         ## calculate optical flow
@@ -174,8 +180,6 @@ class VisualOdometry:
             abort, score = self.errorChecking(t, p1, good_new_points)
 
             x, y, r = self.calculateDisplacement(t)
-
-            score = 0
 
             if (self.test):
                 print t.round(4)
@@ -203,7 +207,6 @@ class VisualOdometry:
             ## Now update the previous frame and previous points
             return p1, 0, 0, 0, 0
 
-
     ## Can run at 64Hz with a 320x240 image or 27Hz with a 640x480 tested on LenovoZ    50
     def run(self):
         self.imageReader.start()
@@ -215,9 +218,9 @@ class VisualOdometry:
         p0 = cv2.goodFeaturesToTrack(old_frame, mask=None, **self.FEATURE_PARAMS)
 
         if (self.test):
-            self.resize = self.reshape(frame) ## Create a mask image for drawing purposes
+            self.resize = self.reshape(frame)  ## Create a mask image for drawing purposes
             self.mask = np.zeros_like(self.resize)
-            self.color = np.random.randint(0, 120, (100, 3)) ## Create some random colors
+            self.color = np.random.randint(0, 120, (100, 3))  ## Create some random colors
 
         while True:
             # if not (self.imageReader.updated):
@@ -234,7 +237,7 @@ class VisualOdometry:
             if frame is None:
                 break
             else:
-                new_frame =  cv2.cvtColor(self.reshape(frame), cv2.COLOR_BGR2GRAY)
+                new_frame = cv2.cvtColor(self.reshape(frame), cv2.COLOR_BGR2GRAY)
             if (self.test):
                 self.resize = self.reshape(frame)
             p1, score, x, y, r = self.process(self.count, old_frame, new_frame, p0)
@@ -268,7 +271,7 @@ class VisualOdometry:
 
 
 if __name__ == '__main__':
-    UDP_server = UDPServer(10,11)
-    visual_odometry = VisualOdometry(udp_server=UDP_server, channel=1,debug=True, height=480, width = 640)
+    UDP_server = UDPServer(11)
+    visual_odometry = VisualOdometry(udp_server=UDP_server, channel=1, debug=True, height=480, width=640)
     visual_odometry.run()
     print "Visual_Odometry Running"

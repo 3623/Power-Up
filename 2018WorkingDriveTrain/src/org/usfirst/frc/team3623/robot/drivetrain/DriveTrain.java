@@ -16,15 +16,11 @@ public class DriveTrain {
 	
 	private static final double UPDATE_RATE = 75.0;
 	private static final double maxSpeedChange = 0.15;
+	private static final double PRECISION_SPEED = 0.2;
 
-	private RobotTelemetry robotState;
+	public RobotTelemetry robotState;
 	private DriveTrainRotation rotation; //Leave public for now
 	private DriveTrainXY xy;
-
-	private double x;
-	private double y;
-	private double lastX;
-	private double lastY;
 	
 	private Stage stage = Stage.STOPPED; 
 	
@@ -80,20 +76,17 @@ public class DriveTrain {
 		switch (stage) {
 		case STOPPED:
 			driveCartesian(0.0, 0.0, 0.0, 0.0);
-			this.lastX = 0.0;
-			this.lastY = 0.0;
 			break;
 			
 		case TELEOP:
 			double gyroAngle = robotState.getRotation();
+			double gyroSpeed = robotState.getRotationVelocity();
 			xy.update(robotState.getDisplacementX(), robotState.getDisplacementY());
 			double x = xy.getX();
 			double y = xy.getY();
-			double r = rotation.update(gyroAngle);
+			double r = rotation.update(gyroAngle, gyroSpeed);
 			driveCartesian(x, y, r, gyroAngle);
 			robotState.updateCommands(x, y);
-			this.lastX = x;
-			this.lastY = y;
 			break;
 		}
 			
@@ -160,5 +153,9 @@ public class DriveTrain {
 
 	public void holdRotation() {
 		rotation.holdAngle();
+	}
+
+	public void setPrecision(double x, double y) {
+		xy.driveManual(x*PRECISION_SPEED, y*PRECISION_SPEED);		
 	}
 }

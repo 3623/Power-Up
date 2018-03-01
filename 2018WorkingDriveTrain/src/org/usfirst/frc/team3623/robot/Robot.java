@@ -8,7 +8,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import org.usfirst.frc.team3623.robot.drivetrain.DriveTrain;
+import org.usfirst.frc.team3623.robot.mechanism.CubeMechanism;
 
+import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.SPI;
 
@@ -28,12 +30,20 @@ import edu.wpi.first.wpilibj.SPI;
  *
  */
 public class Robot extends IterativeRobot {
+	DriverStation DS;
+	
 	// Declare Robot Objects (Physical items like Motor Controllers, sensors, etc.)
 	Joystick mainStick;
 	Joystick rotationStick;
+	Joystick operator;
 	
-	protected DriveTrain drivetrain;
-		
+	DriveTrain drivetrain;
+	
+	CubeMechanism cubes;
+	boolean clawsMode, clawsModeHold;
+	
+	Compressor pcm;
+	
 	Timer autoTimer;
 	
 	String gameData;
@@ -54,6 +64,8 @@ public class Robot extends IterativeRobot {
 	 */
 	@Override
 	public void robotInit() {
+        DS = DriverStation.getInstance();
+		
 		mainStick = new Joystick(0);
 		rotationStick = new Joystick(1);
 		
@@ -67,6 +79,8 @@ public class Robot extends IterativeRobot {
 		chooser.addObject(auto1, auto1);
 //		chooser.addObject("My Auto", customAuto);
 		SmartDashboard.putData("Auto choices", chooser);
+		
+		pcm = new Compressor();
 	}
 
 	/**
@@ -151,7 +165,16 @@ public class Robot extends IterativeRobot {
 			break;
 		}
 		
-		SmartDashboard.putNumber("AutoTime", autoTime);
+		SmartDashboard.putNumber("Auto Time", Math.round(autoTime*100d)/100d);
+		SmartDashboard.putString("Auto Mode:", autoSelected);
+
+		
+		// Call (albeit unreliable) current match time; good to have on SmartDash
+		double matchTime = DS.getMatchTime();	
+		int matchSecs = ((int)matchTime%60);
+		int matchMins = (int)(matchTime/60);
+		String matchTimeString = matchMins + ":" + matchSecs;
+		SmartDashboard.putString("Match Time", matchTimeString);
 	}
 
 	/**
@@ -165,16 +188,73 @@ public class Robot extends IterativeRobot {
 	
 	@Override
 	public void teleopPeriodic() {
-		drivetrain.setXY(mainStick.getRawAxis(0), -mainStick.getRawAxis(1));
-		if (rotationStick.getMagnitude() > 0.5) {
+		// XY controls
+		if (mainStick.getTrigger()) {
+			drivetrain.setPrecision(mainStick.getRawAxis(0), -mainStick.getRawAxis(1));
+		}
+		else {
+			drivetrain.setXY(mainStick.getRawAxis(0), -mainStick.getRawAxis(1));
+		}
+		
+		// Rotation Controls
+		if (rotationStick.getRawButton(3)) {
+			drivetrain.setRotation(0.2);
+		}
+		else if (rotationStick.getRawButton(4)) {
+			drivetrain.setRotation(-0.2);
+		}
+		else if (rotationStick.getMagnitude() > 0.5) {
 			drivetrain.setAngle(((rotationStick.getDirectionDegrees()+360)%360));
 		}
 		else if (Math.abs(rotationStick.getTwist()) > 0.2) {
 			drivetrain.setRotation(-rotationStick.getRawAxis(3));
 		}
+		else if (rotationStick.getTrigger()) {
+			drivetrain.setAngle(((mainStick.getDirectionDegrees()+360)%360));
+		}
 		else {
 			drivetrain.holdRotation();
 		}		
+		
+		// Mechanism controls
+		pcm.setClosedLoopControl(true);
+		
+		if (operator.getRawAxis(2)>0.1 || operator.getRawAxis(3)>0.1) {
+			cubes.intake(operator.getRawAxis(2), operator.getRawAxis(3));
+		}
+		else if (operator.getRawButton(3)) {
+			cubes.out();
+		}
+		if (operator.getRawButton(1) && !clawsModeHold){
+			
+			//Swaps speeds
+			if (!clawsMode){
+				clawsMode = true;
+			}
+			else {
+				clawsMode = false;
+			}
+			
+			//Prevents constant switching
+			clawsModeHold = true;
+		}
+		else if (!(operator.getRawButton(1)) && clawsModeHold){
+			clawsModeHold = false;
+		}
+		
+		if (clawsMode) {
+			cubes.close();
+		}
+		else if(!clawsMode) {
+			cubes.open();
+		}
+		
+		
+		//SmartDashboard Displays
+		SmartDashboard.putNumber("Heading", drivetrain.robotState.getRotation());
+		SmartDashboard.putNumber("X Position", drivetrain.robotState.getDisplacementX());
+		SmartDashboard.putNumber("Y Position", drivetrain.robotState.getDisplacementY());
+
 	}
 
 	/**
@@ -186,10 +266,10 @@ public class Robot extends IterativeRobot {
 		drivetrain.setStopped();
 	}
 	
-//	@Override
-//	public void disabledPeriodic() {
-//		
-//	}
+	@Override
+	public void disabledPeriodic() {
+		SmartDashboard.putNumber("Heading", drivetrain.robotState.getRotation());
+	}
 	
 	/**
 	 * This function is called periodically during test mode
