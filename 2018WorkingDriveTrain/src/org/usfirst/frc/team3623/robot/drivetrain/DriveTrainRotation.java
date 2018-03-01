@@ -4,6 +4,7 @@ import edu.wpi.first.wpilibj.PIDController;
 
 public class DriveTrainRotation {
 	private static final double maxSpeedChange = 0.04;
+	private static final double MAX_SPEED = 0.6;
 	private double setAngle;
 	private double setSpeed;
 	private double lastSpeed;
@@ -88,6 +89,18 @@ public class DriveTrainRotation {
 		}
 		else if (dif < -maxSpeedChange) {
 			return (lastSpeed - maxSpeedChange);
+		}
+		else {
+			return newSpeed;
+		}
+	}
+	
+	private double limitSpeed(double newSpeed, double lastSpeed) {
+		if (newSpeed > MAX_SPEED) {
+			return MAX_SPEED;
+		}
+		else if (newSpeed < -MAX_SPEED) {
+			return -MAX_SPEED;
 		}
 		else {
 			return newSpeed;
@@ -191,8 +204,7 @@ public class DriveTrainRotation {
 			break;
 		}
 			
-		lastMode = mode;
-		double outputSpeedChecked = checkSpeed(outputSpeed, lastSpeed);
+		double outputSpeedChecked = limitSpeed(outputSpeed, lastSpeed);
 		lastSpeed = outputSpeedChecked;
 		return outputSpeedChecked;
 	}

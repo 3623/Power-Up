@@ -3,12 +3,14 @@ package org.usfirst.frc.team3623.robot.mechanism;
 public class CubeMechanism {
 	IntakeClaws claws;
 	IntakeWheels wheels;
-//	Lift lift;
+	Lift lift;
 	Wrist wrist;
 	
 	public CubeMechanism(){
-		claws = new IntakeClaws();
+		claws = new IntakeClaws(0, 1);
 		wheels = new IntakeWheels(5, 4);
+		lift = new Lift(6, 0, 1);
+		wrist = new Wrist(7);
 	}
 	
 	public void close() {

@@ -42,7 +42,7 @@ public class Robot extends IterativeRobot {
 	CubeMechanism cubes;
 	boolean clawsMode, clawsModeHold;
 	
-	Compressor pcm;
+	Compressor compressor;
 	
 	Timer autoTimer;
 	
@@ -83,7 +83,7 @@ public class Robot extends IterativeRobot {
 //		chooser.addObject("My Auto", customAuto);
 		SmartDashboard.putData("Auto choices", chooser);
 		
-		pcm = new Compressor();
+		compressor = new Compressor();
 	}
 
 	/**
@@ -191,6 +191,11 @@ public class Robot extends IterativeRobot {
 	
 	@Override
 	public void teleopPeriodic() {
+		// Misc Controls
+		if (rotationStick.getRawButton(2)) {
+			drivetrain.robotState.resetAngle();
+		}
+		
 		// XY controls
 		if (mainStick.getTrigger()) {
 			drivetrain.setPrecision(mainStick.getRawAxis(0), -mainStick.getRawAxis(1));
@@ -220,46 +225,41 @@ public class Robot extends IterativeRobot {
 		}		
 		
 		// Mechanism controls
-		pcm.setClosedLoopControl(true);
+		compressor.setClosedLoopControl(true);
 		
 		if (operator.getRawAxis(2)>0.1 || operator.getRawAxis(3)>0.1) {
 			cubes.intake(operator.getRawAxis(2), operator.getRawAxis(3));
-			SmartDashboard.putString("Damnit", "On");
 		}
 		else if (operator.getRawButton(3)) {
 			cubes.out();
-			SmartDashboard.putString("Damnit", "2");
-
 		}
 		else {
 			cubes.stop();
-			SmartDashboard.putString("Damnit", "3");
-
 		}
 		
-//		if (operator.getRawButton(1) && !clawsModeHold){
-//			
-//			//Swaps speeds
-//			if (!clawsMode){
-//				clawsMode = true;
-//			}
-//			else {
-//				clawsMode = false;
-//			}
-//			
-//			//Prevents constant switching
-//			clawsModeHold = true;
-//		}
-//		else if (!(operator.getRawButton(1)) && clawsModeHold){
-//			clawsModeHold = false;
-//		}
-//		
-//		if (clawsMode) {
-//			cubes.close();
-//		}
-//		else if(!clawsMode) {
-//			cubes.open();
-//		}
+		if (operator.getRawButton(1) && !clawsModeHold){
+			
+			//Swaps speeds
+			if (!clawsMode){
+				clawsMode = true;
+			}
+			else {
+				clawsMode = false;
+			}
+			
+			//Prevents constant switching
+			clawsModeHold = true;
+		}
+		else if (!(operator.getRawButton(1)) && clawsModeHold){
+			clawsModeHold = false;
+		}
+		
+		if (clawsMode) {
+			cubes.close();
+		}
+		else if(!clawsMode) {
+			cubes.open();
+		}
 		if (operator.getRawButton(5)){
 			cubes.close();
 		}
@@ -286,6 +286,8 @@ public class Robot extends IterativeRobot {
 	@Override
 	public void disabledPeriodic() {
 		SmartDashboard.putNumber("Heading", drivetrain.robotState.getRotation());
+		SmartDashboard.putNumber("X Position", drivetrain.robotState.getDisplacementX());
+		SmartDashboard.putNumber("Y Position", drivetrain.robotState.getDisplacementY());
 	}
 	
 	/**

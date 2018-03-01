@@ -5,8 +5,8 @@ import edu.wpi.first.wpilibj.DoubleSolenoid;
 public class IntakeClaws {
 	DoubleSolenoid clawsSolenoid;
 	
-	public IntakeClaws() {
-		clawsSolenoid = new DoubleSolenoid(0,1);
+	public IntakeClaws(int channel1, int channel2) {
+		clawsSolenoid = new DoubleSolenoid(channel1, channel2);
 	}
 	
 	public void open() {
