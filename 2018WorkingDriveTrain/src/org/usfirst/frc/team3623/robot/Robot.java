@@ -44,7 +44,9 @@ public class Robot extends IterativeRobot {
 	CubeMechanism cubes;
 	boolean openClaws;
 	
-	Compressor compressor;
+	Spark lights;
+	
+//	Compressor compressor;
 	
 	Timer autoTimer;
 	
@@ -76,6 +78,8 @@ public class Robot extends IterativeRobot {
 		drivetrain.startDriveTrain();
 		
 		cubes = new CubeMechanism();
+		
+		lights = new Spark(9);
 
 		autoTimer = new Timer();
 		autoTimer.start();
@@ -85,7 +89,8 @@ public class Robot extends IterativeRobot {
 //		chooser.addObject("My Auto", customAuto);
 		SmartDashboard.putData("Auto choices", chooser);
 		
-		compressor = new Compressor();
+//		compressor = new Compressor();
+//		
 	}
 
 	/**
@@ -120,6 +125,7 @@ public class Robot extends IterativeRobot {
 	@Override
 	public void autonomousPeriodic() {
 		double autoTime = autoTimer.get();
+		lights.set(-15.0/autoTime);
 		switch (autoSelected) {
 		case customAuto:
 			// Put custom auto code here
@@ -129,7 +135,7 @@ public class Robot extends IterativeRobot {
 		 *  Drive forward
 		 */
 		case defaultAuto: 
-			if (autoTimer.get() < 1.75) {
+			if (autoTimer.get() < 2.75) {
 				drivetrain.setXY(0.0, 0.6);
 				drivetrain.setAngle(0.0);
 			}
@@ -142,30 +148,57 @@ public class Robot extends IterativeRobot {
 		 * Spider Y 2 Bananas Dead Reckoning
 		 */
 		case auto1:
-			if (autoTime < 0.25){
+//			if (autoTime < 0.25){
+//				drivetrain.setXY(0.0, 0.6);
+//				drivetrain.setAngle(0.0);
+//				cubes.setLift(1.0);
+//				cubes.setWrist(-1.0);
+//			}
+//			else if (autoTime < 2.0) {
+//				if (autoTime < 1.0) {
+//					cubes.setWrist(-0.6);
+//				}
+//				
+//				if (autoTime < 0.65) {
+//					cubes.setLift(1.0);
+//				}
+//				
+//				if (ourSwitch == 'L') {
+//					drivetrain.setPolar(0.7, -35.0);
+//					drivetrain.setAngle(0.0);
+//				}
+//				else if (ourSwitch == 'R') {
+//					drivetrain.setPolar(0.7, 35);
+//					drivetrain.setAngle(0.0);
+//				}
+//				else {
+//					drivetrain.setRotation(0.5);
+//					drivetrain.setXY(0.0, 0.0);
+//				}
+//			}
+//			else if (autoTime < 2.2) {
+//				cubes.out();
+//			}
+//			else {
+//				drivetrain.setStopped();
+//				cubes.stop();
+//			}
+//			break;
+			if (autoTimer.get() < 0.7) {
+				drivetrain.setXY(0.0, 0.6);
+				drivetrain.setAngle(0.0);
+				cubes.setWrist(-1.0);
+				cubes.setLift(1.0);
+			}
+			else if (autoTimer.get() < 2.5) {
 				drivetrain.setXY(0.0, 0.6);
 				drivetrain.setAngle(0.0);
 			}
-			else if (autoTime < 2.0) {
-				if (ourSwitch == 'L') {
-					drivetrain.setPolar(0.6, -35.0);
-					drivetrain.setAngle(0.0);
-				}
-				else if (ourSwitch == 'R') {
-					drivetrain.setPolar(0.6, 35);
-					drivetrain.setAngle(0.0);
-				}
-				else {
-					drivetrain.setRotation(0.5);
-					drivetrain.setXY(0.0, 0.0);
-				}
-			}
-			else if (autoTime < 2.2) {
+			else if (autoTimer.get() < 3.0 && ourSwitch == 'L') {
 				cubes.out();
 			}
 			else {
 				drivetrain.setStopped();
-				cubes.stop();
 			}
 			break;
 			
@@ -202,12 +235,14 @@ public class Robot extends IterativeRobot {
 			drivetrain.robotState.resetAngle();
 		}
 		
+		lights.set(-1.0);
+		
 		// XY controls
-		if (mainStick.getTrigger()) {
-			drivetrain.setPrecision(mainStick.getRawAxis(0), -mainStick.getRawAxis(1));
+		if (mainStick.getRawButton(1)) {
+			drivetrain.setPrecision(-mainStick.getRawAxis(0), -mainStick.getRawAxis(1));
 		}
 		else {
-			drivetrain.setXY(mainStick.getRawAxis(0), -mainStick.getRawAxis(1));
+			drivetrain.setXY(-mainStick.getRawAxis(0), -mainStick.getRawAxis(1));
 		}
 		
 		// Rotation Controls
@@ -220,8 +255,8 @@ public class Robot extends IterativeRobot {
 		else if (rotationStick.getMagnitude() > 0.5) {
 			drivetrain.setAngle(((rotationStick.getDirectionDegrees()+360)%360));
 		}
-		else if (Math.abs(rotationStick.getTwist()) > 0.2) {
-			drivetrain.setRotation(-rotationStick.getRawAxis(3));
+		else if (Math.abs(rotationStick.getRawAxis(3)) > 0.2) {
+			drivetrain.setRotation(rotationStick.getRawAxis(3));
 		}
 		else if (rotationStick.getTrigger()) {
 			drivetrain.setAngle(((mainStick.getDirectionDegrees()+360)%360));
@@ -231,7 +266,7 @@ public class Robot extends IterativeRobot {
 		}		
 		
 		// Mechanism controls
-		compressor.setClosedLoopControl(true);
+//		compressor.setClosedLoopControl(true);
 		
 		if (operator.getRawAxis(2)>0.1 || operator.getRawAxis(3)>0.1) {
 			cubes.intake(operator.getRawAxis(2), operator.getRawAxis(3));
@@ -243,10 +278,16 @@ public class Robot extends IterativeRobot {
 			cubes.stop();
 		}
 		
-		if (operator.getAButtonPressed()) openClaws = !openClaws;
-		if (openClaws) cubes.close();
-		else  cubes.open();
-//		cubes.open();
+//		if(operator.getAButton()) {
+//			cubes.open();
+//		}
+//		else {
+//			cubes.close(); 
+//		}
+//		if (operator.getAButtonPressed()) openClaws = !openClaws;
+//		if (openClaws) cubes.close();
+//		else  cubes.open();
+////		cubes.open();
 		
 		if (Math.abs(operator.getY(Hand.kLeft)) > 0.1) {
 			cubes.setLift(-operator.getY(Hand.kLeft));

@@ -16,7 +16,7 @@ public class DriveTrain {
 	
 	private static final double UPDATE_RATE = 75.0;
 	private static final double maxSpeedChange = 0.15;
-	private static final double PRECISION_SPEED = 0.2;
+	private static final double PRECISION_SPEED = 0.35;
 
 	public RobotTelemetry robotState;
 	private DriveTrainRotation rotation; //Leave public for now
@@ -85,7 +85,7 @@ public class DriveTrain {
 			double x = xy.getX();
 			double y = xy.getY();
 			double r = rotation.update(gyroAngle, gyroSpeed);
-			driveCartesian(x, y, -r, gyroAngle);
+			driveCartesian(x, -y, -r, gyroAngle);
 			robotState.updateCommands(x, y);
 			break;
 		}
@@ -153,6 +153,10 @@ public class DriveTrain {
 
 	public void holdRotation() {
 		rotation.holdAngle();
+	}
+	
+	public void releaseRotation() {
+		rotation.release();
 	}
 
 	public void setPrecision(double x, double y) {
