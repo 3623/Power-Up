@@ -45,21 +45,28 @@ public class Robot extends IterativeRobot {
 	boolean openClaws;
 	
 	Spark lights;
-	
-//	Compressor compressor;
-	
+		
 	Timer autoTimer;
 	
 	String gameData;
 	char ourSwitch, scale, theirSwitch;
 
-	final String defaultAuto = "Default- Drive Forward";
-	final String auto1 = "Spider Y 2 Bananas- Dead reckoning";
-	final String auto2 = "Drive Forward and Plop";
-	final String auto3 = "Spider Y 2 Bananas- Smart";
-	final String customAuto = "My Auto";
+	final String CrossLine = "Cross Line";
+	final String DriveBy = "Drive Forward and Plop";
+	final String ExchangeThenCross = "Exchange Then Cross Line";
+	final String PlaceCube = "Place in Switch if ours";
+	final String CenterAutoDumb = "Spider Y 2 Bananas- Dead reckoning";
+	final String CenterAutoSmart = "Spider Y 2 Bananas- Smart";
 	String autoSelected;
-	SendableChooser<String> chooser = new SendableChooser<>();
+	SendableChooser<String> autoModeChooser = new SendableChooser<String>();
+	
+	final String outsideLeft = "Far Left";
+	final String leftSwitch = "Switch Left";
+	final String center = "Center";
+	final String rightSwitch = "Switch Right";
+	final String outsideRight = "Far Right";
+	String startPosition;
+	SendableChooser<String> startPositionChooser = new SendableChooser<String>();
 
 	
 	/**
@@ -80,29 +87,30 @@ public class Robot extends IterativeRobot {
 		cubes = new CubeMechanism();
 		
 		lights = new Spark(9);
+		lights.setSafetyEnabled(false);
 
 		autoTimer = new Timer();
 		autoTimer.start();
 
-		chooser.addDefault(defaultAuto, defaultAuto);
-		chooser.addObject(auto1, auto1);
-//		chooser.addObject("My Auto", customAuto);
-		SmartDashboard.putData("Auto choices", chooser);
 		
-//		compressor = new Compressor();
-//		
+		startPositionChooser.addDefault(center, center);
+		startPositionChooser.addObject(leftSwitch, leftSwitch);
+		startPositionChooser.addObject(rightSwitch, rightSwitch);
+		startPositionChooser.addObject(outsideLeft, outsideLeft);
+		startPositionChooser.addObject(outsideRight, outsideRight);
+		SmartDashboard.putData("Start Position", startPositionChooser);
 	}
 
 	/**
-	 * This autonomous (along with the chooser code above) shows how to select
+	 * This autonomous (along with the autoModeChooser code above) shows how to select
 	 * between different autonomous modes using the dashboard. The sendable
-	 * chooser code works with the Java SmartDashboard. If you prefer the
-	 * LabVIEW Dashboard, remove all of the chooser code and uncomment the
+	 * autoModeChooser code works with the Java SmartDashboard. If you prefer the
+	 * LabVIEW Dashboard, remove all of the autoModeChooser code and uncomment the
 	 * getString line to get the auto name from the text box below the Gyro
 	 *
 	 * You can add additional auto modes by adding additional comparisons to the
 	 * switch structure below with additional strings. If using the
-	 * SendableChooser make sure to add them to the chooser code above as well.
+	 * SendableChooser make sure to add them to the autoModeChooser code above as well.
 	 */
 	@Override
 	public void autonomousInit() {
@@ -111,11 +119,12 @@ public class Robot extends IterativeRobot {
 		scale = gameData.charAt(1);
 		theirSwitch = gameData.charAt(2);
 		
+		startPosition = startPositionChooser.getSelected();
+
+		autoSelected = autoModeChooser.getSelected();
 		
-		autoSelected = chooser.getSelected();
-//		autoSelected = SmartDashboard.getString("Auto Selector", defaultAuto);
 		System.out.println("Auto selected: " + autoSelected);
-		drivetrain.setAuto();
+		drivetrain.setEnabled();
 		autoTimer.reset();
 	}
 
@@ -127,29 +136,29 @@ public class Robot extends IterativeRobot {
 		double autoTime = autoTimer.get();
 		lights.set(-15.0/autoTime);
 		switch (autoSelected) {
-		case customAuto:
-			// Put custom auto code here
-			break;
-			
-		/*
-		 *  Drive forward
-		 */
-		case defaultAuto: 
-			if (autoTimer.get() < 2.75) {
-				drivetrain.setXY(0.0, 0.6);
-				drivetrain.setAngle(0.0);
-			}
-			else {
-				drivetrain.setStopped();
-			}
-			break;
-			
+//		case customAuto:
+//			// Put custom auto code here
+//			break;
+//			
+//		/*
+//		 *  Drive forward
+//		 */
+//		case defaultDriveForward: 
+//			if (autoTime < 2.75) {
+//				drivetrain.setXY(0.0, 0.6);
+//				drivetrain.setAngle(0.0);
+//			}
+//			else {
+//				drivetrain.setStopped();
+//			}
+//			break;
+//			
 		/*
 		 * Spider Y 2 Bananas Dead Reckoning
 		 */
-		case auto1:
+		case CenterAutoDumb:
 //			if (autoTime < 0.25){
-//				drivetrain.setXY(0.0, 0.6);
+//				drivetrain.setXY(0.0, 1.0);
 //				drivetrain.setAngle(0.0);
 //				cubes.setLift(1.0);
 //				cubes.setWrist(-1.0);
@@ -164,11 +173,11 @@ public class Robot extends IterativeRobot {
 //				}
 //				
 //				if (ourSwitch == 'L') {
-//					drivetrain.setPolar(0.7, -35.0);
+//					drivetrain.setPolar(1.0, -35.0);
 //					drivetrain.setAngle(0.0);
 //				}
 //				else if (ourSwitch == 'R') {
-//					drivetrain.setPolar(0.7, 35);
+//					drivetrain.setPolar(1.0, 35);
 //					drivetrain.setAngle(0.0);
 //				}
 //				else {
@@ -195,7 +204,7 @@ public class Robot extends IterativeRobot {
 				drivetrain.setAngle(0.0);
 			}
 			else if (autoTimer.get() < 3.0 && ourSwitch == 'L') {
-				cubes.out();
+				cubes.out(1.0);
 			}
 			else {
 				drivetrain.setStopped();
@@ -225,7 +234,7 @@ public class Robot extends IterativeRobot {
 	
 	@Override
 	public void teleopInit() {
-		drivetrain.setTeleop();
+		drivetrain.setEnabled();
 	}
 	
 	@Override
@@ -272,10 +281,10 @@ public class Robot extends IterativeRobot {
 			cubes.intake(operator.getRawAxis(2), operator.getRawAxis(3));
 		}
 		else if (operator.getXButton()) {
-			cubes.out();
+			cubes.out(1.0);
 		}
 		else {
-			cubes.stop();
+			cubes.stopWheels();
 		}
 		
 //		if(operator.getAButton()) {
@@ -316,6 +325,39 @@ public class Robot extends IterativeRobot {
 	@Override
 	public void disabledPeriodic() {
 		cubes.stop();
+		
+		startPosition = startPositionChooser.getSelected();
+		
+		switch (startPosition) {
+		case center:
+			autoModeChooser.addDefault(CenterAutoDumb, CenterAutoDumb);
+			autoModeChooser.addObject(CenterAutoSmart, CenterAutoSmart);
+			SmartDashboard.putData("Auto choices", autoModeChooser);
+			
+		case outsideLeft:
+			autoModeChooser.addDefault(CrossLine, CrossLine);
+			autoModeChooser.addObject(DriveBy, DriveBy);
+			autoModeChooser.addObject(ExchangeThenCross, ExchangeThenCross);
+			SmartDashboard.putData("Auto choices", autoModeChooser);
+			
+		case outsideRight:
+			autoModeChooser.addDefault(CrossLine, CrossLine);
+			autoModeChooser.addObject(DriveBy, DriveBy);
+			autoModeChooser.addObject(ExchangeThenCross, ExchangeThenCross);
+			SmartDashboard.putData("Auto choices", autoModeChooser);
+			
+		case leftSwitch:
+			autoModeChooser.addDefault(CrossLine, CrossLine);
+			autoModeChooser.addObject(PlaceCube, PlaceCube);
+			autoModeChooser.addObject(ExchangeThenCross, ExchangeThenCross);
+			SmartDashboard.putData("Auto choices", autoModeChooser);
+			
+		case rightSwitch:
+			autoModeChooser.addDefault(CrossLine, CrossLine);
+			autoModeChooser.addObject(PlaceCube, PlaceCube);
+			autoModeChooser.addObject(ExchangeThenCross, ExchangeThenCross);
+			SmartDashboard.putData("Auto choices", autoModeChooser);
+		}
 		
 		SmartDashboard.putNumber("Heading", drivetrain.robotState.getRotation());
 		SmartDashboard.putNumber("X Position", drivetrain.robotState.getDisplacementX());

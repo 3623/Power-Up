@@ -25,7 +25,7 @@ public class DriveTrain {
 	private Stage stage = Stage.STOPPED; 
 	
 	private enum Stage {
-		STOPPED, AUTO, TELEOP;
+		STOPPED, AUTO, CONTROLLED;
 	}
 	
 	/**
@@ -78,7 +78,7 @@ public class DriveTrain {
 			driveCartesian(0.0, 0.0, 0.0, 0.0);
 			break;
 			
-		case TELEOP:
+		case CONTROLLED:
 			double gyroAngle = robotState.getRotation();
 			double gyroSpeed = robotState.getRotationVelocity();
 			xy.update(robotState.getDisplacementX(), robotState.getDisplacementY());
@@ -124,13 +124,10 @@ public class DriveTrain {
 		xy.stop();
 	}
 	
-	public void setAuto() {
-		this.stage = Stage.TELEOP;
+	public void setEnabled() {
+		this.stage = Stage.CONTROLLED;
 	}
-	
-	public void setTeleop() {
-		this.stage = Stage.TELEOP;
-	}
+
 	
 	public void setXY(double x, double y) {
 		xy.driveManual(x, y);
@@ -138,7 +135,7 @@ public class DriveTrain {
 	
 	public void setPolar(double magnitude, double angle) {
 		double angleRadians = Math.toRadians(angle);
-		double x = magnitude * Math.sin(angleRadians);
+		double x = -magnitude * Math.sin(angleRadians);
 		double y = magnitude * Math.cos(angleRadians);
 		xy.driveManual(x, y);
 	}
