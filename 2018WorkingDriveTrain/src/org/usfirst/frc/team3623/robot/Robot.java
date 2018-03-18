@@ -125,7 +125,7 @@ public class Robot extends IterativeRobot {
 				drivetrain.disable();
 			}
 			break;
-		
+
 		case CrossLineLong:
 			if (autoTime < 2.75) {
 				drivetrain.setXY(0.0, 0.6);
@@ -150,7 +150,7 @@ public class Robot extends IterativeRobot {
 					drivetrain.setRotation(0.5);
 					drivetrain.setXY(0.0, 0.0);
 				}
-				
+
 				cubes.setLiftPosition(25);
 			}
 			else if (autoTime < 2.2) {
@@ -244,23 +244,41 @@ public class Robot extends IterativeRobot {
 		}		
 
 		// Mechanism controls
-		if (operator.getRawAxis(2)>0.1 || operator.getRawAxis(3)>0.1) {
-			cubes.intake(operator.getRawAxis(2), operator.getRawAxis(3));
+		if (operator.getRawAxis(2)>0.2) {
+			cubes.intake(1.0, 1.0);
 		}
-		else if (operator.getXButton()) {
+		else if (operator.getRawAxis(3)>0.2) {
 			cubes.out(1.0);
 		}
 		else {
 			cubes.stopWheels();
 		}
 
+		
+		if (operator.getPOV() == 0) {
+			cubes.setLiftPosition(20.0);
+		}
+		else if (operator.getPOV() == 180) {
+			cubes.setLiftPosition(0.0);
+		}
+		else if (operator.getPOV() == 270 || operator.getPOV() == 90) {
+			cubes.setLiftPosition(9.0);
+		}
 		if (Math.abs(operator.getY(Hand.kLeft)) > 0.1) {
 			cubes.setLiftSpeed(-operator.getY(Hand.kLeft));
 		}
 
-		if (Math.abs(operator.getY(Hand.kRight))>0.1) {
+
+		if (operator.getBumper(Hand.kRight)) {
+			cubes.setWristPosition(90.0);
+		}
+		else if (operator.getBumper(Hand.kLeft)) {
+			cubes.setWristPosition(0.0);
+		}
+		else if (Math.abs(operator.getY(Hand.kRight))>0.1) {
 			cubes.setWristSpeed(operator.getY(Hand.kRight));
 		}
+
 
 		//SmartDashboard Displays
 		SmartDashboard.putNumber("Heading", drivetrain.robotState.getRotation());
