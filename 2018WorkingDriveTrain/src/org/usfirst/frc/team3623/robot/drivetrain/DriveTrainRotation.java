@@ -4,7 +4,7 @@ import edu.wpi.first.wpilibj.PIDController;
 
 public class DriveTrainRotation {
 	private static final double maxSpeedChange = 0.04;
-	private static final double MAX_SPEED = 0.6;
+	private static final double MAX_SPEED = 0.65;
 	private double setAngle;
 	private double setSpeed;
 	private double lastSpeed;

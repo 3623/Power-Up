@@ -209,7 +209,10 @@ public class Robot extends IterativeRobot {
 		}
 
 		// XY controls
-		if (mainStick.getRawButton(1)) {
+		if (operator.getPOV(0) != -1) {
+			drivetrain.setPolar(0.35, operator.getPOV());
+		}
+		else if (mainStick.getRawButton(1)) {
 			drivetrain.setPrecision(-mainStick.getRawAxis(0), -mainStick.getRawAxis(1));
 		}
 		else {
@@ -217,7 +220,10 @@ public class Robot extends IterativeRobot {
 		}
 
 		// Rotation Controls
-		if (rotationStick.getRawButton(3)) {
+		if (operator.getPOV(0) != -1) {
+			drivetrain.setAngle(180.0);
+		}
+		else if (rotationStick.getRawButton(3)) {
 			drivetrain.setRotation(0.2);
 		}
 		else if (rotationStick.getRawButton(4)) {
