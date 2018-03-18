@@ -259,7 +259,7 @@ public class Robot extends IterativeRobot {
 		}
 
 		if (Math.abs(operator.getY(Hand.kRight))>0.1) {
-			cubes.setWrist(operator.getY(Hand.kRight));
+			cubes.setWristSpeed(operator.getY(Hand.kRight));
 		}
 
 		//SmartDashboard Displays
@@ -299,6 +299,7 @@ public class Robot extends IterativeRobot {
 	@Override
 	public void testPeriodic() {
 		cubes.setLiftPosition(20);
+		cubes.setWristPosition(0.0);
 		drivetrain.newSetAngle(((rotationStick.getDirectionDegrees()+360)%360));
 
 	}
