@@ -15,7 +15,7 @@ public class DriveTrainRotation {
 	private Mode mode, lastMode;
 
 	private enum Mode{
-		STOPPED, RELEASE, MANUAL, PTR, HOLD, INCREMENT;
+		STOPPED, RELEASE, MANUAL, PTR, HOLD, INCREMENT, PTR_New;
 	}
 	
 	public DriveTrainRotation() {
@@ -148,6 +148,11 @@ public class DriveTrainRotation {
 		setAngle((this.setAngle+increment)%360);
 		setMode(Mode.INCREMENT);
 	}
+	
+	public void rotateAngleNew(double setAngle) {
+		setAngle(setAngle);
+		setMode(Mode.PTR_New);
+	}
 
 	
 	
@@ -178,6 +183,11 @@ public class DriveTrainRotation {
 			break;
 
 		case PTR:
+			outputSpeed = oldPointToRotate(setAngle, correctedGyroAngle, 1.0);
+			lastMode = Mode.PTR;
+			break;
+
+		case PTR_New:
 			outputSpeed = oldPointToRotate(setAngle, correctedGyroAngle, 1.0);
 			lastMode = Mode.PTR;
 			break;

@@ -152,4 +152,8 @@ public class DriveTrain {
 	public void setPrecision(double x, double y) {
 		xy.driveManual(x*PRECISION_SPEED, y*PRECISION_SPEED);		
 	}
+	
+	public void newSetAngle(double angle) {
+		rotation.rotateAngleNew(angle);
+	}
 }

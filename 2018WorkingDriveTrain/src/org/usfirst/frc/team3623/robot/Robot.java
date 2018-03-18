@@ -283,9 +283,6 @@ public class Robot extends IterativeRobot {
 		else if (Math.abs(rotationStick.getRawAxis(3)) > 0.2) {
 			drivetrain.setRotation(rotationStick.getRawAxis(3));
 		}
-		else if (rotationStick.getTrigger()) {
-			drivetrain.setAngle(((mainStick.getDirectionDegrees()+360)%360));
-		}
 		else {
 			drivetrain.holdRotation();
 		}		
@@ -378,6 +375,8 @@ public class Robot extends IterativeRobot {
 	@Override
 	public void testPeriodic() {
 		cubes.setLiftPosition(20);
+		drivetrain.newSetAngle(((rotationStick.getDirectionDegrees()+360)%360));
+	
 	}
 }
 
