@@ -216,8 +216,8 @@ public class Robot extends IterativeRobot {
 			drivetrain.setPrecision(-mainStick.getRawAxis(0), -mainStick.getRawAxis(1));
 		}
 		else {
-			drivetrain.setXY(-(Math.abs(mainStick.getRawAxis(0))*Math.cbrt(mainStick.getRawAxis(0))),
-					-(Math.abs(mainStick.getRawAxis(1))*Math.cbrt(mainStick.getRawAxis(1))));
+			drivetrain.setXY(-(mainStick.getRawAxis(0)*Math.sqrt(Math.abs(mainStick.getRawAxis(0)))),
+					-(mainStick.getRawAxis(1)*Math.sqrt(Math.abs(mainStick.getRawAxis(1)))));
 		}
 
 		// Rotation Controls
