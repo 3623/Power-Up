@@ -11,10 +11,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import org.usfirst.frc.team3623.robot.drivetrain.DriveTrain;
 import org.usfirst.frc.team3623.robot.mechanism.CubeMechanism;
 
-import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.GenericHID.Hand;
-import edu.wpi.first.wpilibj.SPI;
 
 
 /**
@@ -39,7 +38,7 @@ public class Robot extends IterativeRobot {
 	Joystick rotationStick;
 	XboxController operator;
 	
-	DriveTrain drivetrain;
+	public DriveTrain drivetrain;
 	
 	CubeMechanism cubes;
 	boolean openClaws;
@@ -125,6 +124,7 @@ public class Robot extends IterativeRobot {
 		
 		System.out.println("Auto selected: " + autoSelected);
 		drivetrain.setEnabled();
+		cubes.enable();
 		autoTimer.reset();
 	}
 
@@ -136,23 +136,24 @@ public class Robot extends IterativeRobot {
 		double autoTime = autoTimer.get();
 		lights.set(-15.0/autoTime);
 		switch (autoSelected) {
-//		case customAuto:
-//			// Put custom auto code here
-//			break;
+		case CrossLine:
+			switch (startPosition) {
+			case outsideLeft:
+				if (autoTime < 2.75) {
+				drivetrain.setXY(0.0, 0.6);
+				drivetrain.setAngle(0.0);
+			}
+			else {
+				drivetrain.setStopped();
+			}
+			break;
+			}
+			
 //			
 //		/*
 //		 *  Drive forward
 //		 */
-//		case defaultDriveForward: 
-//			if (autoTime < 2.75) {
-//				drivetrain.setXY(0.0, 0.6);
-//				drivetrain.setAngle(0.0);
-//			}
-//			else {
-//				drivetrain.setStopped();
-//			}
-//			break;
-//			
+	
 		/*
 		 * Spider Y 2 Bananas Dead Reckoning
 		 */
@@ -197,7 +198,7 @@ public class Robot extends IterativeRobot {
 				drivetrain.setXY(0.0, 0.6);
 				drivetrain.setAngle(0.0);
 				cubes.setWrist(-1.0);
-				cubes.setLift(1.0);
+				cubes.setLiftSpeed(1.0);
 			}
 			else if (autoTimer.get() < 2.5) {
 				drivetrain.setXY(0.0, 0.6);
@@ -210,6 +211,9 @@ public class Robot extends IterativeRobot {
 				drivetrain.setStopped();
 			}
 			break;
+			
+		case DriveBy:
+			
 			
 		default:
 			// Should never be ran
@@ -235,13 +239,25 @@ public class Robot extends IterativeRobot {
 	@Override
 	public void teleopInit() {
 		drivetrain.setEnabled();
+		cubes.enable();
 	}
 	
 	@Override
 	public void teleopPeriodic() {
+		double matchTime = DS.getMatchTime();	
+		int matchSecs = ((int)matchTime%60);
+		int matchMins = (int)(matchTime/60);
+		String matchTimeString = matchMins + ":" + matchSecs;
+		SmartDashboard.putString("Match Time", matchTimeString);
+		
 		// Misc Controls
 		if (rotationStick.getRawButton(2)) {
 			drivetrain.robotState.resetAngle();
+		}
+		if (matchTime == 30) {
+			operator.setRumble(GenericHID.RumbleType.kLeftRumble, 0.8);
+			operator.setRumble(GenericHID.RumbleType.kRightRumble, 0.8);
+
 		}
 		
 		lights.set(-1.0);
@@ -275,8 +291,6 @@ public class Robot extends IterativeRobot {
 		}		
 		
 		// Mechanism controls
-//		compressor.setClosedLoopControl(true);
-		
 		if (operator.getRawAxis(2)>0.1 || operator.getRawAxis(3)>0.1) {
 			cubes.intake(operator.getRawAxis(2), operator.getRawAxis(3));
 		}
@@ -287,19 +301,8 @@ public class Robot extends IterativeRobot {
 			cubes.stopWheels();
 		}
 		
-//		if(operator.getAButton()) {
-//			cubes.open();
-//		}
-//		else {
-//			cubes.close(); 
-//		}
-//		if (operator.getAButtonPressed()) openClaws = !openClaws;
-//		if (openClaws) cubes.close();
-//		else  cubes.open();
-////		cubes.open();
-		
 		if (Math.abs(operator.getY(Hand.kLeft)) > 0.1) {
-			cubes.setLift(-operator.getY(Hand.kLeft));
+			cubes.setLiftSpeed(-operator.getY(Hand.kLeft));
 		}
 		
 		if (Math.abs(operator.getY(Hand.kRight))>0.1) {
@@ -320,12 +323,11 @@ public class Robot extends IterativeRobot {
 	@Override
 	public void disabledInit() {
 		drivetrain.setStopped();
+		cubes.disable();
 	}
 	
 	@Override
-	public void disabledPeriodic() {
-		cubes.stop();
-		
+	public void disabledPeriodic() {		
 		startPosition = startPositionChooser.getSelected();
 		
 		switch (startPosition) {
@@ -364,11 +366,18 @@ public class Robot extends IterativeRobot {
 		SmartDashboard.putNumber("Y Position", drivetrain.robotState.getDisplacementY());
 	}
 	
+	
+	@Override
+	public void testInit() {
+		cubes.enable();
+	}
+	
 	/**
 	 * This function is called periodically during test mode
 	 */
 	@Override
 	public void testPeriodic() {
+		cubes.setLiftPosition(20);
 	}
 }
 

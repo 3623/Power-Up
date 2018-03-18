@@ -46,7 +46,7 @@ public class Coordinate {
 		acceleration = filter(coefficient, predictedAcceleration, measuredAcceleration);
 	}
 
-	public void updateNavxA_fastUpdate(double time, double measuredAcceleration, double coefficient) {
+	public void updateNavxAccelerationQuick(double time, double measuredAcceleration, double coefficient) {
 		double predictedAcceleration = predictAcceleration(time, acceleration);
 
 		acceleration = filter(coefficient, predictedAcceleration, measuredAcceleration);
@@ -56,8 +56,14 @@ public class Coordinate {
 
 		position = predictedPosition;
 		velocity = predictedVelocity;
-	//This might not be useful, we will see, I have no clue if this is a good solution I just saw it
-		// Check if we get lag with/without it
+	}
+	
+	public void updateVIODeltaX(double time, double deltaPosition, double coefficient) {
+		double predictedPosition = predictPostion(time, position, velocity, acceleration);
+		double predictedVelocity = predictVelocity(time, velocity, acceleration);
+
+		position = filter(coefficient, predictedPosition, deltaPosition+position);
+		velocity = filter(coefficient, predictedVelocity, deltaPosition/time);
 	}
 	
 	public double getPosition() {

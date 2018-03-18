@@ -42,17 +42,10 @@ public class DriveTrain {
 		
 		robotState = new RobotTelemetry();
 		robotState.startNavX();
+		
 		rotation = new DriveTrainRotation();
 		xy = new DriveTrainXY();
 		
-	}
-
-	private void drivePolar(double magnitude, double direction, double rotation) {
-		drivetrain.drivePolar(magnitude, direction, rotation);
-	}
-
-	private void driveXY(double x, double y, double rotation) {
-		drivetrain.driveCartesian(x, y, rotation);
 	}
 
 	private void driveCartesian(double x, double y, double rotation, double angle) {
