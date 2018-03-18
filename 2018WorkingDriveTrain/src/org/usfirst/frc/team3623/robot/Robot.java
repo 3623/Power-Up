@@ -103,7 +103,7 @@ public class Robot extends IterativeRobot {
 		autoSelected = autoModeChooser.getSelected();
 
 		System.out.println("Auto selected: " + autoSelected);
-		drivetrain.setEnabled();
+		drivetrain.enable();
 		cubes.enable();
 		autoTimer.reset();
 	}
@@ -122,7 +122,7 @@ public class Robot extends IterativeRobot {
 				drivetrain.setAngle(0.0);
 			}
 			else {
-				drivetrain.setStopped();
+				drivetrain.disable();
 			}
 			break;
 		
@@ -132,7 +132,7 @@ public class Robot extends IterativeRobot {
 				drivetrain.setAngle(0.0);
 			}
 			else {
-				drivetrain.setStopped();
+				drivetrain.disable();
 			}
 			break;
 
@@ -157,7 +157,7 @@ public class Robot extends IterativeRobot {
 				cubes.out(1.0);
 			}
 			else {
-				drivetrain.setStopped();
+				drivetrain.disable();
 				cubes.disable();
 			}
 			break;
@@ -186,7 +186,7 @@ public class Robot extends IterativeRobot {
 
 	@Override
 	public void teleopInit() {
-		drivetrain.setEnabled();
+		drivetrain.enable();
 		cubes.enable();
 	}
 
@@ -216,7 +216,8 @@ public class Robot extends IterativeRobot {
 			drivetrain.setPrecision(-mainStick.getRawAxis(0), -mainStick.getRawAxis(1));
 		}
 		else {
-			drivetrain.setXY(-mainStick.getRawAxis(0), -mainStick.getRawAxis(1));
+			drivetrain.setXY(-(Math.abs(mainStick.getRawAxis(0))*Math.cbrt(mainStick.getRawAxis(0))),
+					-(Math.abs(mainStick.getRawAxis(1))*Math.cbrt(mainStick.getRawAxis(1))));
 		}
 
 		// Rotation Controls
@@ -232,8 +233,11 @@ public class Robot extends IterativeRobot {
 		else if (rotationStick.getMagnitude() > 0.5) {
 			drivetrain.setAngle(((rotationStick.getDirectionDegrees()+360)%360));
 		}
-		else if (Math.abs(rotationStick.getRawAxis(3)) > 0.2) {
-			drivetrain.setRotation(rotationStick.getRawAxis(3));
+		else if (rotationStick.getRawAxis(3) >= 0.35) {
+			drivetrain.setRotation(rotationStick.getRawAxis(3) - 0.35);
+		}
+		else if (rotationStick.getRawAxis(3) <= -0.35) {
+			drivetrain.setRotation(rotationStick.getRawAxis(3) + 0.35);
 		}
 		else {
 			drivetrain.holdRotation();
@@ -271,7 +275,7 @@ public class Robot extends IterativeRobot {
 	 */
 	@Override
 	public void disabledInit() {
-		drivetrain.setStopped();
+		drivetrain.disable();
 		cubes.disable();
 	}
 
@@ -286,6 +290,7 @@ public class Robot extends IterativeRobot {
 	@Override
 	public void testInit() {
 		cubes.enable();
+		drivetrain.enable();
 	}
 
 	/**

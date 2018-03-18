@@ -111,13 +111,13 @@ public class DriveTrain {
 		DriveTrainThread.start();
 	}
 	
-	public void setStopped() {
+	public void disable() {
 		this.stage = Stage.STOPPED;
 		rotation.stop();
 		xy.stop();
 	}
 	
-	public void setEnabled() {
+	public void enable() {
 		this.stage = Stage.CONTROLLED;
 	}
 
