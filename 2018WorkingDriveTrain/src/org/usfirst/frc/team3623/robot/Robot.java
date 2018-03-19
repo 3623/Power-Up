@@ -264,6 +264,9 @@ public class Robot extends IterativeRobot {
 		else if (operator.getPOV() == 270 || operator.getPOV() == 90) {
 			cubes.setLiftPosition(9.0);
 		}
+		else if (operator.getPOV() == 225) {
+			cubes.setLiftPosition(3.0);
+		}
 		if (Math.abs(operator.getY(Hand.kLeft)) > 0.1) {
 			cubes.setLiftSpeed(-operator.getY(Hand.kLeft));
 		}
