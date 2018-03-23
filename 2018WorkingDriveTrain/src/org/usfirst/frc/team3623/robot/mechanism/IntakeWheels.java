@@ -12,7 +12,7 @@ public class IntakeWheels {
 	
 	public void setIntake(double left, double right) {
 		leftWheels.set(left);
-		rightWheels.set(right);
+		rightWheels.set(-right);
 	}
 	
 	public void stop() {

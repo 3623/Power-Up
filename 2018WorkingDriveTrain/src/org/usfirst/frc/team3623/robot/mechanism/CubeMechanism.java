@@ -10,7 +10,7 @@ public class CubeMechanism {
 //		claws = new IntakeClaws(2, 3);
 		wheels = new IntakeWheels(5, 4);
 		lift = new Lift(6, 0, 0, 1, 0.0);
-		wrist = new Wrist(7, 1);
+		wrist = new Wrist(7);
 	}
 	
 //	public void close() {
@@ -35,12 +35,13 @@ public class CubeMechanism {
 
 	
 	public void setWristSpeed(double speed) {
-		wrist.setSetpoint(wrist.getPosition()+speed);
+//		wrist.setSetpoint(wrist.getPosition()+speed);
+		wrist.set(speed);
 	}
-	
-	public void setWristPosition(double position) {
-		wrist.setSetpoint(position);
-	}
+//	
+//	public void setWristPosition(double position) {
+//		wrist.setSetpoint(position);
+//	}
 
 	public void setLiftRelative(double delta) {
 		lift.setSetpointRelative(delta);
@@ -51,7 +52,7 @@ public class CubeMechanism {
 	}
 	
 	public void setLiftSpeed(double speed) {
-		lift.setSetpoint(lift.getPosition()+speed);
+		lift.setSetpoint(lift.getPosition()+speed*8);
 	}
 	
 	public void disable() {
@@ -63,10 +64,14 @@ public class CubeMechanism {
 	
 	public void enable() {
 		lift.enable();
-		wrist.enable();
+//		wrist.enable();
 	}
 	
 	public void stopWheels() {
 		wheels.stop();
+	}
+	
+	public double liftHeight() {
+		return lift.getLift();
 	}
 }

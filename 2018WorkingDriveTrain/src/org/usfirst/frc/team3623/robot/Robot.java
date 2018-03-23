@@ -282,6 +282,12 @@ public class Robot extends IterativeRobot {
 			int matchMins = (int)(matchTime/60);
 			String matchTimeString = matchMins + ":" + matchSecs;
 			SmartDashboard.putString("Match Time", matchTimeString);
+			
+			SmartDashboard.putNumber("Heading", drivetrain.robotState.getRotation());
+			SmartDashboard.putNumber("Rotational Speed", drivetrain.robotState.getRotationVelocity());
+			SmartDashboard.putNumber("X Position", drivetrain.robotState.getDisplacementX());
+			SmartDashboard.putNumber("Y Position", drivetrain.robotState.getDisplacementY());
+			SmartDashboard.putNumber("Lift Height", cubes.liftHeight());
 		}
 
 		/**
@@ -291,7 +297,8 @@ public class Robot extends IterativeRobot {
 		@Override
 		public void teleopInit() {
 			drivetrain.enable();
-			cubes.enable();
+			cubes.disable();
+			cubes.setLiftRelative(0.0);
 		}
 
 		@Override
@@ -313,10 +320,11 @@ public class Robot extends IterativeRobot {
 			}
 
 			// XY controls
-			if (operator.getPOV(0) != -1) {
-				drivetrain.setPolar(0.35, operator.getPOV());
-			}
-			else if (mainStick.getRawButton(1)) {
+//			if (operator.getPOV(0) != -1) {
+//				drivetrain.setPolar(0.35, operator.getPOV());
+//			}
+//			else 
+			if (mainStick.getRawButton(1)) {
 				drivetrain.setPrecision(-mainStick.getRawAxis(0), -mainStick.getRawAxis(1));
 			}
 			else {
@@ -325,10 +333,11 @@ public class Robot extends IterativeRobot {
 			}
 
 			// Rotation Controls
-			if (operator.getPOV(0) != -1) {
-				drivetrain.setAngle(180.0);
-			}
-			else if (rotationStick.getRawButton(3)) {
+//			if (operator.getPOV(0) != -1) {
+//				drivetrain.setAngle(180.0);
+//			}
+//			else 
+			if (rotationStick.getRawButton(3)) {
 				drivetrain.setRotation(0.2);
 			}
 			else if (rotationStick.getRawButton(4)) {
@@ -365,10 +374,10 @@ public class Robot extends IterativeRobot {
 			else if (operator.getPOV() == 180) {
 				cubes.setLiftPosition(0.0);
 			}
-			else if (operator.getPOV() == 270 || operator.getPOV() == 90) {
+			else if (operator.getPOV() == 270 ) {
 				cubes.setLiftPosition(9.0);
 			}
-			else if (operator.getPOV() == 225) {
+			else if (operator.getPOV() == 90) {
 				cubes.setLiftPosition(3.0);
 			}
 			if (Math.abs(operator.getY(Hand.kLeft)) > 0.1) {
@@ -376,21 +385,29 @@ public class Robot extends IterativeRobot {
 			}
 
 
-			if (operator.getBumper(Hand.kRight)) {
-				cubes.setWristPosition(90.0);
-			}
-			else if (operator.getBumper(Hand.kLeft)) {
-				cubes.setWristPosition(0.0);
-			}
-			else if (Math.abs(operator.getY(Hand.kRight))>0.1) {
+//			if (operator.getBumper(Hand.kRight)) {
+//				cubes.setWristPosition(90.0);
+//			}
+//			else if (operator.getBumper(Hand.kLeft)) {
+//				cubes.setWristPosition(0.0);
+//			}
+//			else 
+			if (Math.abs(operator.getY(Hand.kRight))>0.1) {
 				cubes.setWristSpeed(operator.getY(Hand.kRight));
+			}
+			else {
+				cubes.setWristSpeed(0.0);
 			}
 
 
 			//SmartDashboard Displays
 			SmartDashboard.putNumber("Heading", drivetrain.robotState.getRotation());
+			SmartDashboard.putNumber("Rotational Speed", drivetrain.robotState.getRotationVelocity());
 			SmartDashboard.putNumber("X Position", drivetrain.robotState.getDisplacementX());
 			SmartDashboard.putNumber("Y Position", drivetrain.robotState.getDisplacementY());
+			SmartDashboard.putNumber("Lift Height", cubes.liftHeight());
+			
+
 
 		}
 
@@ -407,14 +424,17 @@ public class Robot extends IterativeRobot {
 		@Override
 		public void disabledPeriodic() {		
 			SmartDashboard.putNumber("Heading", drivetrain.robotState.getRotation());
+			SmartDashboard.putNumber("Rotational Speed", drivetrain.robotState.getRotationVelocity());
 			SmartDashboard.putNumber("X Position", drivetrain.robotState.getDisplacementX());
 			SmartDashboard.putNumber("Y Position", drivetrain.robotState.getDisplacementY());
+			SmartDashboard.putNumber("Lift Height", cubes.liftHeight());
+
 		}
 
 
 		@Override
 		public void testInit() {
-			cubes.enable();
+//			cubes.enable();
 			drivetrain.enable();
 		}
 
@@ -423,9 +443,10 @@ public class Robot extends IterativeRobot {
 		 */
 		@Override
 		public void testPeriodic() {
-			cubes.setLiftPosition(20);
-			cubes.setWristPosition(0.0);
+//			cubes.setLiftPosition(20);
+//			cubes.setWristPosition(0.0);
 			drivetrain.newSetAngle(((rotationStick.getDirectionDegrees()+360)%360));
+			SmartDashboard.putNumber("Lift Height", cubes.liftHeight());
 
 		}
 	}

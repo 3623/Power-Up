@@ -13,14 +13,14 @@ public class Lift extends PIDSubsystem {
 	private boolean atTop, atBottom;
 	private double offset;
 	
-	
+
 	public Lift(int liftMotorPWM, int potChannel, int topDIO, int bottomDIO, double potOffset) {
-		super("Lift", 1.0, 0.4, 0.3);
+		super("Lift", 0.05, 0.005, 0.10);
 		setInputRange(0.0, 40.0);
 		setOutputRange(-1.0, 1.0);
 		setAbsoluteTolerance(1.0);
 
-		liftPot = new AnalogPotentiometer(potChannel, 40.0, potOffset);
+		liftPot = new AnalogPotentiometer(potChannel, -55.5, 55.45);
 		topSwitch = new DigitalInput(topDIO);
 		bottomSwitch = new DigitalInput(bottomDIO);
 
@@ -35,7 +35,7 @@ public class Lift extends PIDSubsystem {
 	}
 
 	protected void usePIDOutput(double output) {
-		liftMotor.set(checkSpeed(output)); // this is where the computed output value from the PIDController is applied to the motor
+		liftMotor.set(-checkSpeed(output)); // this is where the computed output value from the PIDController is applied to the motor
 	}
 
 	private double checkSpeed(double speed) {
@@ -54,6 +54,10 @@ public class Lift extends PIDSubsystem {
 	private void updateLimits() {
 		atTop = (topSwitch.get() || liftPot.get() > 39.0);
 		atBottom = (bottomSwitch.get() || liftPot.get() < 0.5);
+	}
+	
+	public double getLift() {
+		return liftPot.get();
 	}
 }
 
