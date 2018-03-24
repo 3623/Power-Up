@@ -126,7 +126,7 @@ public class Robot extends IterativeRobot {
 
 		switch (autoSelected) {
 		case CrossLine:
-			if (autoTime < 2.5) {
+			if (autoTime < 2.3) {
 				drivetrain.setXY(0.0, 0.6);
 				drivetrain.setAngle(0.0);
 			}
@@ -146,11 +146,18 @@ public class Robot extends IterativeRobot {
 			break;
 
 		case CenterAutoDumb:
+			if (autoTime < 0.4) {
+				cubes.setWristSpeed(-1.0);
+			}
+			else {
+				cubes.setWristSpeed(0.0);
+			}
+			
 			if (ourSwitch == 'L') {
 				if (autoTime < 2.1) {
 					drivetrain.setPolar(1.0, -32.0);
 					drivetrain.setAngle(0.0);
-					cubes.setLiftPosition(25);
+					cubes.setLiftPosition(18.0);
 				}
 				
 				else if (autoTime < 2.25) {
@@ -167,7 +174,7 @@ public class Robot extends IterativeRobot {
 				if (autoTime < 2.1) {
 					drivetrain.setPolar(1.0, 35);
 					drivetrain.setAngle(0.0);
-					cubes.setLiftPosition(25);
+					cubes.setLiftPosition(18.0);
 				}
 				
 				else if (autoTime < 2.25) {
@@ -192,7 +199,7 @@ public class Robot extends IterativeRobot {
 					if (autoTime < 2.1) {
 						drivetrain.setPolar(1.0, -32.0);
 						drivetrain.setAngle(0.0);
-						cubes.setLiftPosition(25);
+						cubes.setLiftPosition(18.0);
 					}
 					
 					else if (autoTime < 2.25) {
@@ -228,7 +235,7 @@ public class Robot extends IterativeRobot {
 					if (autoTime < 2.1) {
 						drivetrain.setPolar(1.0, 35);
 						drivetrain.setAngle(0.0);
-						cubes.setLiftPosition(25);
+						cubes.setLiftPosition(18.0);
 					}
 					
 					else if (autoTime < 2.25) {
@@ -297,7 +304,7 @@ public class Robot extends IterativeRobot {
 		@Override
 		public void teleopInit() {
 			drivetrain.enable();
-			cubes.disable();
+			cubes.enable();
 			cubes.setLiftRelative(0.0);
 		}
 
@@ -360,7 +367,7 @@ public class Robot extends IterativeRobot {
 			if (operator.getRawAxis(2)>0.2) {
 				cubes.intake(1.0, 1.0);
 			}
-			else if (operator.getRawAxis(3)>0.2) {
+			else if (operator.getXButton()) {
 				cubes.out(1.0);
 			}
 			else {
@@ -369,7 +376,7 @@ public class Robot extends IterativeRobot {
 
 
 			if (operator.getPOV() == 0) {
-				cubes.setLiftPosition(20.0);
+				cubes.setLiftPosition(19.0);
 			}
 			else if (operator.getPOV() == 180) {
 				cubes.setLiftPosition(0.0);
