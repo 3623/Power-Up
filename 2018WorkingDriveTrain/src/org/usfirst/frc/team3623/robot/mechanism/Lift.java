@@ -15,12 +15,12 @@ public class Lift extends PIDSubsystem {
 	
 
 	public Lift(int liftMotorPWM, int potChannel, int topDIO, int bottomDIO, double potOffset) {
-		super("Lift", 0.05, 0.003, 0.11);
+		super("Lift", 0.8, 0.007, 0.75);
 		setInputRange(0.0, 40.0);
-		setOutputRange(-0.5, 0.5);
+		setOutputRange(-0.67, 0.95);
 		setAbsoluteTolerance(1.0);
 
-		liftPot = new AnalogPotentiometer(potChannel, -55.5, 56.45);
+		liftPot = new AnalogPotentiometer(potChannel, -55.5, 54.95);
 		topSwitch = new DigitalInput(topDIO);
 		bottomSwitch = new DigitalInput(bottomDIO);
 

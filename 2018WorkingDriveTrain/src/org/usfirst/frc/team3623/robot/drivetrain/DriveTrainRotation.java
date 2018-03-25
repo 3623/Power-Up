@@ -8,7 +8,6 @@ public class DriveTrainRotation {
 	private double setAngle;
 	private double setSpeed;
 	private double lastSpeed;
-	private double lastRobotSpeed;
 	
 	private PIDHelper pid;
 	
@@ -156,7 +155,7 @@ public class DriveTrainRotation {
 
 	
 	
-	public double update(double gyroAngle, double gyroSpeed) {
+	public double update(double gyroAngle, double gyroVelocity, boolean isRotating) {
 		double correctedGyroAngle = gyroCorrected(gyroAngle);
 		
 		double outputSpeed = lastSpeed;
@@ -173,13 +172,11 @@ public class DriveTrainRotation {
 		case RELEASE:
 			outputSpeed = 0.0;
 			lastMode = Mode.RELEASE;
-			lastRobotSpeed = gyroSpeed;
 			break;
 			
 		case MANUAL:
 			outputSpeed = setSpeed;
 			lastMode = Mode.MANUAL;
-			lastRobotSpeed = gyroSpeed;
 			break;
 
 		case PTR:
@@ -195,16 +192,18 @@ public class DriveTrainRotation {
 		case HOLD:
 			if (lastMode == Mode.MANUAL || lastMode == Mode.RELEASE) {
 				outputSpeed = 0.0;
-				if (Math.abs(lastRobotSpeed) > 10.0) {
+				if (Math.abs(gyroVelocity) > 40.0) {
 					setAngle(correctedGyroAngle);
 				}
 				else {
+					setAngle(correctedGyroAngle);
 					lastMode = Mode.HOLD;
+					outputSpeed = oldPointToRotate(setAngle, correctedGyroAngle, 0.8);
 				}
 			}
 			else {
 				lastMode = Mode.HOLD;
-				outputSpeed = oldPointToRotate(setAngle, correctedGyroAngle, 0.6);
+				outputSpeed = oldPointToRotate(setAngle, correctedGyroAngle, 0.8);
 			}
 			break;
 			

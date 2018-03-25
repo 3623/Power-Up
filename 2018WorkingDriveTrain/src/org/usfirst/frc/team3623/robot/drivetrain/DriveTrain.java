@@ -73,11 +73,12 @@ public class DriveTrain {
 			
 		case CONTROLLED:
 			double gyroAngle = robotState.getRotation();
-			double gyroSpeed = robotState.getRotationVelocity();
+			double gyroVelocity = robotState.getRotationVelocity();
+			boolean isRotating = robotState.isRotating();
 			xy.update(robotState.getDisplacementX(), robotState.getDisplacementY());
 			double x = xy.getX();
 			double y = xy.getY();
-			double r = rotation.update(gyroAngle, gyroSpeed);
+			double r = rotation.update(gyroAngle, gyroVelocity, isRotating);
 			driveCartesian(x, -y, -r, gyroAngle);
 			robotState.updateCommands(x, y);
 			break;

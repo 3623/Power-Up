@@ -52,7 +52,7 @@ public class CubeMechanism {
 	}
 	
 	public void setLiftSpeed(double speed) {
-		lift.setSetpoint(lift.getPosition()+speed*8);
+		lift.setSetpoint(lift.getPosition()+speed);
 	}
 	
 	public void disable() {

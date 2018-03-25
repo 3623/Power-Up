@@ -34,7 +34,7 @@ import edu.wpi.first.wpilibj.GenericHID.Hand;
 public class Robot extends IterativeRobot {
 	DriverStation DS;
 	Preferences preferences;
-	
+
 	// Declare Robot Objects (Physical items like Motor Controllers, sensors, etc.)
 	Joystick mainStick;
 	Joystick rotationStick;
@@ -51,6 +51,7 @@ public class Robot extends IterativeRobot {
 	char ourSwitch, scale, theirSwitch;
 
 	final String CrossLine = "Cross Line";
+	final String CrossLineBack = "Cross Line and Come Back";
 	final String CrossLineLong = "Cross Line Long";
 	final String DriveBy = "Drive Forward and Plop";
 	final String ExchangeThenCross = "Exchange Then Cross Line";
@@ -84,10 +85,11 @@ public class Robot extends IterativeRobot {
 		autoTimer.start();
 
 		autoModeChooser.addDefault(CrossLine, CrossLine);
+		autoModeChooser.addDefault(CrossLineBack, CrossLineBack);
 		autoModeChooser.addObject(CrossLineLong, CrossLineLong);
 		autoModeChooser.addObject(CenterAutoDumb, CenterAutoDumb);
 		autoModeChooser.addObject(CenterAutoPlus, CenterAutoPlus);
-		SmartDashboard.putData("Auto Mode:", autoModeChooser);
+		SmartDashboard.putData("Auto Modes:", autoModeChooser);
 
 	}
 
@@ -126,44 +128,126 @@ public class Robot extends IterativeRobot {
 
 		switch (autoSelected) {
 		case CrossLine:
-			if (autoTime < 2.3) {
+			if (autoTime < 2.1) {
 				drivetrain.setXY(0.0, 0.6);
 				drivetrain.setAngle(0.0);
 			}
 			else {
+				drivetrain.disable(); 
+			}
+			break;
+			
+		case CrossLineBack:
+			if (autoTime < 2.1) {
+				drivetrain.setXY(0.0, 0.6);
+				drivetrain.setAngle(0.0);
+			}
+			else if (autoTime < 4.6) {
+				drivetrain.setXY(0.0, -0.53);
+				drivetrain.setAngle(0.0);
+				cubes.setWristSpeed(-0.9);
+			}
+			else {
 				drivetrain.disable();
+				cubes.disable();
 			}
 			break;
 
 		case CrossLineLong:
-			if (autoTime < 2.75) {
+			if (autoTime < 2.3) {
 				drivetrain.setXY(0.0, 0.6);
 				drivetrain.setAngle(0.0);
+				cubes.setWristSpeed(-0.9);
 			}
 			else {
 				drivetrain.disable();
+				cubes.disable();
 			}
 			break;
 
 		case CenterAutoDumb:
-			if (autoTime < 0.4) {
+			if (autoTime < 1.8) {
 				cubes.setWristSpeed(-1.0);
 			}
 			else {
 				cubes.setWristSpeed(0.0);
 			}
-			
+
+			if (ourSwitch == 'L') {
+				if (autoTime < 1.78) {
+					drivetrain.setPolar(1.0, -23.0);
+					drivetrain.setAngle(0.0);
+					cubes.setLiftPosition(18.0);
+				}
+
+				else if (autoTime < 2.5) {
+					cubes.out(1.0);
+				}
+
+				else {
+					drivetrain.disable();
+					cubes.disable();
+				}
+			}
+
+			else if (ourSwitch == 'R') {
+				if (autoTime < 1.78) {
+					drivetrain.setPolar(1.0, 19.5);
+					drivetrain.setAngle(0.0);
+					cubes.setLiftPosition(18.0);
+				}
+
+				else if (autoTime < 2.5) {
+					cubes.out(1.0);
+				}
+
+				else {
+					drivetrain.disable();
+					cubes.disable();
+				}
+			}
+
+			else {
+				drivetrain.setRotation(0.5);
+				drivetrain.setXY(0.0, 0.0);
+				cubes.disable();
+			}
+			break;
+
+			/*
+			 * 
+			 */
+		case CenterAutoPlus:
 			if (ourSwitch == 'L') {
 				if (autoTime < 2.1) {
 					drivetrain.setPolar(1.0, -32.0);
 					drivetrain.setAngle(0.0);
 					cubes.setLiftPosition(18.0);
 				}
-				
+
 				else if (autoTime < 2.25) {
 					cubes.out(1.0);
 				}
-				
+
+				else if (autoTime < 2.7) {
+					drivetrain.setPolar(1.0, 135.0);
+				}
+
+				else if (autoTime < 3.0) {
+					cubes.intake(1.0,  1.0);
+					drivetrain.setXY(0.0, 0.35);
+				}
+
+				else if (autoTime < 3.5) {
+					drivetrain.setPolar(1.0, -170);
+					drivetrain.setAngle(-179.0);
+				}
+
+				else if (autoTime < 4.0) {
+					drivetrain.setXY(-0.4, 0.0);
+					cubes.out(0.4);
+				}
+
 				else {
 					drivetrain.disable();
 					cubes.disable();
@@ -176,17 +260,36 @@ public class Robot extends IterativeRobot {
 					drivetrain.setAngle(0.0);
 					cubes.setLiftPosition(18.0);
 				}
-				
+
 				else if (autoTime < 2.25) {
 					cubes.out(1.0);
 				}
-				
+
+				else if (autoTime < 2.7) {
+					drivetrain.setPolar(1.0, -135.0);
+				}
+
+				else if (autoTime < 3.0) {
+					cubes.intake(1.0,  1.0);
+					drivetrain.setXY(0.0, 0.35);
+				}
+
+				else if (autoTime < 3.5) {
+					drivetrain.setPolar(1.0, -170);
+					drivetrain.setAngle(-179.0);
+				}
+
+				else if (autoTime < 4.0) {
+					drivetrain.setXY(-0.4, 0.0);
+					cubes.out(0.4);
+				}
+
 				else {
 					drivetrain.disable();
 					cubes.disable();
 				}
 			}
-			
+
 			else {
 				drivetrain.setRotation(0.5);
 				drivetrain.setXY(0.0, 0.0);
@@ -194,267 +297,193 @@ public class Robot extends IterativeRobot {
 			}
 			break;
 
-			case CenterAutoPlus:
-				if (ourSwitch == 'L') {
-					if (autoTime < 2.1) {
-						drivetrain.setPolar(1.0, -32.0);
-						drivetrain.setAngle(0.0);
-						cubes.setLiftPosition(18.0);
-					}
-					
-					else if (autoTime < 2.25) {
-						cubes.out(1.0);
-					}
-					
-					else if (autoTime < 2.7) {
-						drivetrain.setPolar(1.0, 135.0);
-					}
-					
-					else if (autoTime < 3.0) {
-						cubes.intake(1.0,  1.0);
-						drivetrain.setXY(0.0, 0.35);
-					}
-					
-					else if (autoTime < 3.5) {
-						drivetrain.setPolar(1.0, -170);
-						drivetrain.setAngle(-179.0);
-					}
-					
-					else if (autoTime < 4.0) {
-						drivetrain.setXY(-0.4, 0.0);
-						cubes.out(0.4);
-					}
-					
-					else {
-						drivetrain.disable();
-						cubes.disable();
-					}
-				}
-
-				else if (ourSwitch == 'R') {
-					if (autoTime < 2.1) {
-						drivetrain.setPolar(1.0, 35);
-						drivetrain.setAngle(0.0);
-						cubes.setLiftPosition(18.0);
-					}
-					
-					else if (autoTime < 2.25) {
-						cubes.out(1.0);
-					}
-					
-					else if (autoTime < 2.7) {
-						drivetrain.setPolar(1.0, -135.0);
-					}
-					
-					else if (autoTime < 3.0) {
-						cubes.intake(1.0,  1.0);
-						drivetrain.setXY(0.0, 0.35);
-					}
-					
-					else if (autoTime < 3.5) {
-						drivetrain.setPolar(1.0, -170);
-						drivetrain.setAngle(-179.0);
-					}
-					
-					else if (autoTime < 4.0) {
-						drivetrain.setXY(-0.4, 0.0);
-						cubes.out(0.4);
-					}
-					
-					else {
-						drivetrain.disable();
-						cubes.disable();
-					}
-				}
-				
-				else {
-					drivetrain.setRotation(0.5);
-					drivetrain.setXY(0.0, 0.0);
-					cubes.disable();
-				}
-				break;
-
-			default:
-				// Should never be ran
-				break;
-			}
-
-			SmartDashboard.putNumber("Auto Time", Math.round(autoTime*100d)/100d);
-			SmartDashboard.putString("Auto Mode:", autoSelected);
-
-
-			// Call (albeit unreliable) current match time; good to have on SmartDash
-			double matchTime = DS.getMatchTime();	
-			int matchSecs = ((int)matchTime%60);
-			int matchMins = (int)(matchTime/60);
-			String matchTimeString = matchMins + ":" + matchSecs;
-			SmartDashboard.putString("Match Time", matchTimeString);
-			
-			SmartDashboard.putNumber("Heading", drivetrain.robotState.getRotation());
-			SmartDashboard.putNumber("Rotational Speed", drivetrain.robotState.getRotationVelocity());
-			SmartDashboard.putNumber("X Position", drivetrain.robotState.getDisplacementX());
-			SmartDashboard.putNumber("Y Position", drivetrain.robotState.getDisplacementY());
-			SmartDashboard.putNumber("Lift Height", cubes.liftHeight());
+		default:
+			// Should never be ran
+			break;
 		}
 
-		/**
-		 * This function is called periodically during operator control
-		 */
-
-		@Override
-		public void teleopInit() {
-			drivetrain.enable();
-			cubes.enable();
-			cubes.setLiftRelative(0.0);
-		}
-
-		@Override
-		public void teleopPeriodic() {
-			double matchTime = DS.getMatchTime();	
-			int matchSecs = ((int)matchTime%60);
-			int matchMins = (int)(matchTime/60);
-			String matchTimeString = matchMins + ":" + matchSecs;
-			SmartDashboard.putString("Match Time", matchTimeString);
-
-			// Misc Controls
-			if (rotationStick.getRawButton(2)) {
-				drivetrain.robotState.resetAngle();
-			}
-			if (matchTime == 30) {
-				operator.setRumble(GenericHID.RumbleType.kLeftRumble, 0.8);
-				operator.setRumble(GenericHID.RumbleType.kRightRumble, 0.8);
-
-			}
-
-			// XY controls
-//			if (operator.getPOV(0) != -1) {
-//				drivetrain.setPolar(0.35, operator.getPOV());
-//			}
-//			else 
-			if (mainStick.getRawButton(1)) {
-				drivetrain.setPrecision(-mainStick.getRawAxis(0), -mainStick.getRawAxis(1));
-			}
-			else {
-				drivetrain.setXY(-(mainStick.getRawAxis(0)*Math.sqrt(Math.abs(mainStick.getRawAxis(0)))),
-						-(mainStick.getRawAxis(1)*Math.sqrt(Math.abs(mainStick.getRawAxis(1)))));
-			}
-
-			// Rotation Controls
-//			if (operator.getPOV(0) != -1) {
-//				drivetrain.setAngle(180.0);
-//			}
-//			else 
-			if (rotationStick.getRawButton(3)) {
-				drivetrain.setRotation(0.2);
-			}
-			else if (rotationStick.getRawButton(4)) {
-				drivetrain.setRotation(-0.2);
-			}
-			else if (rotationStick.getMagnitude() > 0.5) {
-				drivetrain.setAngle(((rotationStick.getDirectionDegrees()+360)%360));
-			}
-			else if (rotationStick.getRawAxis(3) >= 0.35) {
-				drivetrain.setRotation(rotationStick.getRawAxis(3) - 0.35);
-			}
-			else if (rotationStick.getRawAxis(3) <= -0.35) {
-				drivetrain.setRotation(rotationStick.getRawAxis(3) + 0.35);
-			}
-			else {
-				drivetrain.holdRotation();
-			}		
-
-			// Mechanism controls
-			if (operator.getRawAxis(2)>0.2) {
-				cubes.intake(1.0, 1.0);
-			}
-			else if (operator.getXButton()) {
-				cubes.out(1.0);
-			}
-			else {
-				cubes.stopWheels();
-			}
+		SmartDashboard.putNumber("Auto Time", Math.round(autoTime*100d)/100d);
+		SmartDashboard.putString("Auto Mode Selected:", autoSelected);
 
 
-			if (operator.getPOV() == 0) {
-				cubes.setLiftPosition(19.0);
-			}
-			else if (operator.getPOV() == 180) {
-				cubes.setLiftPosition(0.0);
-			}
-			else if (operator.getPOV() == 270 ) {
-				cubes.setLiftPosition(9.0);
-			}
-			else if (operator.getPOV() == 90) {
-				cubes.setLiftPosition(3.0);
-			}
-			if (Math.abs(operator.getY(Hand.kLeft)) > 0.1) {
-				cubes.setLiftSpeed(-operator.getY(Hand.kLeft));
-			}
+		// Call (albeit unreliable) current match time; good to have on SmartDash
+		double matchTime = DS.getMatchTime();	
+		int matchSecs = ((int)matchTime%60);
+		int matchMins = (int)(matchTime/60);
+		String matchTimeString = matchMins + ":" + matchSecs;
+		SmartDashboard.putString("Match Time", matchTimeString);
 
-
-//			if (operator.getBumper(Hand.kRight)) {
-//				cubes.setWristPosition(90.0);
-//			}
-//			else if (operator.getBumper(Hand.kLeft)) {
-//				cubes.setWristPosition(0.0);
-//			}
-//			else 
-			if (Math.abs(operator.getY(Hand.kRight))>0.1) {
-				cubes.setWristSpeed(operator.getY(Hand.kRight));
-			}
-			else {
-				cubes.setWristSpeed(0.0);
-			}
-
-
-			//SmartDashboard Displays
-			SmartDashboard.putNumber("Heading", drivetrain.robotState.getRotation());
-			SmartDashboard.putNumber("Rotational Speed", drivetrain.robotState.getRotationVelocity());
-			SmartDashboard.putNumber("X Position", drivetrain.robotState.getDisplacementX());
-			SmartDashboard.putNumber("Y Position", drivetrain.robotState.getDisplacementY());
-			SmartDashboard.putNumber("Lift Height", cubes.liftHeight());
-			
-
-
-		}
-
-		/**
-		 * This function is not necessary but a good practice to make sure that you aren't telling anything to
-		 * try to move when the robot is stopped
-		 */
-		@Override
-		public void disabledInit() {
-			drivetrain.disable();
-			cubes.disable();
-		}
-
-		@Override
-		public void disabledPeriodic() {		
-			SmartDashboard.putNumber("Heading", drivetrain.robotState.getRotation());
-			SmartDashboard.putNumber("Rotational Speed", drivetrain.robotState.getRotationVelocity());
-			SmartDashboard.putNumber("X Position", drivetrain.robotState.getDisplacementX());
-			SmartDashboard.putNumber("Y Position", drivetrain.robotState.getDisplacementY());
-			SmartDashboard.putNumber("Lift Height", cubes.liftHeight());
-
-		}
-
-
-		@Override
-		public void testInit() {
-//			cubes.enable();
-			drivetrain.enable();
-		}
-
-		/**
-		 * This function is called periodically during test mode
-		 */
-		@Override
-		public void testPeriodic() {
-//			cubes.setLiftPosition(20);
-//			cubes.setWristPosition(0.0);
-			drivetrain.newSetAngle(((rotationStick.getDirectionDegrees()+360)%360));
-			SmartDashboard.putNumber("Lift Height", cubes.liftHeight());
-
-		}
+		SmartDashboard.putNumber("Heading", drivetrain.robotState.getRotation());
+		SmartDashboard.putNumber("Rotational Speed", drivetrain.robotState.getRotationVelocity());
+		SmartDashboard.putNumber("X Position", drivetrain.robotState.getDisplacementX());
+		SmartDashboard.putNumber("Y Position", drivetrain.robotState.getDisplacementY());
+		SmartDashboard.putNumber("Lift Height", cubes.liftHeight());
 	}
+
+	/**
+	 * This function is called periodically during operator control
+	 */
+
+	@Override
+	public void teleopInit() {
+		drivetrain.enable();
+		cubes.enable();
+		cubes.setLiftRelative(0.0);
+	}
+
+	@Override
+	public void teleopPeriodic() {
+		double matchTime = DS.getMatchTime();	
+		int matchSecs = ((int)matchTime%60);
+		int matchMins = (int)(matchTime/60);
+		String matchTimeString = matchMins + ":" + matchSecs;
+		SmartDashboard.putString("Match Time", matchTimeString);
+
+		// Misc Controls
+		if (rotationStick.getRawButton(2)) {
+			drivetrain.robotState.resetAngle();
+		}
+		if (matchTime == 30) {
+			operator.setRumble(GenericHID.RumbleType.kLeftRumble, 0.8);
+			operator.setRumble(GenericHID.RumbleType.kRightRumble, 0.8);
+		}
+		else {
+			operator.setRumble(GenericHID.RumbleType.kLeftRumble, 0.0);
+			operator.setRumble(GenericHID.RumbleType.kRightRumble, 0.0);
+		}
+
+		// XY controls
+		//			if (operator.getPOV(0) != -1) {
+		//				drivetrain.setPolar(0.35, operator.getPOV());
+		//			}
+		//			else 
+		if (mainStick.getRawButton(1)) {
+			drivetrain.setPrecision(-mainStick.getRawAxis(0), -mainStick.getRawAxis(1));
+		}
+		else {
+			drivetrain.setXY(-(mainStick.getRawAxis(0)*Math.sqrt(Math.abs(mainStick.getRawAxis(0)))),
+					-(mainStick.getRawAxis(1)*Math.sqrt(Math.abs(mainStick.getRawAxis(1)))));
+		}
+
+		// Rotation Controls
+		//			if (operator.getPOV(0) != -1) {
+		//				drivetrain.setAngle(180.0);
+		//			}
+		//			else 
+		if (rotationStick.getRawButton(3)) {
+			drivetrain.setRotation(0.2);
+		}
+		else if (rotationStick.getRawButton(4)) {
+			drivetrain.setRotation(-0.2);
+		}
+		else if (rotationStick.getMagnitude() > 0.5) {
+			drivetrain.setAngle(((rotationStick.getDirectionDegrees()+360)%360));
+		}
+		else if (rotationStick.getRawAxis(3) >= 0.35) {
+			drivetrain.setRotation(rotationStick.getRawAxis(3) - 0.35);
+		}
+		else if (rotationStick.getRawAxis(3) <= -0.35) {
+			drivetrain.setRotation(rotationStick.getRawAxis(3) + 0.35);
+		}
+		else {
+			drivetrain.holdRotation();
+		}		
+
+		// Mechanism controls
+		if (operator.getRawAxis(3)>0.2) {
+			cubes.intake(1.0, 1.0);
+		}
+		else if (operator.getXButton()) {
+			cubes.out(1.0);
+		}
+		else {
+			cubes.stopWheels();
+		}
+
+
+		if (operator.getPOV() == 0) {
+			cubes.setLiftPosition(20.5);
+		}
+		else if (operator.getPOV() == 180) {
+			cubes.setLiftPosition(0.5);
+		}
+		else if (operator.getPOV() == 270 ) {
+			cubes.setLiftPosition(9.0);
+		}
+		else if (operator.getPOV() == 90) {
+			cubes.setLiftPosition(3.0);
+		}
+		if (-operator.getY(Hand.kLeft) > 0.1) {
+			cubes.setLiftSpeed(0.7);
+		}
+		if (-operator.getY(Hand.kLeft) < -0.1) {
+			cubes.setLiftSpeed(-0.7);
+		}
+
+
+		//			if (operator.getBumper(Hand.kRight)) {
+		//				cubes.setWristPosition(90.0);
+		//			}
+		//			else if (operator.getBumper(Hand.kLeft)) {
+		//				cubes.setWristPosition(0.0);
+		//			}
+		//			else 
+		if (Math.abs(operator.getY(Hand.kRight))>0.1) {
+			cubes.setWristSpeed(-operator.getY(Hand.kRight));
+		}
+		else {
+			cubes.setWristSpeed(0.0);
+		}
+
+
+		//SmartDashboard Displays
+		SmartDashboard.putNumber("Heading", drivetrain.robotState.getRotation());
+		SmartDashboard.putNumber("Rotational Speed", drivetrain.robotState.getRotationVelocity());
+		SmartDashboard.putNumber("X Position", drivetrain.robotState.getDisplacementX());
+		SmartDashboard.putNumber("Y Position", drivetrain.robotState.getDisplacementY());
+		SmartDashboard.putNumber("Lift Height", cubes.liftHeight());
+
+
+
+	}
+
+	/**
+	 * This function is not necessary but a good practice to make sure that you aren't telling anything to
+	 * try to move when the robot is stopped
+	 */
+	@Override
+	public void disabledInit() {
+		drivetrain.disable();
+		cubes.disable();
+	}
+
+	@Override
+	public void disabledPeriodic() {		
+		SmartDashboard.putNumber("Heading", drivetrain.robotState.getRotation());
+		SmartDashboard.putNumber("Rotational Speed", drivetrain.robotState.getRotationVelocity());
+		SmartDashboard.putNumber("X Position", drivetrain.robotState.getDisplacementX());
+		SmartDashboard.putNumber("Y Position", drivetrain.robotState.getDisplacementY());
+		SmartDashboard.putNumber("Lift Height", cubes.liftHeight());
+
+	}
+
+
+	@Override
+	public void testInit() {
+		//			cubes.enable();
+		drivetrain.enable();
+	}
+
+	/**
+	 * This function is called periodically during test mode
+	 */
+	@Override
+	public void testPeriodic() {
+		//			cubes.setLiftPosition(20);
+		//			cubes.setWristPosition(0.0);
+		//			drivetrain.newSetAngle(((rotationStick.getDirectionDegrees()+360)%360));
+		//			SmartDashboard.putNumber("Lift Height", cubes.liftHeight());
+
+	}
+}
 

@@ -52,7 +52,7 @@ public class Wrist {
 	}
 	
 	public void set(double speed) {
-		wristMotor.set(speed);
+		wristMotor.set(-speed);
 	}
 
 	public void disable() {

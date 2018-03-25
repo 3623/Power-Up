@@ -191,6 +191,10 @@ public class RobotTelemetry {
 	public double getRotationAcceleration() {
 		return r.getAcceleration();
 	}
+	
+	public boolean isRotating() {
+		return navx.isRotating();
+	}
 
 	public double getAngle() {
 		return correctAngle(r.getPosition());
