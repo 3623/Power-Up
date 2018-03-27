@@ -166,7 +166,7 @@ public class Robot extends IterativeRobot {
 			break;
 
 		case CenterAutoDumb:
-			if (autoTime < 1.8) {
+			if (autoTime < 2.6) {
 				cubes.setWristSpeed(-1.0);
 			}
 			else {
@@ -174,14 +174,19 @@ public class Robot extends IterativeRobot {
 			}
 
 			if (ourSwitch == 'L') {
-				if (autoTime < 1.78) {
+				if (autoTime < 1.61) {
 					drivetrain.setPolar(1.0, -23.0);
 					drivetrain.setAngle(0.0);
 					cubes.setLiftPosition(18.0);
 				}
+				
+				else if (autoTime < 2.0) {
+					drivetrain.setXY(0.0, 0.0);
+				}
 
 				else if (autoTime < 2.5) {
-					cubes.out(1.0);
+					drivetrain.setXY(0.0, 0.0);
+					cubes.out(1.0);	
 				}
 
 				else {
@@ -191,13 +196,18 @@ public class Robot extends IterativeRobot {
 			}
 
 			else if (ourSwitch == 'R') {
-				if (autoTime < 1.78) {
-					drivetrain.setPolar(1.0, 19.5);
+				if (autoTime < 1.6) {
+					drivetrain.setPolar(1.0, 19.0);
 					drivetrain.setAngle(0.0);
 					cubes.setLiftPosition(18.0);
 				}
+				
+				else if (autoTime < 2.0) {
+					drivetrain.setXY(0.0, 0.0);
+				}
 
 				else if (autoTime < 2.5) {
+					drivetrain.setXY(0.0, 0.0);
 					cubes.out(1.0);
 				}
 

@@ -18,7 +18,7 @@ public class Lift extends PIDSubsystem {
 		super("Lift", 0.8, 0.007, 0.75);
 		setInputRange(0.0, 40.0);
 		setOutputRange(-0.67, 0.95);
-		setAbsoluteTolerance(1.0);
+		setAbsoluteTolerance(1.6);
 
 		liftPot = new AnalogPotentiometer(potChannel, -55.5, 54.95);
 		topSwitch = new DigitalInput(topDIO);
