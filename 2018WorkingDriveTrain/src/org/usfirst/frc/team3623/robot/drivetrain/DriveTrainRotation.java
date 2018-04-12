@@ -198,12 +198,12 @@ public class DriveTrainRotation {
 				else {
 					setAngle(correctedGyroAngle);
 					lastMode = Mode.HOLD;
-					outputSpeed = oldPointToRotate(setAngle, correctedGyroAngle, 0.8);
+					outputSpeed = oldPointToRotate(setAngle, correctedGyroAngle, 1.0);
 				}
 			}
 			else {
 				lastMode = Mode.HOLD;
-				outputSpeed = oldPointToRotate(setAngle, correctedGyroAngle, 0.8);
+				outputSpeed = oldPointToRotate(setAngle, correctedGyroAngle, 1.0);
 			}
 			break;
 			
