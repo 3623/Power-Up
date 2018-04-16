@@ -57,8 +57,9 @@ public class Robot extends IterativeRobot {
 	final String ExchangeThenCross = "Exchange Then Cross Line";
 	final String PlaceCube = "Place in Switch if ours";
 	final String CenterAutoDumb = "Spider Y 2 Bananas Basic";
-	final String CenterAutoPlus = "Spider Y 2 Bananas + Exchange";
+//	final String CenterAutoPlus = "Spider Y 2 Bananas + Exchange";
 	final String CenterAutoTwo = "Spider Y 2 Bananas + Switch";
+	final String CenterAutoThree = "Spider Y 2 Bananas + Switch x 2";
 	String autoSelected;
 	SendableChooser<String> autoModeChooser = new SendableChooser<String>();
 
@@ -88,8 +89,9 @@ public class Robot extends IterativeRobot {
 		autoModeChooser.addDefault(CrossLineBack, CrossLineBack);
 		autoModeChooser.addObject(CrossLineLong, CrossLineLong);
 		autoModeChooser.addObject(CenterAutoDumb, CenterAutoDumb);
-		autoModeChooser.addObject(CenterAutoPlus, CenterAutoPlus);
+//		autoModeChooser.addObject(CenterAutoPlus, CenterAutoPlus);
 		autoModeChooser.addObject(CenterAutoTwo, CenterAutoTwo);
+//		autoModeChooser.addObject(CenterAutoThree, CenterAutoThree);
 		SmartDashboard.putData("Auto Modes:", autoModeChooser);
 
 	}
@@ -175,7 +177,7 @@ public class Robot extends IterativeRobot {
 			}
 
 			if (ourSwitch == 'L') {
-				if (autoTime < 1.61) {
+				if (autoTime < 1.58) {
 					drivetrain.setPolar(1.0, -23.0);
 					drivetrain.setAngle(0.0);
 					cubes.setLiftPosition(18.0);
@@ -198,7 +200,7 @@ public class Robot extends IterativeRobot {
 
 			else if (ourSwitch == 'R') {
 				if (autoTime < 1.63) {
-					drivetrain.setPolar(1.0, 19.);
+					drivetrain.setPolar(1.0, 19.3);
 					drivetrain.setAngle(0.0);
 					cubes.setLiftPosition(18.0);
 				}
@@ -228,111 +230,111 @@ public class Robot extends IterativeRobot {
 			/*
 			 * 
 			 */
-		case CenterAutoPlus:
-			if (autoTime < 2.0) {
-				cubes.setWristSpeed(-1.0);
-			}
-			else {
-				cubes.setWristSpeed(0.0);
-			}
-			
-			if (ourSwitch == 'L') {
-				if (autoTime < 1.61) {
-					drivetrain.setPolar(1.0, -23.0);
-					drivetrain.setAngle(0.0);
-					cubes.setLiftPosition(18.0);
-				}
-				
-				else if (autoTime < 2.0) {
-					drivetrain.setXY(0.0, 0.0);
-				}
-
-				else if (autoTime < 2.2) {
-					drivetrain.setXY(0.0, 0.0);
-					cubes.out(1.0);	
-				}
-
-				else if (autoTime < 3.6) {
-					cubes.stopWheels();
-					drivetrain.setPolar(1.0, 135.0);
-					cubes.setLiftPosition(0.5);
-				}
-
-				else if (autoTime < 4.7) {
-					cubes.intake(1.0,  1.0);
-					drivetrain.setXY(0.0, 0.7);
-				}
-
-				else if (autoTime < 6.3) {
-					drivetrain.setPolar(1.0, -142);
-					drivetrain.setAngle(-175.0);
-					cubes.setLiftPosition(2.0);
-				}
-
-				else if (autoTime < 6.5) {
-					drivetrain.setPolar(0.4, -165);
-					cubes.out(1.0);
-				}
-
-				else {
-					drivetrain.setXY(0.0, 0.0);
-					cubes.disable();
-				}
-			}
-
-			else if (ourSwitch == 'R') {
-				if (autoTime < 1.63) {
-					drivetrain.setPolar(1.0, 19.3);
-					drivetrain.setAngle(0.0);
-					cubes.setLiftPosition(18.0);
-				}
-				
-				else if (autoTime < 2.0) {
-					drivetrain.setXY(0.0, 0.0);
-				}
-
-				else if (autoTime < 2.2) {
-					drivetrain.setXY(0.0, 0.0);
-					cubes.out(1.0);
-				}
-
-				else if (autoTime < 3.6) {
-					cubes.stopWheels();
-					drivetrain.setPolar(1.0, -135.0);
-					cubes.setLiftPosition(0.5);
-				}
-
-				else if (autoTime < 4.7) {
-					cubes.intake(1.0,  1.0);
-					drivetrain.setXY(0.0, 0.7);
-				}
-
-				else if (autoTime < 6.3) {
-					drivetrain.setPolar(1.0, -142);
-					drivetrain.setAngle(-175.0);
-					cubes.setLiftPosition(2.0);
-				}
-
-				else if (autoTime < 6.5) {
-					drivetrain.setPolar(0.4, -165);
-					cubes.out(1.0);
-				}
-
-				else {
-					drivetrain.setXY(0.0, 0.0);
-					cubes.disable();
-				}
-			}
-
-			else {
-				drivetrain.setRotation(0.5);
-				drivetrain.setXY(0.0, 0.0);
-				cubes.disable();
-			}
-			break;
+//		case CenterAutoPlus:
+//			if (autoTime < 2.0) {
+//				cubes.setWristSpeed(-1.0);
+//			}
+//			else {
+//				cubes.setWristSpeed(0.0);
+//			}
+//			
+//			if (ourSwitch == 'L') {
+//				if (autoTime < 1.61) {
+//					drivetrain.setPolar(1.0, -23.0);
+//					drivetrain.setAngle(0.0);
+//					cubes.setLiftPosition(18.0);
+//				}
+//				
+//				else if (autoTime < 2.0) {
+//					drivetrain.setXY(0.0, 0.0);
+//				}
+//
+//				else if (autoTime < 2.2) {
+//					drivetrain.setXY(0.0, 0.0);
+//					cubes.out(1.0);	
+//				}
+//
+//				else if (autoTime < 3.6) {
+//					cubes.stopWheels();
+//					drivetrain.setPolar(1.0, 135.0);
+//					cubes.setLiftPosition(0.5);
+//				}
+//
+//				else if (autoTime < 4.7) {
+//					cubes.intake(1.0,  1.0);
+//					drivetrain.setXY(0.0, 0.7);
+//				}
+//
+//				else if (autoTime < 6.3) {
+//					drivetrain.setPolar(1.0, -142);
+//					drivetrain.setAngle(-175.0);
+//					cubes.setLiftPosition(2.0);
+//				}
+//
+//				else if (autoTime < 6.5) {
+//					drivetrain.setPolar(0.4, -165);
+//					cubes.out(1.0);
+//				}
+//
+//				else {
+//					drivetrain.setXY(0.0, 0.0);
+//					cubes.disable();
+//				}
+//			}
+//
+//			else if (ourSwitch == 'R') {
+//				if (autoTime < 1.63) {
+//					drivetrain.setPolar(1.0, 19.3);
+//					drivetrain.setAngle(0.0);
+//					cubes.setLiftPosition(18.0);
+//				}
+//				
+//				else if (autoTime < 2.0) {
+//					drivetrain.setXY(0.0, 0.0);
+//				}
+//
+//				else if (autoTime < 2.2) {
+//					drivetrain.setXY(0.0, 0.0);
+//					cubes.out(1.0);
+//				}
+//
+//				else if (autoTime < 3.6) {
+//					cubes.stopWheels();
+//					drivetrain.setPolar(1.0, -135.0);
+//					cubes.setLiftPosition(0.5);
+//				}
+//
+//				else if (autoTime < 4.7) {
+//					cubes.intake(1.0,  1.0);
+//					drivetrain.setXY(0.0, 0.7);
+//				}
+//
+//				else if (autoTime < 6.3) {
+//					drivetrain.setPolar(1.0, -142);
+//					drivetrain.setAngle(-175.0);
+//					cubes.setLiftPosition(2.0);
+//				}
+//
+//				else if (autoTime < 6.5) {
+//					drivetrain.setPolar(0.4, -165);
+//					cubes.out(1.0);
+//				}
+//
+//				else {
+//					drivetrain.setXY(0.0, 0.0);
+//					cubes.disable();
+//				}
+//			}
+//
+//			else {
+//				drivetrain.setRotation(0.5);
+//				drivetrain.setXY(0.0, 0.0);
+//				cubes.disable();
+//			}
+//			break;
 			
 		case CenterAutoTwo:
-			if (autoTime < 2.0) {
+			if (autoTime < 1.9) {
 				cubes.setWristSpeed(-1.0);
 			}
 			else {
@@ -340,43 +342,44 @@ public class Robot extends IterativeRobot {
 			}
 			
 			if (ourSwitch == 'L') {
-				if (autoTime < 1.61) {
+				if (autoTime < 1.58) {
 					drivetrain.setPolar(1.0, -23.0);
 					drivetrain.setAngle(0.0);
-					cubes.setLiftPosition(18.0);
+					cubes.setLiftPosition(20.3);
 				}
 				
 				else if (autoTime < 2.0) {
 					drivetrain.setXY(0.0, 0.0);
 				}
 
-				else if (autoTime < 2.2) {
+				else if (autoTime < 2.5) {
 					drivetrain.setXY(0.0, 0.0);
 					cubes.out(1.0);	
 				}
 
-				else if (autoTime < 3.6) {
+				else if (autoTime < 3.9) {
 					cubes.stopWheels();
-					drivetrain.setPolar(1.0, 135.0);
+					drivetrain.setPolar(1.0, 133.0);
 					cubes.setLiftPosition(0.5);
 				}
 
-				else if (autoTime < 4.7) {
+				else if (autoTime < 5.1) {
 					cubes.intake(1.0,  1.0);
 					drivetrain.setXY(0.0, 0.7);
 				}
 				
-				else if (autoTime < 5.4) {
+				else if (autoTime < 5.7) {
+					cubes.stopWheels();
 					drivetrain.setPolar(1.0, -100.0);
 				}
 
-				else if (autoTime < 6.3) {
-					drivetrain.setPolar(1.0, -45.0);
+				else if (autoTime < 6.9) {
+					drivetrain.setPolar(1.0, -35.0);
 					drivetrain.setAngle(0.0);
-					cubes.setLiftPosition(19.0);
+					cubes.setLiftPosition(20.3);
 				}
 
-				else if (autoTime < 6.5) {
+				else if (autoTime < 7.2) {
 					drivetrain.setXY(0.0, 0.0);
 					cubes.out(1.0);
 				}
@@ -391,41 +394,42 @@ public class Robot extends IterativeRobot {
 				if (autoTime < 1.63) {
 					drivetrain.setPolar(1.0, 19.3);
 					drivetrain.setAngle(0.0);
-					cubes.setLiftPosition(18.0);
+					cubes.setLiftPosition(20.3);
 				}
 				
 				else if (autoTime < 2.0) {
 					drivetrain.setXY(0.0, 0.0);
 				}
 
-				else if (autoTime < 2.2) {
+				else if (autoTime < 2.5) {
 					drivetrain.setXY(0.0, 0.0);
 					cubes.out(1.0);
 				}
 
-				else if (autoTime < 3.6) {
+				else if (autoTime < 3.9) {
 					cubes.stopWheels();
 					drivetrain.setPolar(1.0, -135.0);
 					cubes.setLiftPosition(0.5);
 				}
 
-				else if (autoTime < 4.7) {
+				else if (autoTime < 5.0) {
 					cubes.intake(1.0,  1.0);
 					drivetrain.setXY(0.0, 0.7);
 				}
 				
-				else if (autoTime < 5.4) {
+				else if (autoTime < 5.7) {
+					cubes.stopWheels();
 					drivetrain.setPolar(1.0, 100.0);
 				}
 
-				else if (autoTime < 6.3) {
-					drivetrain.setPolar(1.0, 45.0);
+				else if (autoTime < 6.9) {
+					drivetrain.setPolar(1.0, 35.0);
 					drivetrain.setAngle(0.0);
-					cubes.setLiftPosition(19.0);
+					cubes.setLiftPosition(20.3);
 				}
 
-				else if (autoTime < 6.5) {
-					drivetrain.setXY(-0.4, 0.0);
+				else if (autoTime < 7.2) {
+					drivetrain.setXY(-0.0, 0.0);
 					cubes.out(1.0);
 				}
 
@@ -442,7 +446,136 @@ public class Robot extends IterativeRobot {
 			}
 			break;
 			
+//		case CenterAutoThree:
+//			if (autoTime < 2.0) {
+//				cubes.setWristSpeed(-1.0);
+//			}
+//			else {
+//				cubes.setWristSpeed(0.0);
+//			}
+//			
+//			if (ourSwitch == 'L') {
+//				if (autoTime < 1.58) {
+//					drivetrain.setPolar(1.0, -23.0);
+//					drivetrain.setAngle(0.0);
+//					cubes.setLiftPosition(18.0);
+//				}
+//				
+//				else if (autoTime < 2.0) {
+//					drivetrain.setXY(0.0, 0.0);
+//				}
+//
+//				else if (autoTime < 2.2) {
+//					drivetrain.setXY(0.0, 0.0);
+//					cubes.out(1.0);	
+//				}
+//
+//				else if (autoTime < 3.6) {
+//					cubes.stopWheels();
+//					drivetrain.setPolar(1.0, 133.0);
+//					cubes.setLiftPosition(0.5);
+//				}
+//
+//				else if (autoTime < 4.7) {
+//					cubes.intake(1.0,  1.0);
+//					drivetrain.setXY(0.0, 0.7);
+//				}
+//				
+//				else if (autoTime < 5.4) {
+//					cubes.stopWheels();
+//					drivetrain.setPolar(1.0, -100.0);
+//				}
+//
+//				else if (autoTime < 6.7) {
+//					drivetrain.setPolar(1.0, -35.0);
+//					drivetrain.setAngle(0.0);
+//					cubes.setLiftPosition(19.0);
+//				}
+//
+//				else if (autoTime < 6.9) {
+//					drivetrain.setXY(0.0, 0.0);
+//					cubes.out(1.0);
+//				}
+//				
+//				else if (autoTime < 8.2) {
+//					cubes.stopWheels();
+//					drivetrain.setPolar(1.0, 125.0);
+//					drivetrain.setAngle(20);
+//					cubes.setLiftPosition(0.5);
+//				}
+//
+//				else {
+//					drivetrain.setXY(0.0, 0.0);
+//					cubes.disable();
+//				}
+//			}
+//
+//			else if (ourSwitch == 'R') {
+//				if (autoTime < 1.63) {
+//					drivetrain.setPolar(1.0, 19.3);
+//					drivetrain.setAngle(0.0);
+//					cubes.setLiftPosition(18.0);
+//				}
+//				
+//				else if (autoTime < 2.0) {
+//					drivetrain.setXY(0.0, 0.0);
+//				}
+//
+//				else if (autoTime < 2.2) {
+//					drivetrain.setXY(0.0, 0.0);
+//					cubes.out(1.0);
+//				}
+//
+//				else if (autoTime < 3.6) {
+//					cubes.stopWheels();
+//					drivetrain.setPolar(1.0, -135.0);
+//					cubes.setLiftPosition(0.5);
+//				}
+//
+//				else if (autoTime < 4.7) {
+//					cubes.intake(1.0,  1.0);
+//					drivetrain.setXY(0.0, 0.7);
+//				}
+//				
+//				else if (autoTime < 5.4) {
+//					cubes.stopWheels();
+//					drivetrain.setPolar(1.0, 100.0);
+//				}
+//
+//				else if (autoTime < 6.7) {
+//					drivetrain.setPolar(1.0, 35.0);
+//					drivetrain.setAngle(0.0);
+//					cubes.setLiftPosition(19.0);
+//				}
+//
+//				else if (autoTime < 6.9) {
+//					drivetrain.setXY(-0.0, 0.0);
+//					cubes.out(1.0);
+//				}
+//				
+//				else if (autoTime < 8.2) {
+//					cubes.stopWheels();
+//					drivetrain.setPolar(1.0, -135.0);
+//					drivetrain.setAngle(-20);
+//					cubes.setLiftPosition(0.5);
+//				}
+//
+//				else {
+//					drivetrain.setXY(0.0, 0.0);
+//					cubes.disable();
+//				}
+//			}
+//
+//			else {
+//				drivetrain.setRotation(0.5);
+//				drivetrain.setXY(0.0, 0.0);
+//				cubes.disable();
+//			}
+//			break;
+//			
 
+			
+			
 		default:
 			// Should never be ran
 			break;
