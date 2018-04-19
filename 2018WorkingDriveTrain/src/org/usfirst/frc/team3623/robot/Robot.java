@@ -461,10 +461,10 @@ public class Robot extends IterativeRobot {
 			drivetrain.setAngle(((rotationStick.getDirectionDegrees()+360)%360));
 		}
 		else if (rotationStick.getRawAxis(3) >= 0.35) {
-			drivetrain.setRotation(rotationStick.getRawAxis(3) - 0.35);
+			drivetrain.setRotation(rotationStick.getRawAxis(3)*0.4 - 0.35);
 		}
 		else if (rotationStick.getRawAxis(3) <= -0.35) {
-			drivetrain.setRotation(rotationStick.getRawAxis(3) + 0.35);
+			drivetrain.setRotation(rotationStick.getRawAxis(3)*0.4 + 0.35);
 		}
 		else {
 			drivetrain.holdRotation();
@@ -483,19 +483,19 @@ public class Robot extends IterativeRobot {
 		}
 
 		// Lift
-		if (operator.getPOV() == 0) {
+		if (operator.getPOV() == 0) { // Switch height
 			cubes.setLiftPosition(20.5);
 		}
-		else if (operator.getPOV() == 180) {
+		else if (operator.getPOV() == 180) { // Floor height
 			cubes.setLiftPosition(0.5);
 		}
-		else if (operator.getPOV() == 270 ) {
+		else if (operator.getPOV() == 270 ) { // 2nd Cube height
 			cubes.setLiftPosition(9.0);
 		}
-		else if (operator.getPOV() == 90) {
+		else if (operator.getPOV() == 90) { // Exchange height
 			cubes.setLiftPosition(3.0);
 		}
-		else if (operator.getYButton()) {
+		else if (operator.getYButton()) { // Cube flip height
 			cubes.setLiftPosition(5.5);
 		}
 		else if (-operator.getY(Hand.kLeft) > 0.1) {
