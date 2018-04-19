@@ -4,7 +4,7 @@ import edu.wpi.first.wpilibj.PIDController;
 
 public class DriveTrainRotation {
 	private static final double maxSpeedChange = 0.04;
-	private static final double MAX_SPEED = 0.65;
+	private static final double MAX_SPEED = 0.75;
 	private double setAngle;
 	private double setSpeed;
 	private double lastSpeed;
@@ -180,7 +180,7 @@ public class DriveTrainRotation {
 			break;
 
 		case PTR:
-			outputSpeed = oldPointToRotate(setAngle, correctedGyroAngle, 1.0);
+			outputSpeed = oldPointToRotate(setAngle, correctedGyroAngle, 1.5);
 			lastMode = Mode.PTR;
 			break;
 

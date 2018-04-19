@@ -9,20 +9,20 @@ import edu.wpi.first.wpilibj.interfaces.Potentiometer;
 public class Lift extends PIDSubsystem {
 	private Spark liftMotor;
 	private Potentiometer liftPot;
-	private DigitalInput topSwitch, bottomSwitch;
+//	private DigitalInput topSwitch, bottomSwitch;
 	private boolean atTop, atBottom;
 	private double offset;
 	
 
 	public Lift(int liftMotorPWM, int potChannel, int topDIO, int bottomDIO, double potOffset) {
-		super("Lift", 0.55, 0.007, 0.4);
+		super("Lift", 0.4, 0.05, 0.25);
 		setInputRange(0.0, 40.0);
-		setOutputRange(-0.85, 1.0);
-		setAbsoluteTolerance(1.6);
+		setOutputRange(-0.9, 1.0);
+		setAbsoluteTolerance(1.0);
 
 		liftPot = new AnalogPotentiometer(potChannel, -55.5, 54.95);
-		topSwitch = new DigitalInput(topDIO);
-		bottomSwitch = new DigitalInput(bottomDIO);
+//		topSwitch = new DigitalInput(topDIO);
+//		bottomSwitch = new DigitalInput(bottomDIO);
 
 		liftMotor = new Spark(liftMotorPWM);
 	}
@@ -52,8 +52,8 @@ public class Lift extends PIDSubsystem {
 	}
 	
 	private void updateLimits() {
-		atTop = (topSwitch.get() || liftPot.get() > 20.0);
-		atBottom = (liftPot.get() < 1.0);
+		atTop = (liftPot.get() > 20.5);
+		atBottom = (liftPot.get() < 0.5);
 	}
 	
 	public double getLift() {
