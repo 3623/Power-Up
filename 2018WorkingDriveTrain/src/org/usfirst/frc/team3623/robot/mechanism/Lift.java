@@ -15,7 +15,7 @@ public class Lift extends PIDSubsystem {
 	
 
 	public Lift(int liftMotorPWM, int potChannel, int topDIO, int bottomDIO, double potOffset) {
-		super("Lift", 0.4, 0.05, 0.25);
+		super("Lift", 0.4, 0.05, 0.17);
 		setInputRange(0.0, 40.0);
 		setOutputRange(-0.9, 1.0);
 		setAbsoluteTolerance(1.0);

@@ -180,7 +180,7 @@ public class DriveTrainRotation {
 			break;
 
 		case PTR:
-			outputSpeed = oldPointToRotate(setAngle, correctedGyroAngle, 1.5);
+			outputSpeed = oldPointToRotate(setAngle, correctedGyroAngle, 2.5);
 			lastMode = Mode.PTR;
 			break;
 
@@ -198,7 +198,7 @@ public class DriveTrainRotation {
 				else {
 					setAngle(correctedGyroAngle);
 					lastMode = Mode.HOLD;
-					outputSpeed = oldPointToRotate(setAngle, correctedGyroAngle, 0.8);
+					outputSpeed = oldPointToRotate(setAngle, correctedGyroAngle, 1.0);
 				}
 			}
 			else {
@@ -208,7 +208,7 @@ public class DriveTrainRotation {
 			break;
 			
 		case INCREMENT:
-			outputSpeed = oldPointToRotate(setAngle, correctedGyroAngle, 1.3);
+			outputSpeed = oldPointToRotate(setAngle, correctedGyroAngle, 1.0);
 			lastMode = Mode.INCREMENT;
 			break;
 		}
