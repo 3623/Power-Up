@@ -370,13 +370,11 @@ public class Robot extends IterativeRobot {
 //								cubes.intake(1.0,  1.0);
 //								drivetrain.setXY(0.0, 0.7);
 //							}
-			//
 //							else if (autoTime < 6.3) {
 //								drivetrain.setPolar(1.0, -142);
 //								drivetrain.setAngle(-175.0);
 //								cubes.setLiftPosition(2.0);
 //							}
-			//
 //							else if (autoTime < 6.5) {
 //								drivetrain.setPolar(0.4, -165);
 //								cubes.out(1.0);
@@ -472,10 +470,10 @@ public class Robot extends IterativeRobot {
 
 			// Mechanism controls
 		// Intake wheels
-		if (operator.getRawAxis(3)>0.2) {
+		if (operator.getRawAxis(3)>0.2) { // In
 			cubes.intake(1.0, 1.0);
 		}
-		else if (operator.getXButton()) {
+		else if (operator.getXButton()) { // Out
 			cubes.out(1.0);
 		}
 		else {
