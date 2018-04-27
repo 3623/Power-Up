@@ -269,17 +269,17 @@ public class Robot extends IterativeRobot {
 					drivetrain.setPolar(1.0, -105.0);
 				}
 
-				else if (autoTime < 6.65) { // Drive to switch
+				else if (autoTime < 6.7) { // Drive to switch
 					drivetrain.setPolar(1.0, -35.0);
 					drivetrain.setAngle(0.0);
 					cubes.setLiftPosition(20.3);
 				}
 				
-				else if (autoTime < 7.2) { // Coast
+				else if (autoTime < 7.3) { // Coast
 					drivetrain.setXY(0.0, 0.0);
 				}
 
-				else if (autoTime < 7.5) { // Spit
+				else if (autoTime < 7.6) { // Spit
 					drivetrain.setXY(0.0, 0.0);
 					cubes.out(1.0);
 				}
