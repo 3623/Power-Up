@@ -544,6 +544,9 @@ public class Robot extends IterativeRobot {
 //		SmartDashboard.putNumber("X Position", drivetrain.robotState.getDisplacementX());
 //		SmartDashboard.putNumber("Y Position", drivetrain.robotState.getDisplacementY());
 		SmartDashboard.putNumber("Lift Height", cubes.liftHeight());
+		
+		autoSelected = autoModeChooser.getSelected();
+		SmartDashboard.putString("Auto Mode Selected:", autoSelected);
 	}
 
 

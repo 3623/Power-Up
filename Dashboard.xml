@@ -1,0 +1,78 @@
+<xml version="1.0">
+<dashboard>
+	<widget field="Rotational Speed" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.FormattedField">
+		<location x="687" y="134"/>
+		<width>229</width>
+		<property name="Foreground" value="51.255.0.255"/>
+		<property name="Background" value="0.0.0.255"/>
+		<property name="Font Size" value="72"/>
+	</widget>
+	<static-widget class="edu.wpi.first.smartdashboard.gui.elements.ConnectionIndicator">
+		<location x="1" y="0"/>
+		<width>1363</width>
+	</static-widget>
+	<widget field="Match Time" type="String" class="edu.wpi.first.smartdashboard.gui.elements.FormattedField">
+		<location x="290" y="34"/>
+		<width>382</width>
+		<property name="Foreground" value="255.255.255.255"/>
+		<property name="Background" value="0.0.0.255"/>
+		<property name="Font Size" value="144"/>
+	</widget>
+	<widget field="Heading" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.FormattedField">
+		<location x="730" y="35"/>
+		<width>184</width>
+		<property name="Foreground" value="255.255.0.255"/>
+		<property name="Background" value="0.0.0.255"/>
+		<property name="Font Size" value="72"/>
+	</widget>
+	<widget field="Auto Mode Selected:" type="String" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="7" y="159"/>
+		<width>230</width>
+		<height>20</height>
+	</widget>
+	<widget field="Auto Time" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="7" y="184"/>
+	</widget>
+	<widget field="Lift Height" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="985" y="44"/>
+	</widget>
+	<widget field="Auto Modes:" type="String Chooser" class="edu.wpi.first.smartdashboard.gui.elements.Chooser">
+		<location x="0" y="32"/>
+	</widget>
+</dashboard>
+<live-window>
+	<widget field="Ungrouped" type="LW Subsystem" class="edu.wpi.first.smartdashboard.livewindow.elements.LWSubsystem">
+		<widget field="Spark[5]" type="Speed Controller" class="edu.wpi.first.smartdashboard.livewindow.elements.SpeedController">
+			<location x="6" y="16"/>
+			<height>46</height>
+			<width>293</width>
+		</widget>
+		<widget field="AnalogPotentiometer[0]" type="Analog Input" class="edu.wpi.first.smartdashboard.livewindow.elements.SingleNumberDisplay">
+			<location x="6" y="62"/>
+			<height>20</height>
+			<width>293</width>
+		</widget>
+		<widget field="Spark[7]" type="Speed Controller" class="edu.wpi.first.smartdashboard.livewindow.elements.SpeedController">
+			<location x="6" y="82"/>
+			<height>46</height>
+			<width>293</width>
+		</widget>
+		<widget field="Spark[4]" type="Speed Controller" class="edu.wpi.first.smartdashboard.livewindow.elements.SpeedController">
+			<location x="6" y="128"/>
+			<height>46</height>
+			<width>293</width>
+		</widget>
+		<widget field="Spark[6]" type="Speed Controller" class="edu.wpi.first.smartdashboard.livewindow.elements.SpeedController">
+			<location x="6" y="174"/>
+			<height>46</height>
+			<width>293</width>
+		</widget>
+		<location x="0" y="21"/>
+		<width>305</width>
+		<height>227</height>
+	</widget>
+	<widget field="Lift" type="Subsystem" class="edu.wpi.first.smartdashboard.gui.elements.Subsystem">
+		<location x="0" y="0"/>
+	</widget>
+</live-window>
+</xml>
