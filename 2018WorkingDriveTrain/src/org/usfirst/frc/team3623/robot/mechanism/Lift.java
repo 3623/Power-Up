@@ -15,10 +15,10 @@ public class Lift extends PIDSubsystem {
 	
 
 	public Lift(int liftMotorPWM, int potChannel, int topDIO, int bottomDIO, double potOffset) {
-		super("Lift", 0.4, 0.05, 0.17);
+		super("Lift", 0.55, 0.04, 0.38);
 		setInputRange(0.0, 40.0);
-		setOutputRange(-0.9, 1.0);
-		setAbsoluteTolerance(1.0);
+		setOutputRange(-0.75, 1.0);
+		setAbsoluteTolerance(2.0);
 
 		liftPot = new AnalogPotentiometer(potChannel, -55.5, 54.95);
 //		topSwitch = new DigitalInput(topDIO);
@@ -52,8 +52,8 @@ public class Lift extends PIDSubsystem {
 	}
 	
 	private void updateLimits() {
-		atTop = (liftPot.get() > 20.5);
-		atBottom = (liftPot.get() < 0.5);
+		atTop = (liftPot.get() > 20.2);
+		atBottom = (liftPot.get() < 0.8);
 	}
 	
 	public double getLift() {

@@ -170,7 +170,7 @@ public class Robot extends IterativeRobot {
 			break;
 
 		case CenterAutoDumb:
-			if (autoTime < 2.0) {
+			if (autoTime < 1.4) {
 				cubes.setWristSpeed(-1.0);
 			}
 			else {
@@ -178,13 +178,13 @@ public class Robot extends IterativeRobot {
 			}
 
 			if (ourSwitch == 'L') {
-				if (autoTime < 1.58) { // Drive out
+				if (autoTime < 1.6) { // Drive out
 					drivetrain.setPolar(1.0, -23.0);
 					drivetrain.setAngle(0.0);
 					cubes.setLiftPosition(18.0);
 				}
 				
-				else if (autoTime < 1.85) { // Coast
+				else if (autoTime < 2.0) { // Coast
 					drivetrain.setXY(0.0, 0.0);
 				}
 
@@ -200,13 +200,13 @@ public class Robot extends IterativeRobot {
 			}
 
 			else if (ourSwitch == 'R') {
-				if (autoTime < 1.6) { // Drive out
+				if (autoTime < 1.62) { // Drive out
 					drivetrain.setPolar(1.0, 19.3);
 					drivetrain.setAngle(0.0);
 					cubes.setLiftPosition(18.0);
 				}
 				
-				else if (autoTime < 1.85) { // Coast to fence
+				else if (autoTime < 2.0) { // Coast to fence
 					drivetrain.setXY(0.0, 0.0);
 				}
 
@@ -230,7 +230,7 @@ public class Robot extends IterativeRobot {
 
 				
 		case CenterAutoTwo:
-			if (autoTime < 1.9) {
+			if (autoTime < 1.62) {
 				cubes.setWristSpeed(-1.0);
 			}
 			else {
@@ -238,48 +238,48 @@ public class Robot extends IterativeRobot {
 			}
 			
 			if (ourSwitch == 'L') {
-				if (autoTime < 1.58) { //Drive out
-					drivetrain.setPolar(1.0, -23.0);
+				if (autoTime < 1.61) { //Drive out
+					drivetrain.setPolar(1.0, -22.0);
 					drivetrain.setAngle(0.0);
 					cubes.setLiftPosition(20.3);
 				}
 				
-				else if (autoTime < 1.85) { // Coast to fence
+				else if (autoTime < 2.0) { // Coast to fence
 					drivetrain.setXY(0.0, 0.0);
 				}
 
-				else if (autoTime < 2.5) { //Spit
+				else if (autoTime < 2.7) { //Spit
 					drivetrain.setXY(0.0, 0.0);
 					cubes.out(1.0);	
 				}
 
-				else if (autoTime < 3.9) { //Drive back to line up with pyr
+				else if (autoTime < 4.1) { //Drive back to line up with pyr
 					cubes.stopWheels();
-					drivetrain.setPolar(1.0, 133.0);
+					drivetrain.setPolar(1.0, 123.0);
 					cubes.setLiftPosition(0.5);
 				}
 
-				else if (autoTime < 5.1) { // Drive forward and swallow
+				else if (autoTime < 5.3) { // Drive forward and swallow
 					cubes.intake(1.0,  1.0);
 					drivetrain.setXY(0.0, 0.7);
 				}
 				
-				else if (autoTime < 5.7) { //Drive to side to clear pyr
+				else if (autoTime < 5.9) { //Drive to side to clear pyr
 					cubes.stopWheels();
-					drivetrain.setPolar(1.0, -100.0);
+					drivetrain.setPolar(1.0, -105.0);
 				}
 
-				else if (autoTime < 6.6) { // Drive to switch
+				else if (autoTime < 6.65) { // Drive to switch
 					drivetrain.setPolar(1.0, -35.0);
 					drivetrain.setAngle(0.0);
 					cubes.setLiftPosition(20.3);
 				}
 				
-				else if (autoTime < 7.0) { // Coast
+				else if (autoTime < 7.2) { // Coast
 					drivetrain.setXY(0.0, 0.0);
 				}
 
-				else if (autoTime < 7.3) { // Spit
+				else if (autoTime < 7.5) { // Spit
 					drivetrain.setXY(0.0, 0.0);
 					cubes.out(1.0);
 				}
@@ -291,48 +291,48 @@ public class Robot extends IterativeRobot {
 			}
 
 			else if (ourSwitch == 'R') {
-				if (autoTime < 1.6) { // Drive to switch
+				if (autoTime < 1.635) { // Drive to switch
 					drivetrain.setPolar(1.0, 19.3);
 					drivetrain.setAngle(0.0);
 					cubes.setLiftPosition(20.3);
 				}
 				
-				else if (autoTime < 1.85) { // Coast
+				else if (autoTime < 2.1) { // Coast
 					drivetrain.setXY(0.0, 0.0);
 				}
 
-				else if (autoTime < 2.5) { // Spit
+				else if (autoTime < 2.7) { // Spit
 					drivetrain.setXY(0.0, 0.0);
 					cubes.out(1.0);
 				}
 
-				else if (autoTime < 3.9) { // Back to de choppa
+				else if (autoTime < 4.1) { // Back to de choppa
 					cubes.stopWheels();
 					drivetrain.setPolar(1.0, -135.0);
 					cubes.setLiftPosition(0.5);
 				}
 
-				else if (autoTime < 5.0) { // Drive to pyr and swallow
-					cubes.intake(1.0,  1.0);
-					drivetrain.setXY(0.0, 0.7);
+				else if (autoTime < 5.5) { // Drive to pyr and swallow
+					cubes.intake(1.0, 1.0);
+					drivetrain.setXY(0.0, 0.6);
 				}
 				
-				else if (autoTime < 5.7) { // Clear the pyr
+				else if (autoTime < 6.1) { // Clear the pyr
 					cubes.stopWheels();
-					drivetrain.setPolar(1.0, 100.0);
+					drivetrain.setPolar(1.0, 105.0);
 				}
 
-				else if (autoTime < 6.6) { // Drive back to the switch
+				else if (autoTime < 6.85) { // Drive back to the switch
 					drivetrain.setPolar(1.0, 35.0);
 					drivetrain.setAngle(0.0);
 					cubes.setLiftPosition(20.3);
 				}
 
-				else if (autoTime < 7.0) { // Coast
+				else if (autoTime < 7.4) { // Coast
 					drivetrain.setXY(0.0, 0.0);
 				}
 				
-				else if (autoTime < 7.3) { // Spit
+				else if (autoTime < 7.7) { // Spit
 					drivetrain.setXY(0.0, 0.0);
 					cubes.out(1.0);
 				}
@@ -459,10 +459,10 @@ public class Robot extends IterativeRobot {
 			drivetrain.setAngle(((rotationStick.getDirectionDegrees()+360)%360));
 		}
 		else if (rotationStick.getRawAxis(3) >= 0.35) {
-			drivetrain.setRotation(rotationStick.getRawAxis(3)*0.4 - 0.35);
+			drivetrain.setRotation((rotationStick.getRawAxis(3)) - 0.3);
 		}
 		else if (rotationStick.getRawAxis(3) <= -0.35) {
-			drivetrain.setRotation(rotationStick.getRawAxis(3)*0.4 + 0.35);
+			drivetrain.setRotation(rotationStick.getRawAxis(3) + 0.3);
 		}
 		else {
 			drivetrain.holdRotation();
